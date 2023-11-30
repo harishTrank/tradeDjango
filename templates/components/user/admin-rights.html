@@ -1,11 +1,11 @@
- <div class="create-profile">
+ <div class="create-profile" id="admin-rights">
     <div class="create-profile-inside"> 
         <div class="top-body flex align-center space-bw align-center">
             <div class="flex admin-right">
                 <p>Admin Rights</p>
              </div>
              <div>
-                 <a href=""><i class="fa-solid fa-x"></i></a>
+                <i class="fa-solid fa-x adminRightClose"></i>
              </div>
         </div>
         <div class="middle-body">
@@ -30,21 +30,31 @@
            </div>
           </div>
           <div class="flex toggle-btm space-bw">
-           <div>toggle</div>
+           <div>
+            <label class="switch">
+                <input onClick="callToggleApi({{i.client.id}}, `bet`)" type="checkbox" {% if i.client.bet %} checked {% endif %}>
+                <span class="slider round"></span>
+            </label>
+           </div>
            <div><p>Give rights to his down user?</p></div>
           </div>
           <div class="save-cancel-btn flex space-bw">
            <button>Save</button>
-           <button>Cancel</button>
+           <button class="adminRightClose">Cancel</button>
           </div>
          </div>
 </div>
+
+
+<style>
+#admin-rights{
+    display:none;
+}
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Montserrat;
 }
 
 li {
@@ -98,6 +108,7 @@ a{
     z-index: 999;
     background: #e7e7e7;
     border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
 .admin-right i{
   margin-right: 8px;
@@ -138,7 +149,7 @@ input {
     margin: 8px 0px;
 }
 .common-font p b{
-    font-size: 12px;
+    font-size: 16px;
 }
 .save-cancel-btn {
     padding: 0px 45px;
@@ -155,3 +166,8 @@ input {
     color: #fff;
     border: none;
 }
+</style>
+
+<script>
+    $(".adminRightClose").click(() => $("#admin-rights").css("display","none"))
+</script>
