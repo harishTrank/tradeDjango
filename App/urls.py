@@ -13,5 +13,6 @@ urlpatterns = [
     path("position/", PositionManager.as_view(), name="position"),
     path("position-coins/", PositionCoinsManager.as_view(), name="position-coins"),
     path("trade-particular-view/<int:id>", TradeParticularViewApi.as_view(), name="trade-particular-view/"),
-    path("permission-toggle/", MyUserPerissionToggle.as_view(), name="permission-toggle")
+    path("permission-toggle/", MyUserPerissionToggle.as_view(), name="permission-toggle"),
+    path("change-passwordweb-api/", ChangePasswordWebAPI.as_view(), name="change-passwordweb-api"),
 ]

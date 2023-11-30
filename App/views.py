@@ -14,6 +14,10 @@ from django.http import Http404
 from django.contrib.auth.hashers import make_password
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Sum, Avg , Q
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+
+
 class LoginApi(APIView):
     permission_classes = [AllowAny,]
 
@@ -401,5 +405,23 @@ class MyUserPerissionToggle(APIView):
             return Response({"success": True}, status=status.HTTP_200_OK)
         except:
             return Response({"success": False}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ChangePasswordWebAPI(APIView):
+    def post(self, request):
+        user_name = request.data["user_name"]
+        new_password = request.data["new_password"]
+        confirm_password = request.data["confirm_password"]
+        try:
+            user = MyUser.objects.get(user_name=user_name)
+        except MyUser.DoesNotExist:
+            return Response({"success": False, "message": "User Doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
         
+        if new_password == confirm_password:
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)
+            return Response({"success": True, "message": "Password change succesfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"success": False, "message": "New passwords do not match!"}, status=status.HTTP_404_NOT_FOUND)
 # --------
