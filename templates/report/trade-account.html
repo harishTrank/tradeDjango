@@ -1,0 +1,80 @@
+{% extends "index.html" %} {% block content %}
+
+<div class="tab-content" id="tradeaccount">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="trade-btm">
+                <div>
+                    <label for="">Username:</label>
+                    <select name="" id="">
+                        <option value="">All</option>
+                        <option value="">Successful</option>
+                        <option value="">Pending</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="">Search:</label>
+                    <input type="text">
+                </div>
+                <div>
+                    <label for=""></label>
+                    <input type="submit" value="View" class="form-btn">
+                    <input type="submit" value="Clear" class="cancel-btn">
+                </div>
+            </div>
+        </div>
+        <div class="trades-body user-table">
+            <button class="delete-btn">Delete</button>
+            <table style="width: 100%;">
+                <tr>
+                    <th>Username</th>
+                    <th>ParentUser</th>
+                    <th>PL</th>
+                    <th>Brk</th>
+                    <th>Balance</th>
+                    <th>Equity</th>
+                    <th>Credit</th>
+                    <th>Net P/L</th>
+                    <th>M2M P/L</th>
+                    <th>MarginUsed</th>
+                    <th>FreeMargin</th>
+                    <th>MarginLevel</th>
+                </tr>
+                <tr>
+                    <td>Username</td>
+                    <td>ParentUser</td>
+                    <td>PL</td>
+                    <td>Brk</td>
+                    <td>Balance</td>
+                    <td>Equity</td>
+                    <td>Credit</td>
+                    <td>Net P/L</td>
+                    <td>M2M P/L</td>
+                    <td>MarginUsed</td>
+                    <td>FreeMargin</td>
+                    <td>MarginLevel</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

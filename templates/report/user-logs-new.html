@@ -1,0 +1,115 @@
+{% extends "index.html" %} {% block content %}
+
+<div class="tab-content" id="logsnew">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="trade-btm">
+                <div>
+                    <label for="">Log Type:</label>
+                    <select name="" id="">
+                        <option value="">Bet</option>
+                        <option value="">Close Only</option>
+                        <option value="">Margin Square off</option>
+                        <option value="">Status</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="">Username:</label>
+                    <select name="" id="">
+                        <option value="">DEM999</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="">From:</label>
+                    <input type="date" name="" id="">
+                </div>
+                <div>
+                    <label for="">To:</label>
+                    <input type="date" name="" id="">
+                </div>
+                <div>
+                    <label for=""></label>
+                    <input type="submit" value="View" class="form-btn">
+                    <input type="submit" value="Clear" class="cancel-btn">
+                </div>
+            </div>
+        </div>
+        <div class="trades-body user-table">
+            <button class="delete-btn">Delete</button>
+            <table style="width: 100%;">
+                <tr>
+                    <th>Name</th>
+                    <th>Old Bet</th>
+                    <th>New Bet</th>
+                    <th>Old CloseOnly</th>
+                    <th>New CloseOnly</th>
+                    <th>Old Margin Squareoff</th>
+                    <th>New Margin Squareoff</th>
+                    <th>Old User Status</th>
+                    <th>New User Status</th>
+                    <th>Old % Cash Margin</th>
+                    <th>% Cash Margin</th>
+                    <th>Old Fresh StopLoss</th>
+                    <th>Fresh StopLoss</th>
+                    <th>Old GroupName</th>
+                    <th>GroupName</th>
+                    <th>Old ReadOnly</th>
+                    <th>ReadOnly</th>
+                    <th>Intraday SquareOff</th>
+                    <th>Old Intraday SquareOff</th>
+                    <th>Exchange Name</th>
+                    <th>UpdatedOn</th>
+                    <th>UpdatedBy</th>
+                    <th>Old UpdatedOn</th>
+                    <th>Old UpdatedBy</th>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>Old Bet</td>
+                    <td>New Bet</td>
+                    <td>Old CloseOnly</td>
+                    <td>New CloseOnly</td>
+                    <td>Old Margin Squareoff</td>
+                    <td>New Margin Squareoff</td>
+                    <td>Old User Status</td>
+                    <td>New User Status</td>
+                    <td>Old % Cash Margin</td>
+                    <td>% Cash Margin</td>
+                    <td>Old Fresh StopLoss</td>
+                    <td>Fresh StopLoss</td>
+                    <td>Old GroupName</td>
+                    <td>GroupName</td>
+                    <td>Old ReadOnly</td>
+                    <td>ReadOnly</td>
+                    <td>Intraday SquareOff</td>
+                    <td>Old Intraday SquareOff</td>
+                    <td>Exchange Name</td>
+                    <td>UpdatedOn</td>
+                    <td>UpdatedBy</td>
+                    <td>Old UpdatedOn</td>
+                    <td>Old UpdatedBy</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

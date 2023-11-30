@@ -1,0 +1,158 @@
+{% extends "index.html" %} {% block content %}
+
+<div class="tab-content" id="position">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <form method="get">
+                {% csrf_token %}
+            <div class="trade-btm">
+                <div>
+                    <label for="">Username:</label>
+                    <input name="user_name" type="text">
+                </div>
+                <div>
+                    <label for="">Exchange:</label>
+                    <select name="ex_change" id="">
+                        <option value="">All Exchanges</option>
+                        <option value="MCX">MCX</option>
+                        <option value="NSE">NSE</option>
+                        <option value="NFO">NFO</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="coin_name">Symbols:</label>
+                    <select name="coin_name" id="coin_name">
+                        <option value="">All Symbols</option>
+                        {% for coin in user_coin_names %}
+                            <option value="{{ coin }}">{{ coin }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for=""></label>
+                    <button type="submit" value="View" class="form-btn">View</button>
+                    <a style="color:#fff !important;padding: 2px 10px;" href="{% url 'Admin:positions' %}" value="Clear" class="cancel-btn">Clear</a>
+                </div>
+            </div>
+        </form>
+        </div>
+        <div class="trades-body user-table">
+            <table style="width: 100%;">
+                
+                <tr>
+                    <th>Exchange</th>
+                    <th>Symbol</th>
+                    <th>Position</th>
+                    <th>Quantity</th>
+                    <th>Average Rate</th>
+                    <th>CMP</th>
+                    <th>Profit / Loss</th>
+                </tr>
+                {% for i in response %}
+                <tr>
+                    <td id="ex{{i.identifer}}">{{i.ex_change}}</td>
+                    <td>{{i.coin_name}}</td>
+
+                    {% if i.total_quantity > 0 %}
+                        <td style="color: blue" >BUY</td>
+                        <td style="color: blue">{{i.total_quantity |stringformat:"+d"|slice:"1:"}}</td>
+                    {% else %}
+                        <td style="color: red" >SELL</td>
+                        <td style="color: red">{{i.total_quantity |stringformat:"+d"|slice:"1:"}}</td>
+                    {% endif %}
+                    <td>{{ i.avg_price|floatformat:"2" }}</td>
+                    <td id="cmp{{i.identifer}}"></td>
+                    <td id="{{i.identifer}}"></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const identifer = JSON.parse("{{identifer|safe}}".replaceAll(`'`, `"`));
+    const current_user_result = JSON.parse("{{response|safe}}".replaceAll(`'`, `"`));
+    const socket = io("http://13.127.239.118:5000"); 
+    const profitLossHandler = (item, socketResponse) => {
+        return (
+        
+          item?.total_quantity > 0
+            ? (socketResponse?.BuyPrice - item?.avg_price) *
+              item?.total_quantity *
+              socketResponse?.QuotationLot
+            : (item?.avg_price - socketResponse?.SellPrice) *
+              Math.abs(item?.total_quantity) *
+              socketResponse?.QuotationLot
+              ).toFixed(2);
+             
+    };
+    
+
+    const updateTotalPrice = (socketResponse) => {
+        return current_user_result
+          .map(item => {
+            const findSocketVal = socketResponse.find(findObject =>
+                findObject?.InstrumentIdentifier === item?.identifer
+            );
+            return (
+              item?.total_quantity > 0
+                ? (findSocketVal?.BuyPrice - item?.avg_price) *
+                  item?.total_quantity *
+                  findSocketVal?.QuotationLot
+                : (item?.avg_price - findSocketVal?.SellPrice) *
+                  Math.abs(item?.total_quantity) *
+                  findSocketVal?.QuotationLot
+            ).toFixed(2);
+          })
+          .reduce((partialSum, a) => Number(partialSum) + Number(a), 0);
+      };
+  
+    socket.on("connect", () => {
+        console.log("Connected to the Socket.io server");
+    });
+    socket.emit("filterDataGet", {"identifier": identifer });
+    socket.on("filterDataSend", (data) => {
+        data.map(itemObj =>{ 
+            //console.log("itemObj.BuyPrice",itemObj.BuyPrice)
+            //console.log("itemObj.SellPrice",itemObj.SellPrice)
+            
+            $(`#cmp${itemObj.InstrumentIdentifier}`).html(current_user_result.find(findObj => findObj.identifer === itemObj.InstrumentIdentifier)?.total_quantity > 0 ? itemObj.BuyPrice : itemObj.SellPrice);
+            $(`#ex${itemObj.InstrumentIdentifier}`).html(itemObj.Exchange);
+            const result = profitLossHandler(current_user_result.find(findObj => findObj.identifer === itemObj.InstrumentIdentifier), itemObj);
+            $(`#${itemObj.InstrumentIdentifier}`).html(result);
+            if (result && result > 0 ){
+                $(`#${itemObj.InstrumentIdentifier}`).css("color","blue")
+            }else{
+                $(`#${itemObj.InstrumentIdentifier}`).css("color","red")
+            }
+        })
+
+        const totalProfitLoss = updateTotalPrice(data);
+        //console.log("totalProfitLoss", totalProfitLoss)
+    });
+    socket.on("disconnect", () => {
+        console.log("Disconnected from the Socket.io server");
+    });
+</script>
+
+{% endblock content %}

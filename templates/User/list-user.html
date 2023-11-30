@@ -1,0 +1,240 @@
+{% extends "index.html" %} {% block content %}
+
+<style>
+    
+    .new-table{
+        width: calc(100% - 30px);
+    }
+        .switch {
+          position: relative;
+          display: inline-block;
+          display: inline-block;
+          width: 42px;
+          height: 20px;
+          top: 2px;
+        }
+        
+        .switch input { 
+          opacity: 0;
+          width: 0;
+          height: 0;
+          box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+        }
+        
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+        
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 20px;
+          width: 20px;
+          left: 0px;
+          bottom: 0px;
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+        
+        input:checked + .slider {
+          background-color: #2196F3;
+        }
+        
+        input:focus + .slider {
+          box-shadow: 0 0 1px #2196F3;
+        }
+        
+        input:checked + .slider:before {
+          -webkit-transform: translateX(21px);
+          -ms-transform: translateX(21px);
+          transform: translateX(21px);
+        }
+        
+        /* Rounded sliders */
+        .slider.round {
+          border-radius: 34px;
+        }
+        
+        .slider.round:before {
+          border-radius: 50%;
+        }
+        .pos-relate{
+            position: relative;
+        }
+        .dropdown_action{
+            cursor: pointer;
+        }
+        .action_dropdown {
+            position: absolute;
+            background: #fff;
+            z-index: 99;
+            top: 47px;
+            left: 49px;
+            width: 200px;
+            box-shadow: 0px 0px 5px #d9d9d9;
+            display: none;
+            text-align: center;
+            border: solid;
+            border-width: 1px;
+        }
+        .action_dropdown li{
+            display:block;
+            cursor: pointer;
+
+        }
+        .action_dropdown li:hover{
+            background: skyblue;
+            border-radius: 5px;
+        }
+        .popupClass{
+            position:absolute;
+        }
+</style>
+{% comment %} popup admin {% endcomment %}
+
+
+
+
+<div class="tab-content" id="user-list">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href="{% url 'Admin:download-csv' %}"><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+        <div class="user-table new-table">
+            <h3>{{request.user.user_name}}</h3>
+            <table style="width: 100%;">
+                
+                <tr>
+                    <th>Edit</th>
+                    <th>Action</th>
+                    <th>Username</th>
+                    <th>Name</th>   
+                    <th>Type</th>
+                    <th>Parent</th>
+                    <th>Credit</th>
+                    <th>Balance</th>
+                    <th>Sharing%</th>
+                    <th>Bet</th>
+                    <th>Close Only</th>
+                    <th>Margin Sq..</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                    <th>Ip Address</th>
+                    <th>Device id</th>
+                    <th>Last Login</th>
+                </tr>
+
+                {% comment %} popup admin right {% endcomment %}
+
+                
+
+                <div class="pos-relate">
+                    <ul class="action_dropdown">
+                        <li><a onClick="changePasswordOpen()">Change Password</a></li>
+                        <li><a href="#">Share Details</a></li>
+                        <li><a href="#">Account Limit</a></li>
+                        <li><a href="#">Admin Rights</a></li>
+                        <li><a href="#">Market Trade Right</a></li>
+                        <li><a href="{% url 'Admin:add-user' %}">Create User</a></li>
+                        <li><a href="#">Set Readonly</a></li>
+                    </ul>
+                </div>
+                
+           {% for i in client %}
+                <tr>
+                    <td>
+                        <ul>
+                            <li>
+                                <i class="fa-solid fa-pen"></i>    
+                            </li>
+                        </ul>
+                    </td>
+                    <td class="pos-relate"> 
+                        <ul class="dropdown_action">
+                            <li>
+                                <i class="fa-solid fa-ellipsis"></i>  
+                               
+                            </li>
+                        </ul>
+                    </td>
+                    <td>{{i.client.user_name}}</td>
+                    <td>{{i.client.full_name}}</td>
+                    <td>{{i.client.user_type}}</td>
+                    <td>{{i.master_user_link.master_user.user_name}}</td>
+                    <td>{{i.client.credit}}</td>
+                    <td>{{i.client.balance}}</td>
+                    <td>00.0</td>
+                    {% if i.client.user_type == "Master" or i.client.user_type == "Client" %}
+                    <td>
+                        <label class="switch">
+                            <input onClick="callToggleApi({{i.client.id}}, `bet`)" type="checkbox" {% if i.client.bet %} checked {% endif %}>
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input onClick="callToggleApi({{i.client.id}}, `close_only`)" type="checkbox" {% if i.client.close_only %} checked {% endif %}>
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input onClick="callToggleApi({{i.client.id}}, `margin_sq`)" type="checkbox" {% if i.client.margin_sq %} checked {% endif %}>
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input onClick="callToggleApi({{i.client.id}}, `status`)" type="checkbox" {% if i.client.status %} checked {% endif %}>
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    {% else %}
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    {% endif %}
+                    <td>{{i.client.created_at}}</td>
+                    <td>{{i.buy_sell_user.ip_address}}</td>
+                    <td>Device id</td>
+                    <td>{{i.client.last_login }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('.dropdown_action').click(function(){
+        $('.action_dropdown').toggle();
+    })
+
+    const callToggleApi = (id, key) => {
+        $.ajax({
+            type:'POST',
+            url:'{% url "permission-toggle" %}',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            data: {
+                id,
+                key
+            }
+        })
+    }
+</script>
+{% endblock content %}

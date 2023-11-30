@@ -1,0 +1,95 @@
+{% extends "index.html" %} {% block content %}
+
+
+<div class="tab-content" id="accountsummary">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="trade-btm">
+                <div>
+                    <label for="">From:</label>
+                    <input type="date" name="" id="">
+                </div>
+                <div>
+                    <label for="">To:</label>
+                    <input type="date" name="" id="">
+                </div>
+                <div>
+                    <label for="">Username:</label>
+                    <select name="" id="">
+                        <option value="">DEM999</option>
+                    </select>
+                </div>
+                <div class="flex">
+                    <div class="mr flex">
+                        <p style="font-size: 14px; margin-right: 5px;">P/L</p>
+                        <input type="checkbox" name="" id="" class="unset mb-0">
+                    </div>
+                    <div class="mr flex">
+                        <p style="font-size: 14px; margin-right: 5px;">Brk</p>
+                        <input type="checkbox" name="" id="" class="unset mb-0">
+                    </div>
+                    <div class="mr flex">
+                        <p style="font-size: 14px; margin-right: 5px;">Credit</p>
+                        <input type="checkbox" name="" id="" class="unset mb-0">
+                    </div>
+                </div>
+                <div>
+                    <label for=""></label>
+                    <input type="submit" value="View" class="form-btn">
+                    <input type="submit" value="Clear" class="cancel-btn">
+                </div>
+            </div>
+        </div>
+        <div class="trades-body user-table">
+            <button class="delete-btn">Delete</button>
+            <table style="width: 100%;">
+                <tr>
+                    <th>Date</th>
+                    <th>Username</th>
+                    <th>Particular</th>
+                    <th>Qty</th>
+                    <th>Buy/Sell</th>
+                    <th>Price</th>
+                    <th>Average Price</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Closing</th>
+                    <th>Open Qty</th>
+                </tr>
+                <tr>
+                    <td>Date</td>
+                    <td>Username</td>
+                    <td>Particular</td>
+                    <td>Qty</td>
+                    <td>Buy/Sell</td>
+                    <td>Price</td>
+                    <td>Average Price</td>
+                    <td>Type</td>
+                    <td>Amount</td>
+                    <td>Closing</td>
+                    <td>Open Qty</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,137 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="tab-content" id="dashboard">
+  <div class="flex">
+      <div class="col-50">
+          <div class="left-area">
+              <div class="left-top">
+                  <div class="flex align-center">
+                      <div class="mr">
+                          <p>Filter:</p>
+                      </div>
+                      <div class="mr">
+                          <label>User:</label>
+                          <input type="text" class="form-group">
+                      </div>
+                      <div class="mr">
+                          <label>Show:</label>
+                          <select name="" id="" class="form-group">
+                              <option value="">Day</option>
+                              <option value="">Week</option>
+                              <option value="">Month</option>
+                          </select>
+                      </div>
+                      <div>
+                          <input type="submit" class="form-btn" value="View">
+                      </div>
+                  </div>
+              </div>
+              <div class="left-body flex">
+                  <div class="side-pannel">
+                      <div>
+                          <input type="checkbox">MCX
+                      </div>
+                      <div>
+                          <input type="checkbox">NSE
+                      </div>
+                      <div>
+                          <input type="checkbox">SGX
+                      </div>
+                      <div>
+                          <input type="checkbox">OTHERS
+                      </div>
+                      <div>
+                          <input type="checkbox">MINI
+                      </div>
+                      <div>
+                          <input type="checkbox">NCDEX
+                      </div>
+                      <div>
+                          <input type="checkbox">COMEX
+                      </div>
+                      <div>
+                          <input type="checkbox">CDS
+                      </div>
+                      <div>
+                          <input type="checkbox">CALLPUT
+                      </div>
+                  </div>
+                  <div class="pannel-body">
+                      <div class="tab-head">
+                          <li class="active" data-id="chart">Chart View</li>
+                          <li data-id="table">Table View</li>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="col-50">
+          <div class="left-area">
+              <div class="left-top">
+                  <div class="flex align-center">
+                      <div class="mr">
+                          <label>From:</label>
+                          <input type="date" class="form-group">
+                      </div>
+                      <div class="mr">
+                          <label>To:</label>
+                          <input type="date" class="form-group">
+                      </div>
+                      <div class="mr">
+                          <label>User</label>
+                          <input type="text" class="form-group">
+                      </div>
+                      <div class="mr">
+                          <label>Type:</label>
+                          <select name="" id="" class="form-group">
+                              <option value="">Top</option>
+                              <option value="">Bottom</option>
+                          </select>
+                      </div>
+                      <div>
+                          <input type="submit" class="form-btn" value="View">
+                      </div>
+                  </div>
+              </div>
+              <div class="left-body flex">
+                  <div class="side-pannel">
+                      <div>
+                          <input type="checkbox">MCX
+                      </div>
+                      <div>
+                          <input type="checkbox">NSE
+                      </div>
+                      <div>
+                          <input type="checkbox">SGX
+                      </div>
+                      <div>
+                          <input type="checkbox">OTHERS
+                      </div>
+                      <div>
+                          <input type="checkbox">MINI
+                      </div>
+                      <div>
+                          <input type="checkbox">NCDEX
+                      </div>
+                      <div>
+                          <input type="checkbox">COMEX
+                      </div>
+                      <div>
+                          <input type="checkbox">CDS
+                      </div>
+                      <div>
+                          <input type="checkbox">CALLPUT
+                      </div>
+                  </div>
+                  <div class="pannel-body">
+                      <div class="tab-head">
+                          <li class="active" data-id="chart">Chart View</li>
+                          <li data-id="table">Table View</li>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+{% endblock content %}

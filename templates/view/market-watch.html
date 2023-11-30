@@ -1,0 +1,188 @@
+{% extends "index.html" %} {% block content %}
+
+<style>
+    #loader {
+        border-width: 3px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, 50%);
+        width: 48px;
+        height: 48px;
+        border: 5px solid #000;
+        border-bottom-color: transparent;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+        }
+    
+        @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+        } 
+</style>
+<div class="tab-content" id="marketwatch">
+    <div class="user-table col-100">
+        <div class="market-top flex" style="margin:15px 0;">
+            <div class="mr">
+                <select onChange={selectCoinType()} class="form-group symbolKey">
+                    <option>Select</option>
+                    <option>MCX</option>
+                    <option>NFO</option>
+                </select>
+            </div>
+            <div>
+                <div class="mr">
+                    <select onChange={selectSymbolHandler()} class="form-group symbol">
+                        <option>Select</option>
+                    </select>
+                </div>
+                {% comment %} <input id="" type="text" class="form-group"> {% endcomment %}
+            </div>
+        </div>
+        <table style="width: 100%;">
+            <div id="loader" style="display: none;"></div>
+            <tr>
+                <th>Exchange</th>
+                <th>Symbol</th>
+                <th>Buy Qty</th>
+                <th>Buy Price</th>
+                <th>Sell Price</th>
+                <th>Sell Qty</th>
+                <th>LTP</th>
+                <th>Net Change</th>
+                <th>Open</th>
+                <th>High</th>
+                <th>LUT</th>
+                <th>Low</th>
+                <th>Close</th>
+            </tr>
+            <tbody id="data-table-body">
+               
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+  const socket = io("http://13.127.239.118:5000"); 
+
+    function showLoader() {
+        document.getElementById('loader').style.display = 'block';
+    }
+    function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
+    }
+    let identifiers;
+
+    socket.on("connect", () => {
+        console.log("Connected to the Socket.io server");
+      });
+    
+      identifiers = "{{identifiers|safe}}";
+      identifier = JSON.parse(identifiers.replaceAll(`'`, `"`))
+      socket.emit("filterDataGet", {"identifier": identifier });
+
+        socket.on("filterDataSend", (data) => {
+
+        const tableBody = document.getElementById('data-table-body');
+    
+        tableBody.innerHTML = '';
+    
+        data.forEach((item) => {
+            const row = document.createElement('tr');
+    
+            row.innerHTML = `
+                <td>${item.Exchange}</td>
+                <td>${item.InstrumentIdentifier}</td>
+                <td>${item.BuyQty}</td>
+                <td>${item.BuyPrice}</td>
+                <td>${item.SellPrice}</td>
+                <td>${item.SellQty}</td>
+                <td>${item.LastTradePrice}</td>
+                <td>${item.PriceChange}</td>
+                <td>${item.Open}</td>
+                <td>${item.High}</td>
+                <td>${item.LastTradeTime}</td>
+                <td>${item.Low}</td>
+                <td>${item.Close}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    });
+    function showLoader() {
+        document.getElementById('loader').style.display = 'none';
+    }
+    socket.on("disconnect", () => {
+        console.log("Disconnected from the Socket.io server");
+    });
+
+  {% comment %}  api to ftach all coin  {% endcomment %}
+  let response;
+  $.ajax({
+    type: "GET",
+    url: 'http://13.127.239.118:5000/api/tradeCoin',
+    success: function (data) {
+      console.log(data); 
+      let symbolKey = $(".symbolKey").val();
+      if (symbolKey === "Select") {
+        symbolKey = "";
+      }
+      response = data.response;
+      response
+      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
+      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
+      .map(item => {
+        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
+      })
+
+    },
+    error: function (xhr, status, error) {
+      console.error('Error:', error);
+    }
+  });
+
+  const selectSymbolHandler = () => {
+    let result = $(".symbol").val();
+    console.log("result", result, '{% url "add-market-coin" %}');
+
+    $.ajax({
+        type:'POST',
+        url:'{% url "add-market-coin" %}',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {
+            trade_coin_id: result
+        },
+        success:function(res){
+            //identifier.push(result);
+            window.location.reload();
+        },
+        error:function(res){
+          alert(res?.responseJSON.message);
+        }
+    })
+  }
+
+  const selectCoinType = () => {
+    let symbolKey = $(".symbolKey").val();
+    if (symbolKey === "Select") {
+        symbolKey = "";    
+    }
+    $(".symbol").empty();
+    $(".symbol").html("<option>Select</option>");
+    response
+      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
+      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
+      .map(item => {
+        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
+    })
+  }
+
+</script>
+
+
+{% endblock content %}

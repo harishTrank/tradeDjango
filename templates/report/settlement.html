@@ -1,0 +1,51 @@
+{% extends "index.html" %} {% block content %}
+
+
+  <div class="tab-content" id="scriptquantity">
+            <div class="trade-btm">
+                <div class="mb-10">
+                    <label for="">Exchange:</label>
+                    <select name="" id="" style="width: 250px;" class="form-control">
+                        <option value="">All</option>
+                        <option value="">MCX</option>
+                        <option value="">NSE</option>
+                        <option value="">MINI</option>
+                    </select>
+                </div>
+            </div>
+            <div class="user-table col-100">
+                <table style="width: 100%;">
+                    <tr>
+                        <th>SCRIPT</th>
+                        <th>Lot Size</th>
+                        <th>Lot Max</th>
+                        <th>Breakup Lot</th>
+                        <th>Last Updated</th>
+                    </tr>
+                    <tr>
+                        <td>ALUMINI</td>
+                        <td>1000</td>
+                        <td>5</td>
+                        <td>5</td>
+                        <td>7/16/2023 4:11 PM</td>
+                    </tr>
+                    <tr>
+                        <td>COPPER</td>
+                        <td>5000</td>
+                        <td>5</td>
+                        <td>5</td>
+                        <td>7/16/2023 4:11 PM</td>
+                    </tr>
+                    <tr>
+                        <td>COTTON</td>
+                        <td>2500</td>
+                        <td>5</td>
+                        <td>5</td>
+                        <td>7/16/2023 4:11 PM</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+
+{% endblock content %}

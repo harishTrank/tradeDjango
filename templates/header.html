@@ -1,0 +1,245 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  </head>
+  <body>
+    <div class="tab-head">
+        <li class="active open-file-menu" data-id="users">File
+            <ul class="view-dropdown" id="file-dropdown">
+                <li onClick="changePasswordOpen()"><a class="fa-solid fa-key"></a>Change Password</li>
+                <li data-id="logoutaccount"><a href="{% url 'Admin:logout' %}"><i class="fa-solid fa-right-from-bracket"></i>Logout</a></li>
+            </ul>
+        </li>
+    <li data-id="dashboard"><a href="{% url 'Admin:dashboard' %}">Dashboard</a></li>
+    {% if request.user.user_type != "Client" %}
+    <li data-id="users" class="user-view-dropdown">Users
+        <ul class="view-dropdown" id="user-dropdown">
+            <li data-id="create-user"><a href="{% url 'Admin:add-user' %}"><i class="fa-solid fa-user"></i>Create User</a></li>
+            <li data-id="user-list"><a href="{% url 'Admin:list-user' %}"><i class="fa-solid fa-list"></i>User List</a></li>
+            <li data-id="search-user"><a href="{% url 'Admin:search-user' %}"><i class="fa-solid fa-magnifying-glass"></i>Search User</a></li>
+        </ul>
+    </li>
+    {% endif %}
+      <li data-id="View" class="open-view-menu">View</i>
+        <ul class="view-dropdown" id="view-dropdown">
+            <li data-id="marketwatch"><a href="{% url 'Admin:market-watch' %}"><i class="fa-solid fa-right-left fa-rotate-90"></i>Market Watch</a></li>
+            <li data-id="trades"><a href="{% url 'Admin:trades' %}"><i class="fa-solid fa-file"></i>Trades</a></li>
+            <li data-id="orders"><a href="{% url 'Admin:orders' %}"><i class="fa-solid fa-file"></i>Order</a></li>
+            <li data-id="position"><a href="{% url 'Admin:positions' %}"><i class="fa-solid fa-map"></i>Positions</a></li>
+            <li data-id="pnl"><a href="{% url 'Admin:profit-and-loss' %}"><i class="fa-solid fa-chart-line"></i>Profit and Loss</a></li>
+            <li data-id="m2mpnl"><a href="{% url 'Admin:m2m-profit-and-loss' %}"><i class="fa-solid fa-chart-line"></i>M2M Profit and Loss</a></li>
+            <li data-id="intraday"><a href="{% url 'Admin:intraday-history' %}"><i class="fa-solid fa-file-circle-xmark"></i>Intraday History</a></li>
+            <li data-id="rejection"><a href="{% url 'Admin:rejection-log' %}"><i class="fa-solid fa-file-circle-xmark"></i>Rejection Log</a></li>
+            <li data-id="login"><a href="{% url 'Admin:login-history' %}"><i class="fa-solid fa-file-circle-question"></i>Login History</a></li>
+        </ul>
+      </li>
+      <li data-id="report" class="open-report-menu">Report</i>
+        <ul class="view-dropdown" id="report-dropdown">
+            <li data-id="openposition"><a href="{% url 'Admin:open-position' %}"><i class="fa-solid fa-chart-line"></i>Open Position</a></li>
+            <li data-id="managetrades"><a href="{% url 'Admin:manage-trades' %}"><i class="fa-solid fa-list-check"></i>Manage Trades</a></li>
+            <li data-id="tradeaccount"><a href="{% url 'Admin:trade-account' %}"><i class="fa-solid fa-file-invoice"></i>Trade Account</a></li>
+            <li data-id="settlement"><a href="{% url 'Admin:settlement' %}"><i class="fa-solid fa-handshake"></i>Settlement</a></li>
+            <li data-id="accountsummary"><a href="{% url 'Admin:account-summary' %}"><i class="fa-solid fa-window-maximize"></i>Account Summary</a></li>
+            <li data-id="billgenerate"><a href="{% url 'Admin:bill-generate' %}"><i class="fa-solid fa-money-bill-1-wave"></i>Bill Generate</a></li>
+            <li data-id="logshistory"><a href="{% url 'Admin:logs-history' %}"><i class="fa-solid fa-file-circle-question"></i>Logs History</a></li>
+            <li data-id="logsnew"><a href="{% url 'Admin:user-logs-new' %}"><i class="fa-solid fa-users"></i>User Logs New</a></li>
+            <li data-id="positiontrack"><a href="{% url 'Admin:user-script-position-track' %}"><i class="fa-solid fa-chalkboard-user"></i>User Script Position Track</a></li>
+            <li data-id="positionpl"><a href="{% url 'Admin:user-script-position-trac-pl' %}"><i class="fa-solid fa-chart-simple"></i>User Script Position PL</a></li>
+            <li data-id="scriptquantity"><a href="{% url 'Admin:script-quantity' %}"><i class="fa-solid fa-scroll"></i>Script Quantity</a></li>
+        </ul>
+      </li>
+  </div>
+ 
+  </body>
+  <style>
+    * main css  */
+.tab-content {
+    display: none;
+}
+
+.tab-content:first-of-type {
+    display: block;
+}
+
+.tab-head {
+    border-bottom: 1px solid #D3D3D3;
+}
+
+.tab-head li {
+    display: inline-block;
+    padding: 5px 15px;
+    position: relative;
+    margin-right: 5px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.tab-head li i {
+    margin-left: 5px;
+    font-size: 12px;
+}
+
+.tab-head li.active {
+    background: #d9d9d9;
+    color: #000;
+}
+
+ul.dropdown,
+ul.view-dropdown {
+    position: absolute;
+    display: block;
+    background: #fff;
+    z-index: 999;
+    width: 130px;
+    top: 36px;
+    left: 0px;
+    display: none;
+}
+
+ul.view-dropdown {
+    width: 200px;
+}
+
+ul.dropdown li,
+ul.view-dropdown li {
+    padding: 0;
+    margin-bottom: 5px;
+    display: block;
+}
+
+ul.dropdown li:last-of-type,
+ul.view-dropdown li:last-of-type {
+    margin-bottom: 0;
+}
+
+ul.dropdown li:hover,
+ul.view-dropdown li:hover {
+    background: #D3D3D3;
+    color: #fff;
+}
+
+ul.dropdown li i,
+ul.view-dropdown li i {
+    margin-right: 5px;
+}
+
+.form-group {
+    outline: none;
+    font-size: 14px;
+}
+
+.form-btn {
+    background: #FFA500;
+    outline: none;
+    border: none;
+    padding: 4px 10px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.left-top {
+    padding: 10px;
+}
+
+.left-top input[type="text"] {
+    width: 60px;
+}
+
+/*  main body css   */
+.left-body,
+.left-top {
+    border: 1px solid #d9d9d9;
+}
+
+.side-pannel {
+    background-color: #e7e7e7;
+    width: 100px;
+    padding: 10px;
+}
+
+.side-pannel input {
+    margin-right: 5px;
+}
+
+.pannel-body {
+    width: calc(100% - 100px);
+}
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+</script>
+
+<script>
+    $(document).ready(function () {
+        // Function to handle tab clicks
+        $('.tab-head li').click(function () {
+            var tabId = $(this).attr('data-id');
+            $('#' + tabId).show().siblings().hide();
+            $(this).addClass('active').siblings().removeClass('active');
+
+            // Store the active tab in local storage
+            localStorage.setItem('activeTab', tabId);
+        });
+
+        // Function to show the stored active tab on page load
+        var activeTabId = localStorage.getItem('activeTab');
+        if (activeTabId) {
+            $('#' + activeTabId).show().siblings().hide();
+            $('[data-id="' + activeTabId + '"]').addClass('active').siblings().removeClass('active');
+        }
+
+        // Dropdown toggle functionality for Users
+        $('.user-view-dropdown').click(function () {
+            var $dropdown = $("#user-dropdown");
+            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $dropdown.toggle();
+        });
+
+        // Dropdown toggle functionality for View
+        $('.open-view-menu').click(function () {
+            var $dropdown = $("#view-dropdown");
+            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $dropdown.toggle();
+        });
+
+        // Dropdown toggle functionality for Report
+        $('.open-report-menu').click(function () {
+            var $dropdown = $("#report-dropdown");
+            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $dropdown.toggle();
+        });
+
+        // Dropdown toggle functionality for File
+        $('.open-file-menu').click(function () {
+            var $dropdown = $("#file-dropdown");
+            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $dropdown.toggle();
+        });
+
+        $('.closeBtn').click(function () {
+            $(".trades-side").hide();
+            $(".trades-body").css("width", "100% - 30px");
+        });
+
+        $('#closeChangePass').click(function () {
+            $(".change-pass").hide();
+        });
+    });
+
+    const changePasswordOpen = () =>  {
+        $("#changepass").css("display", "block");
+        $('.action_dropdown').toggle();
+    }
+</script>
+
+ 
+</html>

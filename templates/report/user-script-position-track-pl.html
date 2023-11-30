@@ -1,0 +1,81 @@
+{% extends "index.html" %} {% block content %}
+
+
+<div class="tab-content" id="positionpl">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="trade-btm">
+                <div>
+                    <label for="">User:</label>
+                    <select name="" id="">
+                        <option value="">All</option>
+                        <option value="">MCX</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="">Exchange:</label>
+                    <select name="" id="">
+                        <option value="">All</option>
+                        <option value="">MCX</option>
+                        <option value="">NSE</option>
+                        <option value="">MINI</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="">Symbols:</label>
+                    <select name="" id="">
+                        <option value="">LEAD 30 NOV 2023</option>
+                        <option value="">ZINCMINI 30 NOV 2023</option>
+                    </select>
+                </div>
+                <div>
+                    <label for=""></label>
+                    <input type="submit" value="View" class="form-btn">
+                    <input type="submit" value="Clear" class="cancel-btn">
+                </div>
+            </div>
+        </div>
+        <div class="trades-body user-table">
+            <button class="delete-btn">Delete</button>
+            <table style="width: 100%;">
+                <tr>
+                    <th>Name</th>
+                    <th>Start Tran Date</th>
+                    <th>End Tran Date</th>
+                    <th>Username</th>
+                    <th>Symbol</th>
+                    <th>ProfitLoss</th>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>Start Tran Date</td>
+                    <td>End Tran Date</td>
+                    <td>Username</td>
+                    <td>Symbol</td>
+                    <td>ProfitLoss</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

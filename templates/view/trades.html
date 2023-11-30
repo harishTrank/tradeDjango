@@ -1,0 +1,106 @@
+{% extends "index.html" %} {% block content %}
+
+
+<div class="tab-content" id="trades">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <form method="get">
+                {% csrf_token %}
+                <div class="trade-btm">
+                    <div>
+                        <label for="">From:</label>
+                        <input name="from_date" type="date">
+                    </div>
+                    <div>
+                        <label for="">To:</label>
+                        <input name="to_date" type="date">
+                    </div>
+                    <div>
+                        <label for="">Username:</label>
+                        <input name="user_name" type="text">
+                    </div>
+                    <div>
+                        <label for="">Exchange:</label>
+                        <select name="ex_change" id="">
+                            <option value="">All Exchanges</option>
+                            <option value="MCX">MCX</option>
+                            <option value="NSE">NSE</option>
+                            <option value="NFO">NFO</option>
+                        </select>
+                    </div>
+                    <div>
+                    <label for="coin_name">Symbols:</label>
+                    <select name="coin_name" id="coin_name">
+                        <option value="">All Symbols</option>
+                        {% for coin in user_coin_names %}
+                            <option value="{{ coin }}">{{ coin }}</option>
+                        {% endfor %}
+                    </select>
+
+                    </div>
+                    <div>
+                        <label for=""></label>
+                        <button type="submit" value="View" class="form-btn">View</button>
+                        <a style="color:#fff !important;" href="{% url 'Admin:trades' %}" value="Clear" class="cancel-btn">Clear</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="trades-body user-table">
+            <table style="width: 100%;">
+                <tr>
+                    <th>Execution Time</th>
+                    <th>Username</th>
+                    <th>Symbol</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Brk</th>
+                    <th>Deal</th>
+                    <th>Order Time</th>
+                    <th>Ip Address</th>
+                    <th>Device id</th>
+                    <th>Refernce</th>
+                    <th>Order Method</th>
+                </tr>
+                {% for i in response %}
+                <tr>
+                    <td>{{i.created_at}}</td>
+                    <td>{{i.buy_sell_user__user_name}}</td>
+                    <td style="color: {% if i.action == 'SELL' %}red{% else %}blue{% endif %};">{{i.coin_name}}</td>
+                    <td style="color: {% if i.action == 'SELL' %}red{% elif i.action == 'BUY' %}blue{% else %}inherit{% endif %};">{{i.action}}</td>
+                    <td style="color: {% if i.action == 'SELL' %}red{% else %}blue{% endif %};">{% if i.quantity > 0 %} {{i.quantity}} {% else %} {{ i.quantity|stringformat:"+d"|slice:"1:" }} {% endif %}</td>
+                    <td style="color: {% if i.action == 'SELL' %}red{% else %}blue{% endif %};">{{i.price}}</td>
+                    <td>Brk</td>
+                    <td>Deal</td>
+                    <td>{{i.created_at}}</td>
+                    <td>{{i.ip_address}}</td>
+                    <td>Device id</td>
+                    <td>Refernce</td>
+                    <td>{{i.order_method}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,107 @@
+{% extends "index.html" %} {% block content %}
+
+
+<div class="tab-content" id="managetrades">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="trade-btm">
+                <div>
+                    <label for="">From:</label>
+                    <input type="date" name="" id="">
+                </div>
+                <div>
+                    <label for="">To:</label>
+                    <input type="date" name="" id="">
+                </div>
+                <div>
+                    <label for="">Username:</label>
+                    <select name="" id="">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="">Status:</label>
+                    <select name="" id="">
+                        <option value="">All</option>
+                        <option value="">Successful</option>
+                        <option value="">Pending</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="">Exchange:</label>
+                    <select name="" id="">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="">Symbol:</label>
+                    <select name="" id="">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div>
+                    <label for=""></label>
+                    <input type="submit" value="View" class="form-btn">
+                    <input type="submit" value="Clear" class="cancel-btn">
+                </div>
+            </div>
+        </div>
+        <div class="trades-body user-table">
+            <button class="delete-btn">Delete</button>
+            <table style="width: 100%;">
+                <tr>
+                    <th>Username</th>
+                    <th>Symbol</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Brk</th>
+                    <th>Deal</th>
+                    <th>Status</th>
+                    <th>Order Time</th>
+                    <th>Execution Time</th>
+                    <th>IPAddress</th>
+                    <th>DeviceId</th>
+                    <th>Reference Price</th>
+                    <th>Order Method</th>
+                </tr>
+                <tr>
+                    <td>Username</td>
+                    <td>Symbol</td>
+                    <td>Type</td>
+                    <td>Quantity</td>
+                    <td>Price</td>
+                    <td>Brk</td>
+                    <td>Deal</td>
+                    <td>Status</td>
+                    <td>Order Time</td>
+                    <td>Execution Time</td>
+                    <td>IPAddress</td>
+                    <td>DeviceId</td>
+                    <td>Reference Price</td>
+                    <td>Order Method</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

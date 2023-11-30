@@ -1,0 +1,283 @@
+{% extends "index.html" %} {% block content %}
+<form method="post">
+  {% csrf_token %}
+  <div class="tab-content" id="create-user">
+    <div class="create-account">
+      <div>
+        <div class="flex">
+          <div class="mr"><input type="checkbox" />&nbsp Create Account for User</div>
+          <div>
+            <select name="userType" id="userType">
+              <option value="">Admin 1</option>
+              <option value="">Admin 2</option>
+            </select>
+
+            <label>Select Type</label>
+            <select name="userType" id="userType">
+              <option value="">Client</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="user-details">
+        <h3>User Details</h3>
+        <div class="create-form flex space-bw">
+          <div class="col-25">
+            <label for="">Name*</label>
+            <input type="text" name="full_name" id="" class="form-group" />
+          </div>
+          <div class="col-25">
+            <label for="">Username</label>
+            <input type="text" name="user_name" id="" class="form-group" />
+          </div>
+          <div class="col-25">
+            <label for="">Password*</label>
+            <input type="password" name="password" id="" class="form-group" />
+          </div>
+          <div class="col-25">
+            <label for=""> Retype Password*</label>
+            <input
+              type="password"
+              name="retype_password"
+              id=""
+              class="form-group"
+            />
+          </div>
+          <div class="col-25">
+            <label for="">Mobile Number</label>
+            <input type="text" name="phone_number" id="" class="form-group" />
+          </div>
+          <div class="col-25">
+            <label for="">City</label>
+            <input type="text" name="city" id="" class="form-group" />
+          </div>
+          <div class="col-25">
+            <label for="">Credit</label>
+            <input type="text" name="credit" id="" class="form-group" />
+          </div>
+          <div class="col-25">
+            <label for="">Remark</label>
+            <input type="text" name="remark" id="" class="form-group" />
+          </div>
+        </div>
+      </div>
+      <div class="exchange-table">
+        <div>
+          <h3>Exchange</h3>
+          <div>
+            <table
+              border="1"
+              style="text-align: center; border-collapse: collapse; width: 100%"
+            >
+              <tr>
+                <td><input type="checkbox" /></td>
+                <th>Exchange...</th>
+                <th>Turnover..</th>
+                <th>Symbol...</th>
+              </tr>
+              <tr>
+                <td><input name="mcx_exchange" type="checkbox" /></td>
+                <td>MCX</td>
+                <td><input name="mcx_turnover" type="checkbox" /></td>
+                <td><input name="mcx_symbol" type="checkbox" /></td>
+               
+              </tr>
+              <tr>
+                <td><input name="nse_exchange" type="checkbox" /></td>
+                <td>NSE</td>
+                <td><input name="nse_turnover" type="checkbox" /></td>
+                <td><input name="nse_symbol" type="checkbox" /></td>
+              
+              </tr>
+              <tr>
+                <td><input name="sgx_exchange" type="checkbox" /></td>
+                <td>SGX</td>
+                <td><input name="sgx_turnover" type="checkbox" /></td>
+                <td><input name="sgx_symbol" type="checkbox" /></td>
+              </tr>
+              <tr>
+                <td><input name="others_exchange" type="checkbox" /></td>
+                <td>OTHERS</td>
+                <td><input name="others_turnover" type="checkbox" /></td>
+                <td><input name="others_symbol" type="checkbox" /></td>
+               
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="toggle-switches">
+        <h4>High low between limit</h4>
+        <div class="flex space-bw">
+          <div class="col-20 flex align-center">
+            <label class="switch">
+              <input name="mcx" type="checkbox" />
+              <span class="slider round"></span>
+            </label>
+            <p>MCX</p>
+          </div>
+          <div class="col-20 flex align-center">
+            <label class="switch">
+              <input name="nse" type="checkbox" />
+              <span class="slider round"></span>
+            </label>
+            <p>NSE</p>
+          </div>
+          <div class="col-20 flex align-center">
+            <label class="switch">
+              <input name="sgx" type="checkbox" />
+              <span class="slider round"></span>
+            </label>
+            <p>SGX</p>
+          </div>
+          <div class="col-20 flex align-center">
+            <label class="switch">
+              <input name="others" type="checkbox" />
+              <span class="slider round"></span>
+            </label>
+            <p>OTHERS</p>
+          </div>
+          <div class="col-20 flex align-center">
+            <label class="switch">
+              <input name="mini" type="checkbox" />
+              <span class="slider round"></span>
+            </label>
+            <p>MINI</p>
+          </div>
+        </div>  
+      </div>
+      <div class="flex">
+        <div class="mr">
+          <input type="checkbox" name="change_password" id="" class="mr-5" />Change Password
+        </div>
+        <div class="flex">
+          <label class="switch">
+            <input name="add_master" type="checkbox" />
+            <span class="slider round"></span>
+          </label>
+          <p>Add Master</p>
+        </div>
+      </div>
+      <div class="view-cancel flex space-bw" style="margin-top:12px">
+        <div class="col-49">
+          <button  type="submit"  class="save-btn" />Save</button>
+        </div>
+        <div class="col-49">
+          <button style="height: 37px;" value="Cancel" class="cancel-btn">Cancel<button/>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<style>
+  .top-user {
+    background-color: #72c3ff;
+    padding: 8px 10px;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.exchange-table table tr td select {
+    border: none;
+    outline: none;
+}
+
+.create-account {
+    padding: 10px;
+    background: #ececec;
+}
+
+.create-form .form-group {
+    width: 100%;
+}
+
+.exchange-table tr th,
+.exchange-table tr td {
+    padding: 5px;
+}
+
+.toggle-switches h4 {
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.toggle-switches,
+.change-pass-page {
+    margin-bottom: 15px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 15px;
+    width: 15px;
+    left: 4px;
+    bottom: 5px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: #2196F3;
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.save-btn,
+.cancel-btn {
+    background: green;
+    width: 100%;
+    outline: none;
+    border: none;
+    font-size: 16px;
+    color: #fff;
+}
+
+.cancel-btn {
+    background: #646464;
+}
+</style>
+{% endblock content %}
