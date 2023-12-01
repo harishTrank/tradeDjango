@@ -147,7 +147,7 @@
                     <ul class="action_dropdown">
                         <li><a onClick="changePasswordOpen()">Change Password</a></li>
                         <li><a href="#">Share Details</a></li>
-                        <li><a href="#">Account Limit</a></li>
+                        <li><a onClick="accountLimit()">Account Limit</a></li>
                         <li><a onClick="adminRights()">Admin Rights</a></li>
                         <li><a href="#">Market Trade Right</a></li>
                         <li><a href="{% url 'Admin:add-user' %}">Create User</a></li>
@@ -219,7 +219,8 @@
         </div>
     </div>
 </div>
-{% include "components/user/admin-rights.html" %}
+{% include "components/user/account-limit.html" %}
+{% comment %} {% include "components/user/admin-rights.html" %} {% endcomment %}
 
 <script>
     $('.dropdown_action').click(function(){
@@ -241,6 +242,11 @@
 
     const adminRights = () => {
         $("#admin-rights").css("display","block");
+        $('.action_dropdown').toggle();
+    }
+    
+    const accountLimit = () => {
+        $("#accountLimitid").css("display", "block");
         $('.action_dropdown').toggle();
     }
 </script>
