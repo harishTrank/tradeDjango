@@ -167,39 +167,39 @@
                     <td class="pos-relate"> 
                         <ul class="dropdown_action">
                             <li>
-                                <i class="fa-solid fa-ellipsis" onClick="clickActionBtn(event)" data-hidden-value="{{i.client.user_name}}"></i>  
+                                <i class="fa-solid fa-ellipsis" onClick="clickActionBtn(event)" data-hidden-value="{{i.user_name}}"></i>  
                             </li>
                         </ul>
                     </td>
-                    <td>{{i.client.user_name}}</td>
-                    <td>{{i.client.full_name}}</td>
-                    <td>{{i.client.user_type}}</td>
-                    <td>{{i.master_user_link.master_user.user_name}}</td>
-                    <td>{{i.client.credit}}</td>
-                    <td>{{i.client.balance}}</td>
+                    <td>{{i.user_name}}</td>
+                    <td>{{i.full_name}}</td>
+                    <td>{{i.user_type}}</td>
+                    <td>{{i.user_name}}</td>
+                    <td>{{i.credit}}</td>
+                    <td>{{i.balance}}</td>
                     <td>00.0</td>
-                    {% if i.client.user_type == "Master" or i.client.user_type == "Client" %}
+                    {% if i.user_type == "Master" or i.user_type == "Client" %}
                     <td>
                         <label class="switch">
-                            <input onClick="callToggleApi({{i.client.id}}, `bet`)" type="checkbox" {% if i.client.bet %} checked {% endif %}>
+                            <input onClick="callToggleApi({{i.id}}, `bet`)" type="checkbox" {% if i.bet %} checked {% endif %}>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td>
                         <label class="switch">
-                            <input onClick="callToggleApi({{i.client.id}}, `close_only`)" type="checkbox" {% if i.client.close_only %} checked {% endif %}>
+                            <input onClick="callToggleApi({{i.id}}, `close_only`)" type="checkbox" {% if i.close_only %} checked {% endif %}>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td>
                         <label class="switch">
-                            <input onClick="callToggleApi({{i.client.id}}, `margin_sq`)" type="checkbox" {% if i.client.margin_sq %} checked {% endif %}>
+                            <input onClick="callToggleApi({{i.id}}, `margin_sq`)" type="checkbox" {% if i.margin_sq %} checked {% endif %}>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td>
                         <label class="switch">
-                            <input onClick="callToggleApi({{i.client.id}}, `status`)" type="checkbox" {% if i.client.status %} checked {% endif %}>
+                            <input onClick="callToggleApi({{i.id}}, `status`)" type="checkbox" {% if i.status %} checked {% endif %}>
                             <span class="slider round"></span>
                         </label>
                     </td>
@@ -209,10 +209,10 @@
                         <td></td>
                         <td></td>
                     {% endif %}
-                    <td>{{i.client.created_at}}</td>
+                    <td>{{i.created_at}}</td>
                     <td>{{i.buy_sell_user.ip_address}}</td>
                     <td>Device id</td>
-                    <td>{{i.client.last_login }}</td>
+                    <td>{{i.last_login }}</td>
                 </tr>
                 {% endfor %}
             </table>

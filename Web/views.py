@@ -165,15 +165,17 @@ class AddUserView(View):
 class ListUserView(View):
     def get(self , request):
         user = request.user
-        user_clients = ClientModel.objects.filter(master_user_link__master_user=user)
-        return render(request, "User/list-user.html",{"client":user_clients})
+        if request.user.user_type == "Master":
+            response_user = MyUser.objects.filter(id__in=list(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) + list(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+        else:
+            response_user = MyUser.objects.filter(id__in=list(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) + list(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+        return render(request, "User/list-user.html",{"client":response_user})
     
 
 class DownloadCSVView(View):
     def get(self, request):
         user = request.user
-        user_clients = ClientModel.objects.filter(master_user_link__master_user=user)
-
+        user_clients = MyUser.objects.filter(id__in=list(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) + list(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
 
