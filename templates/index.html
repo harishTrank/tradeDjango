@@ -63,15 +63,13 @@
     <p id="idd3" hidden>{{ message }}</p>
     {% elif message.tags == "alert-info" %}
     <p id="idd4" hidden>{{ message }}</p>
-    {% endif %} {% endfor %} {% endif %} {% comment %}
-    <div class="page-tab">
-      <li class="page-active">
-        Open Position <i class="fa-solid fa-xmark">X</i>
-      </li>
-    </div>
-    {% endcomment %}
+    {% endif %} {% endfor %} {% endif %} 
+
+
     <div class="tab-wrapper">
       {% block content %} {% endblock content %}
+      {% include "components/user/account-limit.html" %}
+      {% include "components/user/admin-rights.html" %}
       {% include "components/password-popup.html" %}
     </div>
     <script
@@ -129,5 +127,19 @@
         icon: "info",
       });
     }
+
+
+    const accountLimit = () => {
+      console.log("accountLimit======>1")
+
+      $("#accountLimitid").css("display", "block");
+      $('.action_dropdown').toggle();
+    }
+    const adminRights = () => {
+        console.log("accountLimit======>2")
+        $("#adminRightsId").css("display","block");
+        $('.action_dropdown').toggle();
+    }
+    
   </script>
 </html>

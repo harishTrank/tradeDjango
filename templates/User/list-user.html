@@ -98,12 +98,11 @@
         .popupClass{
             position:absolute;
         }
+        .user-cell:hover{
+            cursor: pointer;
+            color: blue;
+        }
 </style>
-{% comment %} popup admin {% endcomment %}
-
-
-
-
 
 <div class="tab-content" id="user-list">
     <div class="flex">
@@ -138,10 +137,6 @@
                     <th>Device id</th>
                     <th>Last Login</th>
                 </tr>
-
-                {% comment %} popup admin right {% endcomment %}
-
-                
 
                 <div class="pos-relate">
                     <ul class="action_dropdown">
@@ -219,8 +214,7 @@
         </div>
     </div>
 </div>
-{% comment %} {% include "components/user/account-limit.html" %}
-{% include "components/user/admin-rights.html" %} {% endcomment %}
+
 
 <script>
     $('.dropdown_action').click(function(){
@@ -243,19 +237,7 @@
         })
     }
 
-
-    const adminRights = () => {
-        $("#adminRightsId").css("display","block");
-        $('.action_dropdown').toggle();
-    }
-    
-    const accountLimit = () => {
-        $("#accountLimitid").css("display", "block");
-        $('.action_dropdown').toggle();
-    }
-
-
-    // please dont touch ====>
+    // please dont touch harish ====>
     const userCells = document.querySelectorAll('.user-cell');
     const userTabOpen = (userName) => {
         window.open('user-deatils', 'NewWindow', 'width=1200,height=600');

@@ -1,174 +1,183 @@
- <div class="create-profile" id="adminRightsId">
-    <div class="create-profile-inside"> 
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    <div class="create-profile" id="adminRightsId">
+      <div class="create-profile-inside-admin">
         <div class="top-body flex align-center space-bw align-center">
-            <div class="flex admin-right">
-                <p>Admin Rights</p>
-             </div>
-             <div>
-                <i class="fa-solid fa-x adminRightClose"></i>
-             </div>
+          <div class="flex admin-right">
+            <p>Admin Rights</p>
+          </div>
+          <div>
+            <i class="fa-solid fa-x adminRightClose"></i>
+          </div>
         </div>
         <div class="middle-body">
           <div class="inner-middle-body">
             <div class="flex space-bw">
-                <div class="flex add-order cm-order common-font align-center">
-                <input type="checkbox" name="" id="" checked>
+              <div class="flex add-order cm-order common-font align-center">
+                <input type="checkbox" name="" id="" checked />
                 <p><b>Add Order</b></p>
-                </div>
-               <div class="flex cm-order common-font align-center">
-                <input type="checkbox" name="" id="" checked>
+              </div>
+              <div class="flex cm-order common-font align-center">
+                <input type="checkbox" name="" id="" checked />
                 <p><b>By Manual</b></p>
-               </div>
+              </div>
             </div>
             <div class="flex cm-order common-font align-center">
-                <input type="checkbox" name="" id="" checked>
-                <p><b>Delete Trade</b></p>
-          </div>
-          <div class="flex cm-order common-font align-center">
-            <input type="checkbox" name="" id="" checked>
-            <p><b>Execute Pending Order</b></p>
-           </div>
+              <input type="checkbox" name="" id="" checked />
+              <p><b>Delete Trade</b></p>
+            </div>
+            <div class="flex cm-order common-font align-center">
+              <input type="checkbox" name="" id="" checked />
+              <p><b>Execute Pending Order</b></p>
+            </div>
           </div>
           <div class="flex toggle-btm space-bw">
-           <div>
-            <label class="switch">
-                <input onClick="callToggleApi({{i.client.id}}, `bet`)" type="checkbox" {% if i.client.bet %} checked {% endif %}>
-                <span class="slider round"></span>
-            </label>
-           </div>
-           <div><p>Give rights to his down user?</p></div>
+            <div>
+            
+            </div>
+            <div><p>Give rights to his down user?</p></div>
           </div>
           <div class="save-cancel-btn flex space-bw">
-           <button>Save</button>
-           <button class="adminRightClose">Cancel</button>
+            <button>Save</button>
+            <button class="adminRightClose">Cancel</button>
           </div>
-         </div>
-</div>
+        </div>
+      </div>
+    </div>
+    <script src="" async defer></script>
+    <style>
+      #adminRightsId {
+        display: none;
+      }
+    
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+    
+      li {
+        list-style: none;
+      }
+      .flex {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .space-bw {
+        justify-content: space-between;
+      }
+      .align-center {
+        align-items: center;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+    
+      a {
+        text-decoration: none;
+      }
+      .white-back {
+        background: #fff;
+        box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
+      }
+      .container {
+        max-width: 90%;
+        margin: 0 auto;
+      }
+    
+      / --------------------------- / .create-profile {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5);
+        width: 100%;
+        height: 100%;
+        z-index: 99;
+      }
+      .create-profile-inside-admin {
+        width: 19%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 999;
+        background: #e7e7e7;
+        border-radius: 10px;
+        box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+          rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+          rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+      }
+      .admin-right i {
+        margin-right: 8px;
+        color: #ff0000;
+        font-size: 10px;
+        margin-top: 2px;
+      }
+      .top-body {
+        background-color: #c9c9c9;
+        padding: 8px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+      }
+      .middle-body {
+        background-color: #fff;
+        padding: 15px;
+      }
+      .inner-middle-body {
+        padding: 6px;
+        border: 1px solid black;
+      }
+    
+      .cm-order {
+        margin-bottom: 6px;
+      }
+      .toggle-btm {
+        margin: 8px 0px;
+      }
+      .toggle-btm div p {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .save-cancel-btn {
+        margin: 8px 0px;
+      }
+      .common-font p b {
+        font-size: 16px;
+      }
+      .save-cancel-btn {
+        padding: 0px 45px;
+      }
+      .save-cancel-btn button:first-child {
+        background-color: #008000;
+        padding: 2px 10px;
+        color: #fff;
+        border: none;
+      }
+      .save-cancel-btn button:last-child {
+        background-color: #221b1b;
+        padding: 5px 10px;
+        color: #fff;
+        border: none;
+      }
+    </style>
+    <script>
+      $(".adminRightClose").click(() => $("#adminRightsId").css("display", "none"));
+    </script>
+  </body>
+</html>
 
 
-<style>
-#adminRightsId{
-    display:none;
-}
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 
-li {
-    list-style: none;
-}
-.flex{
-    display: flex;
-    flex-wrap: wrap;
-}
-.space-bw{
-    justify-content: space-between;
-}
-.align-center{
-    align-items: center;
-}
-.text-center{
-    text-align: center;
-}
-.justify-center{
-    justify-content: center;
-}
-
-a{
-    text-decoration: none;
-}
-.white-back{
-    background: #fff;
-    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.10);
-}
-.container{
-    max-width: 90%;
-    margin: 0 auto;
-}
-
-/ --------------------------- /
-.create-profile {
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.5);
-    width: 100%;
-    height: 100%;
-    z-index: 99;
-}
-.create-profile-inside {
-    width: 20%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 999;
-    background: #e7e7e7;
-    border-radius: 10px;
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-}
-.admin-right i{
-  margin-right: 8px;
-  color: #ff0000;
-  font-size: 10px;
-  margin-top: 2px;
-}
-.top-body {
-    background-color: #c9c9c9;
-    padding: 8px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-}
-.middle-body{
-    background-color: #fff;
-    padding: 15px; 
-}
-.inner-middle-body {
-    padding: 6px;
-    border: 1px solid black;
-}
-input {
-    margin-right: 6px;
-    height: 12px;
-    width: 12px;
-}
-.cm-order{
-    margin-bottom: 6px;
-}
-.toggle-btm{
-    margin: 8px 0px;
-}
-.toggle-btm div p {
-    font-size: 12px;
-    font-weight: 600;
-}
-.save-cancel-btn {
-    margin: 8px 0px;
-}
-.common-font p b{
-    font-size: 16px;
-}
-.save-cancel-btn {
-    padding: 0px 45px;
-}
-.save-cancel-btn button:first-child {
-    background-color: #008000;
-    padding: 2px 10px;
-    color: #fff;
-    border: none;
-}
-.save-cancel-btn button:last-child{
-    background-color: #221b1b;
-    padding: 5px 10px;
-    color: #fff;
-    border: none;
-}
-</style>
-
-<script>
-    $(".adminRightClose").click(() => $("#adminRightsId").css("display","none"))
-
-</script>

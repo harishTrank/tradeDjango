@@ -9,6 +9,12 @@ class MastrModel(models.Model):
     admin_user = models.ForeignKey(AdminModel, on_delete=models.CASCADE, related_name="admin_user")
     master_link = models.ForeignKey('self', on_delete=models.CASCADE, related_name="linked_masters", null=True, blank=True)
     
+    limit = models.BooleanField(default=False)
+    master_limit = models.PositiveIntegerField("Master Limit",default=0,blank=True,null=True)
+    client_limit = models.PositiveIntegerField("Client Limit",default=0,blank=True,null=True)
+    
+    
+    
     def __str__(self):
         return str(self.master_user)
     
