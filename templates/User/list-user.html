@@ -167,7 +167,7 @@
                     <td class="pos-relate"> 
                         <ul class="dropdown_action">
                             <li>
-                                <i class="fa-solid fa-ellipsis"></i>  
+                                <i class="fa-solid fa-ellipsis" onClick="clickActionBtn(event)" data-hidden-value="{{i.client.user_name}}"></i>  
                             </li>
                         </ul>
                     </td>
@@ -226,6 +226,10 @@
     $('.dropdown_action').click(function(){
         $('.action_dropdown').toggle();
     })
+
+    const clickActionBtn = (event) => {
+        $("#user_name_id").val(event.target.dataset.hiddenValue);
+    }
 
     const callToggleApi = (id, key) => {
         $.ajax({

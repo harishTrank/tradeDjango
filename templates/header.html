@@ -60,117 +60,117 @@
   </body>
   <style>
     * main css  */
-.tab-content {
-    display: none;
-}
+    .tab-content {
+        display: none;
+    }
 
-.tab-content:first-of-type {
-    display: block;
-}
+    .tab-content:first-of-type {
+        display: block;
+    }
 
-.tab-head {
-    border-bottom: 1px solid #D3D3D3;
-}
+    .tab-head {
+        border-bottom: 1px solid #D3D3D3;
+    }
 
-.tab-head li {
-    display: inline-block;
-    padding: 5px 15px;
-    position: relative;
-    margin-right: 5px;
-    cursor: pointer;
-    font-size: 15px;
-}
+    .tab-head li {
+        display: inline-block;
+        padding: 5px 15px;
+        position: relative;
+        margin-right: 5px;
+        cursor: pointer;
+        font-size: 15px;
+    }
 
-.tab-head li i {
-    margin-left: 5px;
-    font-size: 12px;
-}
+    .tab-head li i {
+        margin-left: 5px;
+        font-size: 12px;
+    }
 
-.tab-head li.active {
-    background: #d9d9d9;
-    color: #000;
-}
+    .tab-head li.active {
+        background: #d9d9d9;
+        color: #000;
+    }
 
-ul.dropdown,
-ul.view-dropdown {
-    position: absolute;
-    display: block;
-    background: #fff;
-    z-index: 999;
-    width: 130px;
-    top: 36px;
-    left: 0px;
-    display: none;
-}
+    ul.dropdown,
+    ul.view-dropdown {
+        position: absolute;
+        display: block;
+        background: #fff;
+        z-index: 999;
+        width: 130px;
+        top: 36px;
+        left: 0px;
+        display: none;
+    }
 
-ul.view-dropdown {
-    width: 200px;
-}
+    ul.view-dropdown {
+        width: 200px;
+    }
 
-ul.dropdown li,
-ul.view-dropdown li {
-    padding: 0;
-    margin-bottom: 5px;
-    display: block;
-}
+    ul.dropdown li,
+    ul.view-dropdown li {
+        padding: 0;
+        margin-bottom: 5px;
+        display: block;
+    }
 
-ul.dropdown li:last-of-type,
-ul.view-dropdown li:last-of-type {
-    margin-bottom: 0;
-}
+    ul.dropdown li:last-of-type,
+    ul.view-dropdown li:last-of-type {
+        margin-bottom: 0;
+    }
 
-ul.dropdown li:hover,
-ul.view-dropdown li:hover {
-    background: #D3D3D3;
-    color: #fff;
-}
+    ul.dropdown li:hover,
+    ul.view-dropdown li:hover {
+        background: #D3D3D3;
+        color: #fff;
+    }
 
-ul.dropdown li i,
-ul.view-dropdown li i {
-    margin-right: 5px;
-}
+    ul.dropdown li i,
+    ul.view-dropdown li i {
+        margin-right: 5px;
+    }
 
-.form-group {
-    outline: none;
-    font-size: 14px;
-}
+    .form-group {
+        outline: none;
+        font-size: 14px;
+    }
 
-.form-btn {
-    background: #FFA500;
-    outline: none;
-    border: none;
-    padding: 4px 10px;
-    color: #fff;
-    font-size: 14px;
-}
+    .form-btn {
+        background: #FFA500;
+        outline: none;
+        border: none;
+        padding: 4px 10px;
+        color: #fff;
+        font-size: 14px;
+    }
 
-.left-top {
-    padding: 10px;
-}
+    .left-top {
+        padding: 10px;
+    }
 
-.left-top input[type="text"] {
-    width: 60px;
-}
+    .left-top input[type="text"] {
+        width: 60px;
+    }
 
-/*  main body css   */
-.left-body,
-.left-top {
-    border: 1px solid #d9d9d9;
-}
+    /*  main body css   */
+    .left-body,
+    .left-top {
+        border: 1px solid #d9d9d9;
+    }
 
-.side-pannel {
-    background-color: #e7e7e7;
-    width: 100px;
-    padding: 10px;
-}
+    .side-pannel {
+        background-color: #e7e7e7;
+        width: 100px;
+        padding: 10px;
+    }
 
-.side-pannel input {
-    margin-right: 5px;
-}
+    .side-pannel input {
+        margin-right: 5px;
+    }
 
-.pannel-body {
-    width: calc(100% - 100px);
-}
+    .pannel-body {
+        width: calc(100% - 100px);
+    }
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
@@ -221,6 +221,7 @@ ul.view-dropdown li i {
         // Dropdown toggle functionality for File
         $('.open-file-menu').click(function () {
             var $dropdown = $("#file-dropdown");
+            $("#user_name_id").val("{{request.user.user_name}}");
             $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
             $dropdown.toggle();
         });
@@ -237,7 +238,7 @@ ul.view-dropdown li i {
 
     const changePasswordOpen = () =>  {
         $("#changepass").css("display", "block");
-        $('.action_dropdown').toggle();
+        $('.action_dropdown').hide();
     }
 </script>
 
