@@ -15,6 +15,10 @@ urlpatterns = [
     path("search-user",SearchUserView.as_view(),name="search-user"),
     path("search-all-user",SearchUsersView.as_view(),name="search-all-user"),
     
+    
+    path("user-deatils",UserDeatilsView.as_view(),name="user-deatils"),
+    
+    
     path("market-watch",MarketWatchView.as_view(),name="market-watch"),
     path("trades",TradesView.as_view(),name="trades"),
     path("orders",OrdersView.as_view(),name="orders"),

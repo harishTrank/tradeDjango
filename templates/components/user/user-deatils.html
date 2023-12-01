@@ -1,0 +1,2101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'user-deatils.css' %}">
+</head>
+<body>
+    <div class="tab-head">
+        <li class="active open-file-menu" data-id="users" class="open-menu">Position</i></li>
+        <li data-id="dashboard">Trades</li>
+        <li data-id="scriptmaster" class="open-menu">Script Master</i></li>
+        <li data-id="groupsetting" class="open-view-menu">Group Setting</i></li>
+        <li data-id="quantitysetting" class="open-report-menu">Quantity Setting</i></li>
+        <li data-id="brk">Brk</li>
+        <li data-id="trademargin">Trade Margin</li>
+        <li data-id="credit">Credit</li>
+        <li data-id="accountsummary">Account Summary</li>
+        <li data-id="settlement">Settlement</li>
+        <li data-id="rejectionlog">Rejection Log</li>
+        <li data-id="sharedetails">Share Details</li>
+        <li data-id="userinfo">User Info</li>
+    </div>
+    <div class="tab-wrapper">
+        <div class="tab-content" id="dashboard">
+            <div class="flex">
+                <div class="col-50">
+                    <div class="left-area">
+                        <div class="left-top">
+                            <div class="flex align-center">
+                                <div class="mr">
+                                    <p>Filter:</p>
+                                </div>
+                                <div class="mr">
+                                    <label>User:</label>
+                                    <input type="text" class="form-group">
+                                </div>
+                                <div class="mr">
+                                    <label>Show:</label>
+                                    <select name="" id="" class="form-group">
+                                        <option value="">Day</option>
+                                        <option value="">Week</option>
+                                        <option value="">Month</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="submit" class="form-btn" value="View">
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+                <div class="col-50">
+                    <div class="left-area">
+                        <div class="left-top">
+                            <div class="flex align-center">
+                                <div class="mr">
+                                    <label>From:</label>
+                                    <input type="date" class="form-group">
+                                </div>
+                                <div class="mr">
+                                    <label>To:</label>
+                                    <input type="date" class="form-group">
+                                </div>
+                                <div class="mr">
+                                    <label>User</label>
+                                    <input type="text" class="form-group">
+                                </div>
+                                <div class="mr">
+                                    <label>Type:</label>
+                                    <select name="" id="" class="form-group">
+                                        <option value="">Top</option>
+                                        <option value="">Bottom</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="submit" class="form-btn" value="View">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="left-body flex">
+                            <div class="side-pannel">
+                                <div>
+                                    <input type="checkbox">MCX
+                                </div>
+                                <div>
+                                    <input type="checkbox">NSE
+                                </div>
+                                <div>
+                                    <input type="checkbox">SGX
+                                </div>
+                                <div>
+                                    <input type="checkbox">OTHERS
+                                </div>
+                                <div>
+                                    <input type="checkbox">MINI
+                                </div>
+                                <div>
+                                    <input type="checkbox">NCDEX
+                                </div>
+                                <div>
+                                    <input type="checkbox">COMEX
+                                </div>
+                                <div>
+                                    <input type="checkbox">CDS
+                                </div>
+                                <div>
+                                    <input type="checkbox">CALLPUT
+                                </div>
+                            </div>
+                            <div class="pannel-body">
+                                <div class="tab-head">
+                                    <li class="active" data-id="chart">Chart View</li>
+                                    <li data-id="table">Table View</li>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="create-user">
+            <div class="top-user">
+                Create User
+            </div>
+            <div class="create-account">
+                <div>
+                    <div class="flex">
+                        <div class="mr"><input type="checkbox">Create Account for User</div>
+                        <div>
+                            <label>Select Type</label>
+                            <select name="" id="">
+                                <option value="">Client</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-details">
+                    <h3>User Details</h3>
+                    <div class="create-form flex space-bw">
+                        <div class="col-25">
+                            <label for="">Name*</label>
+                            <input type="text" name="" id="" class="form-group">
+                        </div>
+                        <div class="col-25">
+                            <label for="">Username</label>
+                            <input type="text" name="" id="" class="form-group">
+                        </div>
+                        <div class="col-25">
+                            <label for="">Password*</label>
+                            <input type="password" name="" id="" class="form-group">
+                        </div>
+                        <div class="col-25">
+                            <label for=""> Retype Password*</label>
+                            <input type="password" name="" id="" class="form-group">
+                        </div>
+                        <div class="col-25">
+                            <label for="">Mobile Number</label>
+                            <input type="text" name="" id="" class="form-group">
+                        </div>
+                        <div class="col-25">
+                            <label for="">City</label>
+                            <input type="text" name="" id="" class="form-group">
+                        </div>
+                        <div class="col-25">
+                            <label for="">Credit</label>
+                            <input type="text" name="" id="" class="form-group">
+                        </div>
+                        <div class="col-25">
+                            <label for="">Remark</label>
+                            <input type="text" name="" id="" class="form-group">
+                        </div>
+                    </div>
+                </div>
+                <div class="exchange-table">
+                    <div>
+                        <h3>Exchange</h3>
+                        <div>
+                            <table border="1"
+                                style="text-align: center;border-collapse: collapse; width: 50%;background: #fff;">
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <th>Exchange...</th>
+                                    <th>Turnover..</th>
+                                    <th>Symbol...</th>
+                                    <th>Group</th>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>MCX</td>
+                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox"></td>
+                                    <td><select name="" id="" class="col-100">
+                                            <option>MCX Default 5 lot</option>
+                                            <option>MCX 3 lot</option>
+                                            <option>MCX 7 LOT</option>
+                                            <option>MCX 10 lot</option>
+                                            <option>MCX 15 lot</option>
+                                            <option>MCX 20 lot</option>
+                                            <option>MCX 1 lot</option>
+                                            <option>MCX 2 lot</option>
+                                            <option>MCX 30 lot</option>
+                                            <option>MCX crude 100</option>
+                                            <option>mcx 50 lot</option>
+                                            <option>NSE M1</option>
+                                        </select></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>NSE</td>
+                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox"></td>
+                                    <td><select name="" id="" class="col-100">
+                                            <option value="">NSE Default </option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                        </select></td>
+
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>NSE</td>
+                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox"></td>
+                                    <td><select name="" id="" class="col-100">
+                                            <option value="">NSE Default </option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                        </select></td>
+
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>NSE</td>
+                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox"></td>
+                                    <td><select name="" id="" class="col-100">
+                                            <option value="">NSE Default </option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                            <option>NSE-1 lot</option>
+                                        </select></td>
+
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="toggle-switches">
+                    <h4>High low between limit</h4>
+                    <div class="flex space-bw">
+                        <div class="col-20 flex align-center">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                            <p>MCX</p>
+                        </div>
+                        <div class="col-20 flex align-center">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                            <p>NSE</p>
+                        </div>
+                        <div class="col-20 flex align-center">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                            <p>SGX</p>
+                        </div>
+                        <div class="col-20 flex align-center">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                            <p>OTHERS</p>
+                        </div>
+                        <div class="col-20 flex align-center">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                            <p>MINI</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="change-pass flex">
+                    <div class="mr">
+                        <input type="checkbox" name="" id="" class="mr-5">Change Password
+                    </div>
+                    <div class="flex">
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        <p>Auto Square Off</p>
+                    </div>
+                </div>
+                <div class="view-cancel flex space-bw">
+                    <div class="col-49">
+                        <input type="submit" value="Save" class="save-btn">
+                    </div>
+                    <div class="col-49">
+                        <input type="submit" value="Cancel" class="cancel-btn">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="user-list">
+            <div class="user-table">
+                <h3>User List: DEMO008</h3>
+                <table style="width: 100%;">
+                    <tr>
+                        <th>Edit</th>
+                        <th>Action</th>
+                        <th>Username</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Parent</th>
+                        <th>Credit</th>
+                        <th>Balance</th>
+                        <th>Sharing%</th>
+                        <th>Bet</th>
+                        <th>Close Only</th>
+                        <th>Margin Sq..</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th>Ip Address</th>
+                        <th>Device id</th>
+                        <th>Last Login</th>
+                    </tr>
+                    <tr>
+                        <td>Edit</td>
+                        <td>Action</td>
+                        <td>Username</td>
+                        <td>Name</td>
+                        <td>Type</td>
+                        <td>Parent</td>
+                        <td>Credit</td>
+                        <td>Balance</td>
+                        <td>Sharing%</td>
+                        <td>Bet</td>
+                        <td>Close Only</td>
+                        <td>Margin Sq..</td>
+                        <td>Status</td>
+                        <td>Created Date</td>
+                        <td>Ip Address</td>
+                        <td>Device id</td>
+                        <td>Last Login</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="tab-content" id="search-user">
+            <div class="user-table search-user">
+                <div class="seach-area">
+                    <label for="">Seach User:</label>
+                    <input type="search">
+                </div>
+                <div class="outcome-user">
+                    <ul>
+                        <li>Demo008</li>
+                        <li>Demo008</li>
+                        <li>Demo008</li>
+                        <li>Demo008</li>
+                        <li>Demo008</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="marketwatch">
+            <div class="user-table col-100">
+                <table style="width: 100%;">
+                    <tr>
+                        <th>Exchange</th>
+                        <th>Symbol</th>
+                        <th>Expiry</th>
+                        <th>Buy Qty</th>
+                        <th>Buy Price</th>
+                        <th>Sell Price</th>
+                        <th>Sell Qty</th>
+                        <th>LTP</th>
+                        <th>Net Change</th>
+                        <th>Open</th>
+                        <th>High</th>
+                        <th>LUT</th>
+                        <th>Low</th>
+                        <th>Close</th>
+                    </tr>
+                    <tr>
+                        <td>Exchange</td>
+                        <td>Symbol</td>
+                        <td>Expiry</td>
+                        <td>Buy Qty</td>
+                        <td>Buy Price</td>
+                        <td>Sell Price</td>
+                        <td>Sell Qty</td>
+                        <td>LTP</td>
+                        <td>Net Change</td>
+                        <td>Open</td>
+                        <td>High</td>
+                        <td>LUT</td>
+                        <td>Low</td>
+                        <td>Close</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="tab-content" id="trades">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date">
+                        </div>
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date">
+                        </div>
+                        <div>
+                            <label for="">Username:</label>
+                            <input type="text">
+                        </div>
+                        <div>
+                            <label for="">Exchange:</label>
+                            <select name="" id="">
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Symbols:</label>
+                            <select name="" id="">
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Execution Time</th>
+                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Brk</th>
+                            <th>Deal</th>
+                            <th>Order Time</th>
+                            <th>Ip Address</th>
+                            <th>Device id</th>
+                            <th>Refernce</th>
+                            <th>Order Method</th>
+                        </tr>
+                        <tr>
+                            <td>Execution Time</td>
+                            <td>Username</td>
+                            <td>Symbol</td>
+                            <td>Type</td>
+                            <td>Quantity</td>
+                            <td>Price</td>
+                            <td>Brk</td>
+                            <td>Deal</td>
+                            <td>Order Time</td>
+                            <td>Ip Address</td>
+                            <td>Device id</td>
+                            <td>Refernce</td>
+                            <td>Order Method</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="orders">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date">
+                        </div>
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date">
+                        </div>
+                        <div>
+                            <label for="">Username:</label>
+                            <input type="text">
+                        </div>
+                        <div>
+                            <label for="">Exchange:</label>
+                            <select name="" id="">
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Symbols:</label>
+                            <select name="" id="">
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Brk</th>
+                            <th>Order Time</th>
+                            <th>Ip Address</th>
+                            <th>Device id</th>
+                            <th>Reference Price</th>
+                            <th>Order Method</th>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td>Symbol</td>
+                            <td>Type</td>
+                            <td>Quantity</td>
+                            <td>Price</td>
+                            <td>Brk</td>
+                            <td>Order Time</td>
+                            <td>Ip Address</td>
+                            <td>Device id</td>
+                            <td>Refernce</td>
+                            <td>Order Method</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="users">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Add&nbsp;Order</p>
+                       
+                    </div>
+                    
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Add order</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">Username:</label>
+                            <input type="text">
+                        </div>
+                        <div>
+                            <label for="">Exchange Name:</label>
+                            <select name="" id="">
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                                <option value="">All Exchanges</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Script Name:</label>
+                            <select name="" id="">
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                            </select>
+                        </div>
+                        <div>
+                           
+                            <label for="">Sell</label>
+                            <input type="text">
+                            <label for="">Buy</label>
+                           <input type="text"/>
+                           <div>
+                            <label for="">Buy/Sell:</label>
+                            <select name="" id="">
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Order Type:</label>
+                            <select name="" id="">
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Qty:</label>
+                            <select name="" id="">
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Rate By:</label>
+                            <select name="" id="">
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                                <option value="">All Symbols</option>
+                            </select>
+                        </div>
+                        <label for="">Price</label>
+                        <input type="number">
+                       
+                            <input type="submit" value="Submit" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                  
+                </div>
+               
+                <div class="trades-body user-table ">
+                    <div class="pos-relate">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>View</th>
+                            <th>Exchange</th>
+                            <th>Symbol</th>
+                            <th>Position</th>
+                            <th>Quantity</th>
+                            <th>Average Rate</th>
+                            <th>CMP</th>
+                            <th>Profit / Loss</th>
+                        </tr>
+                        <tr>
+                            <td>View</td>
+                            <td>Exchange</td>
+                            <td>Symbol</td>
+                            <td>Position</td>
+                            <td>Quantity</td>
+                            <td>Average Rate</td>
+                            <td>CMP</td>
+                            <td>Profit / Loss</td>
+                        </tr>
+                    </table>
+                </div>
+                    <div class="totalPL">
+                        <div style="background-color: grey;width: 100%;"></div>
+                        <table border="1">
+                         
+                            <tr>
+                                <td>PL:0.00</td>
+                                <td>BK:0.00</td>
+                                <td>BAL:0.00</td>
+                                <td>CRD:0</td>
+                                <td>EQT:10,000</td>
+                                <td>Total P/L:200.00</td>
+                            </tr>
+                        </table>
+                        
+                    </div>
+                   
+                </div>
+             
+            </div>
+            
+        </div>
+        <div class="tab-content" id="pnl">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 5px; background-color: #D3D3D3;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">All Users</option>
+                                <option value="">DEMO008</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="Apply" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Username</th>
+                            <th>Realised P&L</th>
+                            <th>M2M P&L</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td>Realised P&L</td>
+                            <td>M2M P&L</td>
+                            <td>Total</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="m2mpnl">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">All Users</option>
+                                <option value="">DEMO008</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="Apply" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>User</th>
+                            <th>User Type</th>
+                            <th>Profit / Loss</th>
+                            <th>PL Share(%)</th>
+                            <th>PL Share Amount</th>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>User Type</td>
+                            <td>Profit / Loss</td>
+                            <td>PL Share(%)</td>
+                            <td>PL Share Amount</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="intraday">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">Exchange:</label>
+                            <select name="" id="">
+                                <option value="">Exchange</option>
+                                <option value="">MCX</option>
+                                <option value="">MINI</option>
+                                <option value="">NSE</option>
+                                <option value="">OTHERS</option>
+                                <option value="">SGX</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Period:</label>
+                            <select name="" id="">
+                                <option value="">Minutes</option>
+                                <option value="">3 Minute</option>
+                                <option value="">5 Minute</option>
+                                <option value="">10 Minute</option>
+                                <option value="">30 Minute</option>
+                                <option value="">60 Minute</option>
+                                <option value="">Day</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Symbol:</label>
+                            <select name="" id="">
+                                <option value="">Symbol</option>
+                                <option value="">Symbol</option>
+                                <option value="">Symbol</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="Search" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>User</th>
+                            <th>User Type</th>
+                            <th>Profit / Loss</th>
+                            <th>PL Share(%)</th>
+                            <th>PL Share Amount</th>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>User Type</td>
+                            <td>Profit / Loss</td>
+                            <td>PL Share(%)</td>
+                            <td>PL Share Amount</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="rejection">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Date:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Exchange:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Symbol:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Date</th>
+                            <th>Message</th>
+                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Reference Price</th>
+                            <th>IP Address</th>
+                            <th>Device ID</th>
+                            <th>Trade by</th>
+                        </tr>
+                        <tr>
+                            <td>Date</td>
+                            <td>Message</td>
+                            <td>Username</td>
+                            <td>Symbol</td>
+                            <td>Type</td>
+                            <td>Quantity</td>
+                            <td>Price</td>
+                            <td>Reference Price</td>
+                            <td>IP Address</td>
+                            <td>Device ID</td>
+                            <td>Trade by</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="login">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Date:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Search:</label>
+                            <input type="text">
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Login Date</th>
+                            <th>Logout Date</th>
+                            <th>Username</th>
+                            <th>User Type</th>
+                            <th>IP Address</th>
+                            <th>Device ID</th>
+                            <th>City</th>
+                            <th>Country</th>
+                        </tr>
+                        <tr>
+                            <td>Login Date</td>
+                            <td>Logout Date</td>
+                            <td>Username</td>
+                            <td>User Type</td>
+                            <td>IP Address</td>
+                            <td>Device ID</td>
+                            <td>City</td>
+                            <td>Country</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="openposition">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Exchange:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Symbol:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Username</th>
+                            <th>Parent User</th>
+                            <th>Exchange</th>
+                            <th>Symbol</th>
+                            <th>Position</th>
+                            <th>Quantity</th>
+                            <th>Average Rate</th>
+                            <th>CMP</th>
+                            <th>Profit / Loss</th>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td>Parent User</td>
+                            <td>Exchange</td>
+                            <td>Symbol</td>
+                            <td>Position</td>
+                            <td>Quantity</td>
+                            <td>Average Rate</td>
+                            <td>CMP</td>
+                            <td>Profit / Loss</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="managetrades">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Status:</label>
+                            <select name="" id="">
+                                <option value="">All</option>
+                                <option value="">Successful</option>
+                                <option value="">Pending</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Exchange:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Symbol:</label>
+                            <select name="" id="">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <button class="delete-btn">Delete</button>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Brk</th>
+                            <th>Deal</th>
+                            <th>Status</th>
+                            <th>Order Time</th>
+                            <th>Execution Time</th>
+                            <th>IPAddress</th>
+                            <th>DeviceId</th>
+                            <th>Reference Price</th>
+                            <th>Order Method</th>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td>Symbol</td>
+                            <td>Type</td>
+                            <td>Quantity</td>
+                            <td>Price</td>
+                            <td>Brk</td>
+                            <td>Deal</td>
+                            <td>Status</td>
+                            <td>Order Time</td>
+                            <td>Execution Time</td>
+                            <td>IPAddress</td>
+                            <td>DeviceId</td>
+                            <td>Reference Price</td>
+                            <td>Order Method</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="tradeaccount">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">All</option>
+                                <option value="">Successful</option>
+                                <option value="">Pending</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Search:</label>
+                            <input type="text">
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <button class="delete-btn">Delete</button>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Username</th>
+                            <th>ParentUser</th>
+                            <th>PL</th>
+                            <th>Brk</th>
+                            <th>Balance</th>
+                            <th>Equity</th>
+                            <th>Credit</th>
+                            <th>Net P/L</th>
+                            <th>M2M P/L</th>
+                            <th>MarginUsed</th>
+                            <th>FreeMargin</th>
+                            <th>MarginLevel</th>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td>ParentUser</td>
+                            <td>PL</td>
+                            <td>Brk</td>
+                            <td>Balance</td>
+                            <td>Equity</td>
+                            <td>Credit</td>
+                            <td>Net P/L</td>
+                            <td>M2M P/L</td>
+                            <td>MarginUsed</td>
+                            <td>FreeMargin</td>
+                            <td>MarginLevel</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="accountsummary">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">DEM999</option>
+                            </select>
+                        </div>
+                        <div class="flex">
+                            <div class="mr flex">
+                                <p style="font-size: 14px; margin-right: 5px;">P/L</p>
+                                <input type="checkbox" name="" id="" class="unset mb-0">
+                            </div>
+                            <div class="mr flex">
+                                <p style="font-size: 14px; margin-right: 5px;">Brk</p>
+                                <input type="checkbox" name="" id="" class="unset mb-0">
+                            </div>
+                            <div class="mr flex">
+                                <p style="font-size: 14px; margin-right: 5px;">Credit</p>
+                                <input type="checkbox" name="" id="" class="unset mb-0">
+                            </div>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <button class="delete-btn">Delete</button>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Date</th>
+                            <th>Username</th>
+                            <th>Particular</th>
+                            <th>Qty</th>
+                            <th>Buy/Sell</th>
+                            <th>Price</th>
+                            <th>Average Price</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Closing</th>
+                            <th>Open Qty</th>
+                        </tr>
+                        <tr>
+                            <td>Date</td>
+                            <td>Username</td>
+                            <td>Particular</td>
+                            <td>Qty</td>
+                            <td>Buy/Sell</td>
+                            <td>Price</td>
+                            <td>Average Price</td>
+                            <td>Type</td>
+                            <td>Amount</td>
+                            <td>Closing</td>
+                            <td>Open Qty</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="billgenerate">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">DEM999</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Select:</label>
+                            <select name="" id="">
+                                <option value="">PDF</option>
+                                <option value="">Excel</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">PDF Type:</label>
+                            <select name="" id="">
+                                <option value="">Regular Report</option>
+                                <option value="">Advance Report</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="trades-body user-table">
+                    <button class="delete-btn">Delete</button>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Brk</th>
+                            <th>Deal</th>
+                            <th>Status</th>
+                            <th>Order Time</th>
+                            <th>Execution Time</th>
+                            <th>IPAddress</th>
+                            <th>DeviceId</th>
+                            <th>Reference Price</th>
+                            <th>Order Method</th>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td>Symbol</td>
+                            <td>Type</td>
+                            <td>Quantity</td>
+                            <td>Price</td>
+                            <td>Brk</td>
+                            <td>Deal</td>
+                            <td>Status</td>
+                            <td>Order Time</td>
+                            <td>Execution Time</td>
+                            <td>IPAddress</td>
+                            <td>DeviceId</td>
+                            <td>Reference Price</td>
+                            <td>Order Method</td>
+                        </tr>
+                    </table>
+                </div> -->
+            </div>
+        </div>
+        <div class="tab-content" id="settlement">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div class="mb-10">
+                            <label for="">Opening:</label>
+                            <div class="flex">
+                                <div class="flex mr">
+                                    <input type="radio" name="" id="" class="unset mb-0" style="margin-right: 5px;">
+                                    <p style="font-size: 14px;">Without</p>
+                                </div>
+                                <div class="flex">
+                                    <input type="radio" name="" id="" class="unset mb-0" style="margin-right: 5px;">
+                                    <p style="font-size: 14px;">With</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <div class="flex">
+                        <div class="col-50">
+                            <table style="width: 100%;border: 1px solid #000;">
+                                <div class="text-center">
+                                    <h3 class="green-color mb-0">Profit</h3>
+                                </div>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>P/L</th>
+                                    <th>Brk</th>
+                                    <th>Total</th>
+                                </tr>
+                                <tr>
+                                    <td>Username</td>
+                                    <td>P/L</td>
+                                    <td>Brk</td>
+                                    <td>Total</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-50">
+                            <table style="width: 100%;border: 1px solid #000;">
+                                <div class="text-center">
+                                    <h3 class="red-color mb-0">Loss</h3>
+                                </div>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>P/L</th>
+                                    <th>Brk</th>
+                                    <th>Total</th>
+                                </tr>
+                                <tr>
+                                    <td>Username</td>
+                                    <td>P/L</td>
+                                    <td>Brk</td>
+                                    <td>Total</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="logshistory">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">DEM999</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Log Type:</label>
+                            <select name="" id="">
+                                <option value="">All</option>
+                                <option value="">Create</option>
+                                <option value="">Edit</option>
+                                <option value="">Bet</option>
+                                <option value="">Close Only</option>
+                                <option value="">Margin Square off</option>
+                                <option value="">Status</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="trades-body user-table">
+                    <button class="delete-btn">Delete</button>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Brk</th>
+                            <th>Deal</th>
+                            <th>Status</th>
+                            <th>Order Time</th>
+                            <th>Execution Time</th>
+                            <th>IPAddress</th>
+                            <th>DeviceId</th>
+                            <th>Reference Price</th>
+                            <th>Order Method</th>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td>Symbol</td>
+                            <td>Type</td>
+                            <td>Quantity</td>
+                            <td>Price</td>
+                            <td>Brk</td>
+                            <td>Deal</td>
+                            <td>Status</td>
+                            <td>Order Time</td>
+                            <td>Execution Time</td>
+                            <td>IPAddress</td>
+                            <td>DeviceId</td>
+                            <td>Reference Price</td>
+                            <td>Order Method</td>
+                        </tr>
+                    </table>
+                </div> -->
+            </div>
+        </div>
+        <div class="tab-content" id="logsnew">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">Log Type:</label>
+                            <select name="" id="">
+                                <option value="">Bet</option>
+                                <option value="">Close Only</option>
+                                <option value="">Margin Square off</option>
+                                <option value="">Status</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Username:</label>
+                            <select name="" id="">
+                                <option value="">DEM999</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">From:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <button class="delete-btn">Delete</button>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Name</th>
+                            <th>Old Bet</th>
+                            <th>New Bet</th>
+                            <th>Old CloseOnly</th>
+                            <th>New CloseOnly</th>
+                            <th>Old Margin Squareoff</th>
+                            <th>New Margin Squareoff</th>
+                            <th>Old User Status</th>
+                            <th>New User Status</th>
+                            <th>Old % Cash Margin</th>
+                            <th>% Cash Margin</th>
+                            <th>Old Fresh StopLoss</th>
+                            <th>Fresh StopLoss</th>
+                            <th>Old GroupName</th>
+                            <th>GroupName</th>
+                            <th>Old ReadOnly</th>
+                            <th>ReadOnly</th>
+                            <th>Intraday SquareOff</th>
+                            <th>Old Intraday SquareOff</th>
+                            <th>Exchange Name</th>
+                            <th>UpdatedOn</th>
+                            <th>UpdatedBy</th>
+                            <th>Old UpdatedOn</th>
+                            <th>Old UpdatedBy</th>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td>Old Bet</td>
+                            <td>New Bet</td>
+                            <td>Old CloseOnly</td>
+                            <td>New CloseOnly</td>
+                            <td>Old Margin Squareoff</td>
+                            <td>New Margin Squareoff</td>
+                            <td>Old User Status</td>
+                            <td>New User Status</td>
+                            <td>Old % Cash Margin</td>
+                            <td>% Cash Margin</td>
+                            <td>Old Fresh StopLoss</td>
+                            <td>Fresh StopLoss</td>
+                            <td>Old GroupName</td>
+                            <td>GroupName</td>
+                            <td>Old ReadOnly</td>
+                            <td>ReadOnly</td>
+                            <td>Intraday SquareOff</td>
+                            <td>Old Intraday SquareOff</td>
+                            <td>Exchange Name</td>
+                            <td>UpdatedOn</td>
+                            <td>UpdatedBy</td>
+                            <td>Old UpdatedOn</td>
+                            <td>Old UpdatedBy</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="positiontrack">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">To:</label>
+                            <input type="date" name="" id="">
+                        </div>
+                        <div>
+                            <label for="">Exchange:</label>
+                            <select name="" id="">
+                                <option value="">All</option>
+                                <option value="">MCX</option>
+                                <option value="">NSE</option>
+                                <option value="">MINI</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Symbols:</label>
+                            <select name="" id="">
+                                <option value="">LEAD 30 NOV 2023</option>
+                                <option value="">ZINCMINI 30 NOV 2023</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <button class="delete-btn">Delete</button>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Name</th>
+                            <th>Start Tran Date</th>
+                            <th>End Tran Date</th>
+                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>Position</th>
+                            <th>Open Quanity</th>
+                            <th>open Average Price</th>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td>Start Tran Date</td>
+                            <td>End Tran Date</td>
+                            <td>Username</td>
+                            <td>Symbol</td>
+                            <td>Position</td>
+                            <td>Open Quanity</td>
+                            <td>open Average Price</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="positionpl">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                        <div>
+                            <label for="">User:</label>
+                            <select name="" id="">
+                                <option value="">All</option>
+                                <option value="">MCX</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Exchange:</label>
+                            <select name="" id="">
+                                <option value="">All</option>
+                                <option value="">MCX</option>
+                                <option value="">NSE</option>
+                                <option value="">MINI</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="">Symbols:</label>
+                            <select name="" id="">
+                                <option value="">LEAD 30 NOV 2023</option>
+                                <option value="">ZINCMINI 30 NOV 2023</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for=""></label>
+                            <input type="submit" value="View" class="form-btn">
+                            <input type="submit" value="Clear" class="cancel-btn">
+                        </div>
+                    </div>
+                </div>
+                <div class="trades-body user-table">
+                    <button class="delete-btn">Delete</button>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Name</th>
+                            <th>Start Tran Date</th>
+                            <th>End Tran Date</th>
+                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>ProfitLoss</th>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td>Start Tran Date</td>
+                            <td>End Tran Date</td>
+                            <td>Username</td>
+                            <td>Symbol</td>
+                            <td>ProfitLoss</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="scriptquantity">
+            <div class="trade-btm">
+                <div class="mb-10">
+                    <label for="">Exchange:</label>
+                    <select name="" id="" style="width: 250px;" class="form-control">
+                        <option value="">All</option>
+                        <option value="">MCX</option>
+                        <option value="">NSE</option>
+                        <option value="">MINI</option>
+                    </select>
+                </div>
+            </div>
+            <div class="user-table col-100">
+                <table style="width: 100%;">
+                    <tr>
+                        <th>SCRIPT</th>
+                        <th>Lot Size</th>
+                        <th>Lot Max</th>
+                        <th>Breakup Lot</th>
+                        <th>Last Updated</th>
+                    </tr>
+                    <tr>
+                        <td>ALUMINI</td>
+                        <td>1000</td>
+                        <td>5</td>
+                        <td>5</td>
+                        <td>7/16/2023 4:11 PM</td>
+                    </tr>
+                    <tr>
+                        <td>COPPER</td>
+                        <td>5000</td>
+                        <td>5</td>
+                        <td>5</td>
+                        <td>7/16/2023 4:11 PM</td>
+                    </tr>
+                    <tr>
+                        <td>COTTON</td>
+                        <td>2500</td>
+                        <td>5</td>
+                        <td>5</td>
+                        <td>7/16/2023 4:11 PM</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="tab-content" id="changepass">
+            <div class="change-pass">
+                <div class="pass-body">
+                    <div class="pass-top flex align-center space-bw">
+                        <div>
+                            <p>Change Password</p>
+                        </div>
+                        <div>
+                            <i class="fa-solid fa-xmark" id="closeChangePass"></i>
+                        </div>
+                    </div>
+                    <div class="pass-inputs">
+                        <div>
+                            <label for="">Username:</label>
+                            <input type="text">
+                        </div>
+                        <div>
+                            <label for="">New Password:</label>
+                            <input type="password">
+                        </div>
+                        <div>
+                            <label for="">Confirm Password:</label>
+                            <input type="password">
+                        </div>
+                        <div>
+                            <button class="save-btn">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+        </script>
+    <script src="custom.js"></script>
+
+</body>
+<script>
+    $(document).ready(function () {
+        $('.tab-head li').click(function () {
+            var tabId = $(this).attr('data-id');
+            $('#' + tabId).show().siblings().hide()
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+        $('.open-menu').click(function () {
+            $(".dropdown").toggle();
+        })
+        $('.open-view-menu').click(function () {
+            $("#view-dropdown").toggle();
+        })
+        $('.open-report-menu').click(function () {
+            $("#report-dropdown").toggle();
+        })
+        $('.open-file-menu').click(function () {
+            $("#file-dropdown").toggle();
+        })
+        $('.closeBtn').click(function () {
+            $(".trades-side").hide();
+            $(".trades-body").css("width", "100% - 30px");
+        })
+        $('#closeChangePass').click(function () {
+            $(".change-pass").hide();
+        })
+    });
+</script>
+
+</html>

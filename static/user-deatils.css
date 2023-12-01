@@ -1,0 +1,501 @@
+@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@200;300;400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Mukta', sans-serif;
+}
+
+li {
+    list-style: none;
+}
+
+.flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.space-bw {
+    justify-content: space-between;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.col-100 {
+    width: 100%;
+}
+
+.col-50 {
+    width: 50%;
+}
+
+.col-49 {
+    width: 49%;
+}
+
+.col-25 {
+    width: 24%;
+}
+
+.col-20 {
+    width: 19%;
+}
+
+
+.mr {
+    margin-right: 15px;
+}
+
+.mr-5 {
+    margin-right: 5px;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.green-color {
+    color: green;
+}
+
+.red-color {
+    color: red;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.unset {
+    width: unset !important;
+}
+
+.delete-btn {
+    background: red;
+    padding: 5px 10px;
+    font-size: 16px;
+    color: #fff;
+    outline: none;
+    border: none;
+    margin: 10px 0;
+}
+
+/* main css  */
+.tab-content {
+    display: none;
+}
+
+.tab-content:first-of-type {
+    display: block;
+}
+
+.tab-head {
+    border-bottom: 1px solid #D3D3D3;
+}
+
+.tab-head li {
+    display: inline-block;
+    padding: 5px 15px;
+    position: relative;
+    margin-right: 5px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.tab-head li i {
+    margin-left: 5px;
+    font-size: 12px;
+}
+
+.tab-head li.active {
+    background: #d9d9d9;
+    color: #000;
+}
+
+ul.dropdown,
+ul.view-dropdown {
+    position: absolute;
+    display: block;
+    background: #fff;
+    z-index: 999;
+    width: 130px;
+    top: 36px;
+    left: 0px;
+    display: none;
+}
+
+ul.view-dropdown {
+    width: 200px;
+}
+
+ul.dropdown li,
+ul.view-dropdown li {
+    padding: 0;
+    margin-bottom: 5px;
+    display: block;
+}
+
+ul.dropdown li:last-of-type,
+ul.view-dropdown li:last-of-type {
+    margin-bottom: 0;
+}
+
+ul.dropdown li:hover,
+ul.view-dropdown li:hover {
+    background: #1D3354;
+    color: #fff;
+}
+
+ul.dropdown li i,
+ul.view-dropdown li i {
+    margin-right: 5px;
+}
+
+.form-group {
+    outline: none;
+    font-size: 14px;
+}
+
+.form-btn {
+    background: #FFA500;
+    outline: none;
+    border: none;
+    padding: 4px 10px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.left-top {
+    padding: 10px;
+}
+
+.left-top input[type="text"] {
+    width: 60px;
+}
+
+/*  main body css   */
+.left-body,
+.left-top {
+    border: 1px solid #d9d9d9;
+}
+
+.side-pannel {
+    background-color: #e7e7e7;
+    width: 100px;
+    padding: 10px;
+}
+
+.side-pannel input {
+    margin-right: 5px;
+}
+
+.pannel-body {
+    width: calc(100% - 100px);
+}
+
+/* user list */
+.user-table {
+    padding: 0 10px;
+}
+
+.user-table h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.user-table table {
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.user-table table tr th {
+    background: #8edfff;
+    font-size: 14px;
+}
+
+.user-table table tr td {
+    font-size: 14px;
+    border-bottom: 1px solid #d9d9d9;
+}
+
+/* search user */
+.search-user input {
+    outline: none;
+    margin-left: 10px;
+}
+
+.seach-area {
+    margin-bottom: 15px;
+}
+
+.seach-area input {
+    width: 250px;
+}
+
+.outcome-user {
+    border: 1px solid #d9d9d9;
+}
+
+.outcome-user ul {
+    margin-left: 30px;
+}
+
+.outcome-user ul li {
+    list-style: disc;
+    margin-bottom: 6px;
+}
+
+.outcome-user ul li:last-of-type {
+    margin-bottom: 0;
+}
+
+/* create user */
+.top-user {
+    background-color: #72c3ff;
+    padding: 8px 10px;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.exchange-table table tr td select {
+    border: none;
+    outline: none;
+}
+
+.create-account {
+    padding: 10px;
+    background: #ececec;
+}
+
+.create-form .form-group {
+    width: 100%;
+}
+
+.exchange-table tr th,
+.exchange-table tr td {
+    padding: 5px;
+}
+
+.toggle-switches h4 {
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.toggle-switches,
+.change-pass-page {
+    margin-bottom: 15px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 15px;
+    width: 15px;
+    left: 4px;
+    bottom: 5px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: #2196F3;
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.save-btn,
+.cancel-btn {
+    background: green;
+    width: 100%;
+    outline: none;
+    border: none;
+    font-size: 16px;
+    color: #fff;
+}
+
+.cancel-btn {
+    background: #646464;
+}
+
+/* view trades */
+.trade-top {
+    background: #f0f0f0;
+    padding: 0 10px;
+}
+
+.trade-top p {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.trade-btm {
+    padding: 0 10px;
+}
+
+.trade-download {
+    width: 30px;
+    background: #ececec;
+}
+
+.trade-download i {
+    font-size: 20px;
+    margin-top: 30px;
+    margin-left: 6px;
+    color: #14be0b;
+}
+
+.trades-side {
+    width: 250px;
+    background: #d9d9d9;
+}
+
+.trades-body {
+    width: calc(100% - 280px);
+}
+
+/* .trades-body table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.trades-body table tr td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+} */
+
+.trades-side label {
+    display: block;
+    font-size: 14px;
+}
+
+.trades-side input,
+.trades-side select {
+    width: 100%;
+    margin-bottom: 10px;
+    outline: none;
+}
+
+/* password change css */
+.change-pass {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.pass-body {
+    background: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+}
+
+.pass-top {
+    background: #ececec;
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.pass-inputs {
+    padding: 15px;
+}
+
+.pass-inputs div {
+    margin-bottom: 10px;
+}
+
+.pass-inputs div:last-of-type {
+    margin-bottom: 0;
+}
+
+.pass-body input {
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    outline: none;
+}
+
+.save-btn {
+    background: green;
+    outline: none;
+    border: none;
+    color: #fff;
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.pass-top i {
+    cursor: pointer;
+}
+/*down table css*/
+.totalPL{
+    position: absolute;
+    bottom: 0;
+    width: calc(100% - 280px);
+}
+.totalPL table{
+    width: 100%;
+  
+    border-collapse: collapse;
+    margin-bottom: 5px;
+   
+}
+.pos-relate{
+    position: relative;
+}

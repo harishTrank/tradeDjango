@@ -171,7 +171,7 @@
                             </li>
                         </ul>
                     </td>
-                    <td>{{i.user_name}}</td>
+                    <td class="user-cell">{{i.user_name}}</td>
                     <td>{{i.full_name}}</td>
                     <td>{{i.user_type}}</td>
                     <td>{{i.user_name}}</td>
@@ -219,7 +219,8 @@
         </div>
     </div>
 </div>
-
+{% comment %} {% include "components/user/account-limit.html" %}
+{% include "components/user/admin-rights.html" %} {% endcomment %}
 
 <script>
     $('.dropdown_action').click(function(){
@@ -252,5 +253,20 @@
         $("#accountLimitid").css("display", "block");
         $('.action_dropdown').toggle();
     }
+
+
+    // please dont touch ====>
+    const userCells = document.querySelectorAll('.user-cell');
+    const userTabOpen = (userName) => {
+        window.open('user-deatils', 'NewWindow', 'width=1200,height=600');
+    };
+    userCells.forEach(cell => {
+        cell.addEventListener('click', () => {
+            const userName = cell.textContent;
+            userTabOpen(userName);
+        });
+    });
+    
+    
 </script>
 {% endblock content %}
