@@ -1,132 +1,132 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trading</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"/>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" />
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 
-        <!-- CDN for toast message -->
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-        crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
-      <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css'>
+    <!-- CDN for toast message -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css"
+    />
 
-
-
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
       integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
-      crossorigin="anonymous" referrerpolicy="no-referrer" />
-<style>
-    .page-tab {
-        border-bottom: 1px solid #D3D3D3;
-    }
-    
-    .page-tab li {
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      .page-tab {
+        border-bottom: 1px solid #d3d3d3;
+      }
+
+      .page-tab li {
         display: inline-block;
         padding: 5px 15px;
         position: relative;
         margin-right: 5px;
         cursor: pointer;
         font-size: 15px;
-    }
-    
-    .page-tab li i {
+      }
+
+      .page-tab li i {
         margin-left: 5px;
         font-size: 12px;
-    }
-    
-    .page-tab li.page-active {
+      }
+
+      .page-tab li.page-active {
         background: lightblue;
         color: #000;
-    }
-</style>     
-    </head>
-<body>
-    {% include "header.html" %}
-    
-    {% if messages %}
-    {% for message in messages %}
+      }
+    </style>
+  </head>
+  <body>
+    {% include "header.html" %} {% if messages %} {% for message in messages %}
     {% if message.tags == "alert-success" %}
-    <p id="idd1" hidden>{{ message }} </p>
+    <p id="idd1" hidden>{{ message }}</p>
     {% elif message.tags == "alert-danger" %}
-    <p id="idd2" hidden>{{ message }} </p>
+    <p id="idd2" hidden>{{ message }}</p>
     {% elif message.tags == "alert-warning" %}
-    <p id="idd3" hidden>{{ message }} </p>
+    <p id="idd3" hidden>{{ message }}</p>
     {% elif message.tags == "alert-info" %}
-    <p id="idd4" hidden>{{ message }} </p>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
-
-    
-    
-    {% comment %} <div class="page-tab">
-        <li class="page-active">Open Position <i class="fa-solid fa-xmark">X</i></li>
-       </div> {% endcomment %}
-    <div class="tab-wrapper">
-      {% comment %} extra components {% endcomment %}
-        {% block content %}
-        {% endblock content %}
-
-      {% include "components/password-popup.html" %}
+    <p id="idd4" hidden>{{ message }}</p>
+    {% endif %} {% endfor %} {% endif %} {% comment %}
+    <div class="page-tab">
+      <li class="page-active">
+        Open Position <i class="fa-solid fa-xmark">X</i>
+      </li>
     </div>
-    <script src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
-        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer">
-        </script>
-</body>
-<script>
+    {% endcomment %}
+    <div class="tab-wrapper">
+      {% block content %} {% endblock content %} {% include
+      "components/password-popup.html" %}
+    </div>
+    <script
+      src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+      integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </body>
+  <script>
     var toastMixin = Swal.mixin({
       toast: true,
-      title: 'General Title',
+      title: "General Title",
       animation: false,
-      position: 'top-right',
+      position: "top-right",
       showConfirmButton: false,
       timer: 3000,
       timerProgressBar: true,
       didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer)
-        toast.addEventListener('mouseleave', Swal.resumeTimer)
-      }
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+      },
     });
-    var x = $('#idd1').text();
-    if (x !== "" ){
-        toastMixin.fire({
+    var x = $("#idd1").text();
+    if (x !== "") {
+      toastMixin.fire({
         animation: true,
         title: x,
-        icon: 'success',
+        icon: "success",
       });
     }
-    var x = $('#idd2').text();
-    if (x !== "" ){
-        toastMixin.fire({
+    var x = $("#idd2").text();
+    if (x !== "") {
+      toastMixin.fire({
         animation: true,
         title: x,
-        icon: 'error',
+        icon: "error",
       });
     }
-  
-    var x = $('#idd3').text();
-    if (x !== "" ){
-        toastMixin.fire({
+
+    var x = $("#idd3").text();
+    if (x !== "") {
+      toastMixin.fire({
         animation: true,
         title: x,
-        icon: 'warning',
+        icon: "warning",
       });
     }
-  
-    var x = $('#idd4').text();
-    if (x !== "" ){
-        toastMixin.fire({
+
+    var x = $("#idd4").text();
+    if (x !== "") {
+      toastMixin.fire({
         animation: true,
         title: x,
-        icon: 'info',
+        icon: "info",
       });
     }
   </script>
