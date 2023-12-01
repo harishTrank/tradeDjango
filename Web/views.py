@@ -89,13 +89,14 @@ class AddUserView(View):
             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
         }
         user_id = request.user.id
+        print("sdfsdfksdfkdfkkdf",request.user.user_name)
         current_master = MyUser.objects.get(id=user_id).master_user
         if request.POST.get("add_master") == "on":
             admin_belongs = current_master.admin_user
             create_user = MyUser.objects.create(user_type="Master", **user_data)
-            new_mastr_model = MastrModel.objects.create(master_user=create_user, admin_user=admin_belongs)
-            master_instance = MastrModel.objects.first()
-            new_mastr_model.master_link = master_instance
+            new_mastr_model = MastrModel.objects.create(master_user=create_user,
+                admin_user=admin_belongs,
+                master_link=current_master)
             new_mastr_model.save()
         else:
             create_user = MyUser.objects.create(user_type="Client",**user_data)
@@ -190,7 +191,6 @@ class DownloadCSVView(View):
                 client.client.balance,
                 client.client.created_at,
                 client.client.last_login,
-               
             ])
 
         return response

@@ -220,7 +220,7 @@
     </div>
 </div>
 {% include "components/user/account-limit.html" %}
-{% comment %} {% include "components/user/admin-rights.html" %} {% endcomment %}
+{% include "components/user/admin-rights.html" %}
 
 <script>
     $('.dropdown_action').click(function(){
@@ -241,7 +241,7 @@
 
 
     const adminRights = () => {
-        $("#admin-rights").css("display","block");
+        $("#adminRightsId").css("display","block");
         $('.action_dropdown').toggle();
     }
     
