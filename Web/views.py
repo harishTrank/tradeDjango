@@ -89,18 +89,31 @@ class AddUserView(View):
             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
         }
         user_id = request.user.id
-        print("sdfsdfksdfkdfkkdf",request.user.user_name)
-        current_master = MyUser.objects.get(id=user_id).master_user
-        if request.POST.get("add_master") == "on":
-            admin_belongs = current_master.admin_user
-            create_user = MyUser.objects.create(user_type="Master", **user_data)
-            new_mastr_model = MastrModel.objects.create(master_user=create_user,
-                admin_user=admin_belongs,
-                master_link=current_master)
-            new_mastr_model.save()
-        else:
-            create_user = MyUser.objects.create(user_type="Client",**user_data)
-            ClientModel.objects.create(client=create_user, master_user_link=current_master)
+
+        if request.user.user_type == "Master":
+            current_master = MyUser.objects.get(id=user_id).master_user
+            if request.POST.get("add_master") == "on":
+                admin_belongs = current_master.admin_user
+                create_user = MyUser.objects.create(user_type="Master", **user_data)
+                new_mastr_model = MastrModel.objects.create(master_user=create_user,
+                    admin_user=admin_belongs,
+                    master_link=current_master)
+                new_mastr_model.save()
+            else:
+                create_user = MyUser.objects.create(user_type="Client",**user_data)
+                ClientModel.objects.create(client=create_user, master_user_link=current_master)
+
+        elif request.user.user_type == "Admin":
+            current_admin = MyUser.objects.get(id=user_id).admin_user
+            # if request.POST.get("add_master") == "on":
+            #     create_user = MyUser.objects.create(user_type="Master", **user_data)
+            #     new_mastr_model = MastrModel.objects.create(master_user=create_user,
+            #         admin_user=current_admin,
+            #         master_link=current_master)
+            #     new_mastr_model.save()
+            # else:
+            #     create_user = MyUser.objects.create(user_type="Client",**user_data)
+            #     ClientModel.objects.create(client=create_user, master_user_link=current_master)
             
         
         mcx_exchange = request.POST.get("mcx_exchange") == 'on'
@@ -171,6 +184,8 @@ class ListUserView(View):
             master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
             client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
             response_user = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
+        elif request.user.user_type == "SuperAdmin":
+            response_user = MyUser.objects.exclude(id=request.user.id)
         return render(request, "User/list-user.html",{"client":response_user})
     
 
