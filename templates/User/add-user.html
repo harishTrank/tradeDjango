@@ -4,60 +4,59 @@
   <div class="tab-content" id="create-user">
     <div class="create-account">
       <div>
-        <div class="flex">
-          <div class="mr"><input type="checkbox" />&nbsp Create Account for User</div>
-          <div>
-            <select name="userType" id="userType">
-              <option value="">Admin 1</option>
-              <option value="">Admin 2</option>
-            </select>
+        {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
+          <div class="flex">
+            <div class="mr"><input id="otherUserFlagId" type="checkbox" />&nbsp Create Account for User</div>
+            <div>
+              <select name="userType" disabled id="selectedAdminId">
+                <option value="">Select Admin</option>
+              </select>
 
-            <label>Select Type</label>
-            <select name="userType" id="userType">
-              <option value="">Client</option>
-            </select>
+              <select name="userType" disabled id="selectedMasterId">
+                <option value="">Select Master</option>
+              </select>
+            </div>
           </div>
-        </div>
+        {% endif %}
       </div>
       <div class="user-details">
         <h3>User Details</h3>
         <div class="create-form flex space-bw">
           <div class="col-25">
             <label for="">Name*</label>
-            <input type="text" name="full_name" id="" class="form-group" />
+            <input type="text" name="full_name" class="form-group" />
           </div>
           <div class="col-25">
             <label for="">Username</label>
-            <input type="text" name="user_name" id="" class="form-group" />
+            <input type="text" name="user_name" class="form-group" />
           </div>
           <div class="col-25">
             <label for="">Password*</label>
-            <input type="password" name="password" id="" class="form-group" />
+            <input type="password" name="password" class="form-group" />
           </div>
           <div class="col-25">
             <label for=""> Retype Password*</label>
             <input
               type="password"
               name="retype_password"
-              id=""
               class="form-group"
             />
           </div>
           <div class="col-25">
             <label for="">Mobile Number</label>
-            <input type="text" name="phone_number" id="" class="form-group" />
+            <input type="text" name="phone_number" class="form-group" />
           </div>
           <div class="col-25">
             <label for="">City</label>
-            <input type="text" name="city" id="" class="form-group" />
+            <input type="text" name="city" class="form-group" />
           </div>
           <div class="col-25">
             <label for="">Credit</label>
-            <input type="text" name="credit" id="" class="form-group" />
+            <input type="text" name="credit" class="form-group" />
           </div>
           <div class="col-25">
             <label for="">Remark</label>
-            <input type="text" name="remark" id="" class="form-group" />
+            <input type="text" name="remark" class="form-group" />
           </div>
         </div>
       </div>
@@ -280,4 +279,53 @@ input:checked+.slider:before {
     background: #646464;
 }
 </style>
+
+
+<script>
+  const masterDisableHandler = () => {
+      if ($("#selectedAdminId").val()) {
+        $("#selectedMasterId").prop("disabled", false);
+        $.ajax({
+          type: "GET",
+          url: '{% url "get-master-api" %}',
+          headers: { "X-CSRFToken": "{{ csrf_token }}" },
+          data: {
+            adminId: $("#selectedAdminId").val()
+          },
+          success: function (res) {
+            $("#selectedMasterId").empty();
+            $("#selectedMasterId").append(`<option value="">Select Master</option>`);
+            res.response.map(adminItem => {
+              $("#selectedMasterId").append(`<option value="${adminItem.master_user__id}">${adminItem.master_user__user_name}</option>`)
+            })
+          },
+        });
+      } else {
+        $("#selectedMasterId").prop("disabled", true);
+      }
+  }
+
+  $("#otherUserFlagId").click(() => {
+    if ($("#otherUserFlagId").prop("checked")) {
+      $("#selectedAdminId").prop("disabled", false);
+    } else {
+      $("#selectedAdminId").val("");
+      masterDisableHandler();
+      $("#selectedAdminId").prop("disabled", true);
+    }
+  })
+
+  $.ajax({
+    type: "GET",
+    url: '{% url "get-admin-api" %}',
+    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+    success: function (data) {
+      data.response.map(adminItem => {
+        $("#selectedAdminId").append(`<option value="${adminItem.id}">${adminItem.user_name}</option>`)
+      })
+    },
+  });
+
+  $("#selectedAdminId").change(masterDisableHandler)
+</script>
 {% endblock content %}

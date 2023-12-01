@@ -15,4 +15,7 @@ urlpatterns = [
     path("trade-particular-view/<int:id>", TradeParticularViewApi.as_view(), name="trade-particular-view/"),
     path("permission-toggle/", MyUserPerissionToggle.as_view(), name="permission-toggle"),
     path("change-passwordweb-api/", ChangePasswordWebAPI.as_view(), name="change-passwordweb-api"),
+    path("get-admin-api/", GetAllAdminApiView.as_view(), name="get-admin-api"),
+    path("get-master-api/", GetMasterApiView.as_view(), name="get-master-api"),
+    
 ]

@@ -392,7 +392,7 @@ class UserListApiView(APIView):
         return Response({"data":"comming soon...."},status=status.HTTP_200_OK)
 
 
-# web api
+# web api ----------------------------------
 class MyUserPerissionToggle(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
@@ -427,4 +427,20 @@ class ChangePasswordWebAPI(APIView):
                 return Response({"success": False, "message": "New passwords do not match!"}, status=status.HTTP_404_NOT_FOUND)
         return Response({"success": False, "message": "Invalid user name."}, status=status.HTTP_404_NOT_FOUND)
         
-# --------
+
+class GetAllAdminApiView(APIView):
+    def get(self, request):
+        try:
+            response = MyUser.objects.filter(user_type="Admin").exclude(id=request.user.id).values("user_name", "id")
+            return Response({"success": True, "response": list(response)}, status=status.HTTP_200_OK)
+        except:
+            return Response({"success": False}, status=status.HTTP_404_NOT_FOUND)
+        
+class GetMasterApiView(APIView):
+    def get(self, request):
+        try:
+            response = MyUser.objects.get(id=request.GET.get("adminId")).admin_user.admin_user.all().values("master_user__user_name", "master_user__id")
+            return Response({"success": True, "response": list(response)}, status=status.HTTP_200_OK)
+        except:
+            return Response({"success": False}, status=status.HTTP_404_NOT_FOUND)
+# ------------------------------------------------
