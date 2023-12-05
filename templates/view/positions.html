@@ -92,7 +92,7 @@
 <script>
     const identifer = JSON.parse("{{identifer|safe}}".replaceAll(`'`, `"`));
     const current_user_result = JSON.parse("{{response|safe}}".replaceAll(`'`, `"`));
-    const socket = io("http://13.127.239.118:5000"); 
+    const socket = io("http://localhost:5000"); 
     const profitLossHandler = (item, socketResponse) => {
         return (
         

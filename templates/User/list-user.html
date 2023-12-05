@@ -162,7 +162,7 @@
                     <td class="pos-relate"> 
                         <ul class="dropdown_action">
                             <li>
-                                <i class="fa-solid fa-ellipsis" onClick="clickActionBtn(event)" data-hidden-value="{{i.user_name}}"></i>  
+                                <i class="fa-solid fa-ellipsis" onClick="clickActionBtn(event)" data-hidden-value="{{i.user_name}} {{i.id}}"></i>  
                             </li>
                         </ul>
                     </td>
@@ -213,6 +213,9 @@
             </table>
         </div>
     </div>
+
+    {% comment %} seleted user id {% endcomment %}
+    <input hidden id="current_selected_userId"/>
 </div>
 
 
@@ -222,7 +225,8 @@
     })
 
     const clickActionBtn = (event) => {
-        $("#user_name_id").val(event.target.dataset.hiddenValue);
+        $("#user_name_id").val(event.target.dataset.hiddenValue?.split(" ")[0]);
+        $("#current_selected_userId").val(event.target.dataset.hiddenValue?.split(" ")[1]);
     }
 
     const callToggleApi = (id, key) => {

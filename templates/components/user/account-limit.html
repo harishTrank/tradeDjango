@@ -1,162 +1,217 @@
-
 <div class="create-profile" id="accountLimitid">
-    <div class="create-profile-inside"> 
-        <div class="top-body flex align-center space-bw align-center">
-            <div class="flex admin-right">
-                <p>Account Limit-MANDEEP20</p>
-             </div>
-             <div>  
-                <i class="fa-solid fa-x closeAccountLimit"></i>
-             </div>
+  <div class="create-profile-inside">
+    <div class="top-body flex align-center space-bw align-center">
+      <div class="flex admin-right">
+        <p>Account Limit-MANDEEP20</p>
+      </div>
+      <div>
+        <i class="fa-solid fa-x closeAccountLimit"></i>
+      </div>
+    </div>
+    <div class="middle-body">
+      <div class="inner-middle-body">
+        <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px;">
+          <p>Limit:</p>
+          <label class="switch">
+            <input id="limitId" type="checkbox" />
+            <span class="slider round"></span>
+          </label>
         </div>
-        <div class="middle-body">
-          <div class="inner-middle-body">
-          <div class="flex mrg-tb pop-up-text limit">
-           <p>Limit:</p>
-           <div><input type="radio"><span>On</span></div>
-           <div><input type="radio"><span>Off</span></div>
-          </div>
-          <div class="flex mrg-tb pop-up-text">
-            <p>Masters:</p>
-            <input type="text" placeholder="0">
-            <input type="text" placeholder="Occupied 0 + Created 0 = 0">
-            <input type="text" placeholder="0 Remaining">
-           </div>
-           <div class="flex mrg-tb pop-up-text clients">
-            <p>Clients:</p>
-            <input type="text" placeholder="10">
-            <input type="text" placeholder="Occupied 0 + Created 9 = 9">
-            <input type="text" placeholder="1 Remaining">
-           </div>
-           <div class="save-cancel-btn flex space-bw mrg-tb">
-            <div><a href="">Parent Limit Info</a></div>
+        <div class="flex mrg-tb pop-up-text spaceclass">
+          <p>Masters:</p>
+          <input id="master_limit" type="text" placeholder="0" />
+          <input
+            readonly
+            type="text"
+            placeholder="Occupied 0 + Created 0 = 0"
+          />
+          <input readonly type="text" placeholder="0 Remaining" />
+        </div>
+        <div class="flex mrg-tb pop-up-text clients spaceclass">
+          <p>Clients:</p>
+          <input id="client_limit" type="text" placeholder="10" />
+          <input
+            readonly
+            type="text"
+            placeholder="Occupied 0 + Created 9 = 9"
+          />
+          <input readonly type="text" placeholder="1 Remaining" />
+        </div>
+        <div class="save-cancel-btn flex space-bw mrg-tb">
+          <div><a href="">Parent Limit Info</a></div>
           <div class="btns">
-            <button>Save</button>
+            <button
+              style="padding: 5px 10px"
+              onClick="accountLimitHandler(event)"
+              type="submit"
+            >
+              Save
+            </button>
             <button class="closeAccountLimit">Cancel</button>
-          </div> 
-           </div> 
           </div>
-          
-         </div>
-   </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
-    #accountLimitid{
-        display:none;
-    }
+  #accountLimitid {
+    display: none;
+  }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    .flex{
-        display: flex;
-        flex-wrap: wrap;
-    }
-    .space-bw{
-        justify-content: space-between;
-    }
-    .align-center{
-        align-items: center;
-    }
-    .text-center{
-        text-align: center;
-    }
-    .white-back{
-        background: #fff;
-        box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.10);
-    }
-    
-    
-    / --------------------------- /
-    .create-profile {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background: rgba(0, 0, 0, 0.5);
-        width: 100%;
-        height: 100%;
-        z-index: 99;
-    }
-    .create-profile-inside {
-        width: 50%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 999;
-        background: #e7e7e7;
-        border-radius: 10px;
-    }
-    .admin-right i{
-      margin-right: 8px;
-      color: #ff0000;
-      font-size: 10px;
-      margin-top: 2px;
-    }
-    .top-body {
-        background-color: #c9c9c9;
-        padding: 8px;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-    }
-    .middle-body{
-        background-color: #fff;
-        padding: 15px; 
-    }
-    .inner-middle-body {
-        padding: 6px;
-        border: 1px solid black;
-    }
-    
-    .save-cancel-btn {
-        padding: 0px 75px;
-    }
-    .save-cancel-btn button:first-child {
-        background-color: #008000;
-        padding: 2px 10px;
-        color: #fff;
-        border: none;
-    }
-    .save-cancel-btn button:last-child {
-        background-color: #221b1b;
-        padding: 10px 20px;
-        color: #fff;
-        border: none;
-    }
-    .input-tags input {
-        padding: 3px 6px;
-        margin: 0px 6px;
-        border: 1px solid black;
-        background-color: #e7e7e7;
-        border-radius: 4px;
-    }
-    .mrg-tb{
-        margin: 8px 0px;
-    }
-    .pop-up-text p{
-        font-size: 16px;
-        font-weight: 600;
-    }
-    .limit p {
-        margin-right: 25px;
-    }
-    .limit div:first-child {
-        margin-right: 20px;
-    }
-    .clients p {
-        margin-right: 8px;
-    }
-    .btns button:first-child {
-        margin-right: 10px;
-        padding: 10px 20px;
-    }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .spaceclass {
+    justify-content: space-evenly;
+  }
+  .flex {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .space-bw {
+    justify-content: space-between;
+  }
+  .align-center {
+    align-items: center;
+  }
+  .text-center {
+    text-align: center;
+  }
+  .white-back {
+    background: #fff;
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
+  }
+
+  / --------------------------- / .create-profile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    z-index: 99;
+  }
+  .create-profile-inside {
+    width: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: #e7e7e7;
+    border-radius: 10px;
+  }
+  .admin-right i {
+    margin-right: 8px;
+    color: #ff0000;
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  .top-body {
+    background-color: #c9c9c9;
+    padding: 8px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+  .middle-body {
+    background-color: #fff;
+    padding: 15px;
+  }
+  .inner-middle-body {
+    padding: 6px;
+    border: 1px solid black;
+  }
+
+  .save-cancel-btn {
+    padding: 0px 75px;
+  }
+  .save-cancel-btn button:first-child {
+    background-color: #008000;
+    padding: 2px 10px;
+    color: #fff;
+    border: none;
+  }
+  .save-cancel-btn button:last-child {
+    background-color: #221b1b;
+    padding: 10px 20px;
+    color: #fff;
+    border: none;
+  }
+  .input-tags input {
+    padding: 3px 6px;
+    margin: 0px 6px;
+    border: 1px solid black;
+    background-color: #e7e7e7;
+    border-radius: 4px;
+  }
+  .mrg-tb {
+    margin: 8px 0px;
+  }
+  .pop-up-text p {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .limit p {
+    margin-right: 25px;
+  }
+  .limit div:first-child {
+    margin-right: 20px;
+  }
+  .clients p {
+    margin-right: 8px;
+  }
+  .btns button:first-child {
+    margin-right: 10px;
+    padding: 10px 20px;
+  }
 </style>
 
 <script>
-    $(".closeAccountLimit").click(() =>
-      $("#accountLimitid").css("display","none")
-    );
+  $(".closeAccountLimit").click(() =>
+    $("#accountLimitid").css("display", "none")
+  );
+
+  const accountLimitHandler = (event) => {
+    if (
+      $("#current_selected_userId").val() !== "" &&
+      $("#master_limit").val() !== "" &&
+      $("#client_limit").val() !== ""
+    ) {
+      event.preventDefault();
+      $.ajax({
+        type: "POST",
+        url: `{% url "limit-user-creation" %}?id=${$(
+          "#current_selected_userId"
+        ).val()}`,
+        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+        data: {
+          limit: $("#limitId").is(":checked"),
+          master_limit: $("#master_limit").val(),
+          client_limit: $("#client_limit").val(),
+        },
+        success: function (data) {
+          $("#accountLimitid").css("display", "none");
+          $("#limitId").prop("checked", false);
+          $("#master_limit").val();
+          $("#client_limit").val();
+          toastMixin.fire({
+            animation: true,
+            title: data.message,
+            icon: "success",
+          });
+        },
+        error: function (error) {
+          toastMixin.fire({
+            animation: true,
+            title: error.responseJSON.message,
+            icon: "error",
+          });
+        },
+      });
+    }
+  };
 </script>

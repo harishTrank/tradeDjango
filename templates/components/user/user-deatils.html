@@ -10,7 +10,8 @@
         integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="{% static 'user-deatils.css' %}">
-</head>
+        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" /></script>
+    </head>
 
 <body>
     <div class="tab-head">
@@ -53,71 +54,58 @@
                         <div class="flex space-bw">
                             <label for="">User:</label>&nbsp;
                             <select name="" id="" class="form_control">
-                                <option value="">DEMO999</option>
+                                <option value="{{request.user.id}}">{{request.user.user_name}}</option>
                             </select>
                         </div>
                         <div class="flex space-bw">
-                            <label for="" >Exchange Name:</label>
-                            <select name="" id="" class="form_control flex">
-                                <option value="">MCX</option>
-                                <option value="">All Exchanges</option>
-                                <option value="">All Exchanges</option>
-                                <option value="">All Exchanges</option>
+                            <label for="exchangeSelect">Exchange Name:</label>
+                            <select name="exchangeSelect" id="exchangeSelectId" class="form_control flex">
+                                <option value="">Select</option>
+                                <option value="MCX">MCX</option>
+                                <option value="NSE">NSE</option>
+                                <option value="MINI">MINI</option>
                             </select>
+                            
+                           
                         </div>
                         <div class="flex space-bw">
                             <label for="">Script Name:</label>
-                            <select name="" id="" class="form_control">
-                                <option value="">CRUDEOIL 18 Dec 2023</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
+                            <select name="" id="scriptNameId" class="form_control">
+                                <option value="">Select</option>
                             </select>
                         </div>
                         <div class="flex flex-end">
                             <div class="mr text-center">
                                 <label for="" >Sell</label>
-                                <input type="text" class="small_width">
+                                <input readonly id="sellPriceID" type="text" class="small_width text-center">
                             </div>
                             <div class="text-center"> 
                                 <label for="" >Buy</label> 
-                                <input type="text"  class="small_width">
+                                <input readonly id="buyPriceID" type="text"  class="small_width text-center">
                             </div>
                         </div>
                         <div class="flex space-bw">
                             <label for="">Buy/Sell:</label>
                             <select name="" id="" class="form_control">
                                 <option value="">Sell</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
+                                <option value="">Buy</option>
                             </select>
                         </div>
                         <div class="flex space-bw">
                             <label for="">Order Type:</label>
                             <select name="" id="" class="form_control">
                                 <option value="">Market</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
                             </select>
                         </div>
+                       
                         <div class="flex space-bw">
-                            <label for="">Qty:</label>
-                            <select name="" id="" class="form_control">
-                                <option value="">2</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
-                            </select>
+                            <label for="">Qty</label>
+                            <input type="number" class="form_control">
                         </div>
                         <div class="flex space-bw">
                             <label for="">Rate By:</label>
                             <select name="" id="" class="form_control">
                                 <option value="">Manual Price</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
-                                <option value="">All Symbols</option>
                             </select>
                         </div>
                         <div class="flex space-bw">
@@ -183,7 +171,86 @@
         integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
         </script>
-    <script src="custom.js"></script>
+
+    // socket connection //
+   <script>
+    {% comment %} $(document).ready(() => {
+        let data = []; 
+        const socket = io("http://192.168.0.128:5000");
+    
+        socket.on("connect", () => {
+            console.log("Connected to the Socket.io server");
+        });
+    
+        socket.emit("tradeCoin");
+      
+        socket.on("tradeCoin data", (receivedData) => {
+            $('#exchangeSelect').on('change', function() {
+                const selectedExchange = $(this).val(); 
+                const filteredData = receivedData.filter(result => result.Exchange === selectedExchange);
+                console.log("filteredData====",filteredData)
+                console.log("receivedData structure: ", receivedData);
+                
+                if (filteredData.length > 0) {
+                    const buyPrice = filteredData[0].BuyPrice; 
+                    const sellPrice = filteredData[0].SellPrice; 
+                    $('#buyPriceID').val(buyPrice);
+                    $('#sellPriceID').val(sellPrice);
+                }
+            });
+        });
+
+
+    
+        socket.on("disconnect", () => {
+            console.log("Disconnected from the Socket.io server");
+        });
+    }); {% endcomment %}
+
+    const baseNodeURL = "http://192.168.0.128:5000"
+
+    $("#exchangeSelectId").change((event) => {
+        $.ajax({
+            type:'GET',
+            url:`${baseNodeURL}/api/tradeCoin?coinType=${event.target.value}`,
+            success:function(res){
+                console.log("res", res?.response)
+                $("#scriptNameId").empty();
+                $("#scriptNameId").append(`<option value="">Select</option>`);
+                res?.response?.map(item => {
+                    $("#scriptNameId").append(`<option value="${item?.InstrumentIdentifier}">${item?.InstrumentIdentifier}</option>`)
+                })
+            },
+            error:function(err){
+              alert(err?.responseJSON.message);
+            }
+        })
+    })
+
+    const socket = io(baseNodeURL); 
+
+    $("#scriptNameId").change((event) => {
+        socket.on("connect", () => {
+            console.log("Connected to the Socket.io server");
+        });
+        $("#scriptNameId").change(() => {
+            socket.off("getOneDataSend");
+            socket.emit("getOneData", { "identifier": event.target.value });
+            socket.on("getOneDataSend", (data) => {
+                console.log("datadata", data);
+                $("#buyPriceID").val(data.BuyPrice);
+                $("#sellPriceID").val(data.SellPrice);
+            });
+        });
+        socket.on("disconnect", () => {
+            console.log("Disconnected from the Socket.io server");
+        });
+    });
+    
+    
+</script>
+
+
 </body>
 
 </html>

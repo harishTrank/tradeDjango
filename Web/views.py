@@ -89,6 +89,29 @@ class AddUserView(View):
             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
         }
         user_id = request.user.id
+        limit = request.user.master_user.limit if request.user.user_type == "Master" else False
+        master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
+        client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
+       
+        if limit == False:
+            messages.error(request, f"Cannot create more users.")
+            return redirect("Admin:add-user") 
+        else:
+            pass
+        if limit:
+            if request.POST.get("add_master") == "on" and master_limit is not None:
+                master_users_count = MyUser.objects.filter(user_type="Master").count()
+                
+                if master_users_count >= master_limit:
+                    messages.error(request, f"Cannot create more Master users. Limit reached ({master_limit}).")
+                    return redirect("Admin:add-user")
+
+            if request.POST.get("add_master") != "on" and client_limit is not None:
+                # Checking client user limit
+                client_users_count = MyUser.objects.filter(user_type="Client").count()
+                if client_users_count >= client_limit:
+                    messages.error(request, f"Cannot create more Client users. Limit reached ({client_limit}).")
+                    return redirect("Admin:add-user")
 
         if request.user.user_type == "Master":
             current_master = MyUser.objects.get(id=user_id).master_user
@@ -103,19 +126,6 @@ class AddUserView(View):
                 create_user = MyUser.objects.create(user_type="Client",**user_data)
                 ClientModel.objects.create(client=create_user, master_user_link=current_master)
 
-        elif request.user.user_type == "Admin":
-            current_admin = MyUser.objects.get(id=user_id).admin_user
-            # if request.POST.get("add_master") == "on":
-            #     create_user = MyUser.objects.create(user_type="Master", **user_data)
-            #     new_mastr_model = MastrModel.objects.create(master_user=create_user,
-            #         admin_user=current_admin,
-            #         master_link=current_master)
-            #     new_mastr_model.save()
-            # else:
-            #     create_user = MyUser.objects.create(user_type="Client",**user_data)
-            #     ClientModel.objects.create(client=create_user, master_user_link=current_master)
-            
-        
         mcx_exchange = request.POST.get("mcx_exchange") == 'on'
         mcx_turnover = request.POST.get("mcx_turnover") == 'on'
         mcx_symbol = request.POST.get("mcx_symbol") == 'on'
@@ -214,6 +224,8 @@ class DownloadCSVView(View):
                 client.created_at,
                 client.last_login])
         return response
+    
+
     
 
 class SearchUserView(View):

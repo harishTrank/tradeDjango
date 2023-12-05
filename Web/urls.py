@@ -11,6 +11,9 @@ urlpatterns = [
     
     path("add-user",AddUserView.as_view(),name="add-user"),
     path("list-user",ListUserView.as_view(),name="list-user"),
+    # path("account-limit",AccountLimitView.as_view(),name="account-limit"),
+    
+    
     path("download-csv",DownloadCSVView.as_view(),name="download-csv"),
     path("search-user",SearchUserView.as_view(),name="search-user"),
     path("search-all-user",SearchUsersView.as_view(),name="search-all-user"),

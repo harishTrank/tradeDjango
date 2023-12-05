@@ -405,6 +405,8 @@ class MyUserPerissionToggle(APIView):
             return Response({"success": True}, status=status.HTTP_200_OK)
         except:
             return Response({"success": False}, status=status.HTTP_404_NOT_FOUND)
+        
+
 
 
 class ChangePasswordWebAPI(APIView):
@@ -443,4 +445,28 @@ class GetMasterApiView(APIView):
             return Response({"success": True, "response": list(response)}, status=status.HTTP_200_OK)
         except:
             return Response({"success": False}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+        
+        
+class LimitUserCreation(APIView):
+    def post(self, request):
+        user_id = request.GET.get("id")
+        limit_data = request.data 
+        try:
+            user = MyUser.objects.get(id=user_id)
+        except MyUser.DoesNotExist:
+            return Response({"status": False, "message": "User does not exist."}, status=404)
+        master_user_data, created = MastrModel.objects.get_or_create(master_user=user)
+        
+        if 'limit' in limit_data:
+            master_user_data.limit = limit_data['limit'] == "true" if True else False
+        if 'master_limit' in limit_data:
+            master_user_data.master_limit = limit_data['master_limit']
+        if 'client_limit' in limit_data:
+            master_user_data.client_limit = limit_data['client_limit']
+        
+        # Save the changes
+        master_user_data.save()
+        return Response({"status": True, "message": "Limits updated successfully"})
 # ------------------------------------------------
