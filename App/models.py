@@ -117,8 +117,8 @@ class MarketWatchModel(CommonTimePicker):
     
     def __str__(self):
         return self.trade_coin_id 
-    # class Meta:
-    #     ordering = ('-id',)   
+    class Meta:
+        ordering = ('-trade_coin_id',)   
     
     
 class TradHistoryModel(CommonTimePicker):

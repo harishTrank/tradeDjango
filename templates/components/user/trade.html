@@ -31,22 +31,19 @@
 
 <script>
 
-    $("#exchangeSelectId").change((event) => {
+    $(document).ready(function() {
         $.ajax({
-            type:'GET',
-            url:`${baseNodeURL}/api/tradeCoin?coinType=${event.target.value}`,
-            success:function(res){
-                $("#scriptNameId").empty();
-                $("#scriptNameId").append(`<option value="">Select</option>`);
-                res?.response?.map(item => {
-                    $("#scriptNameId").append(`<option value="${item?.InstrumentIdentifier}">${item?.InstrumentIdentifier}</option>`)
-                })
+            type: 'GET',
+            url: 'api/trade-history',
+            success: function(res) {
+                console.log('Trade history data:', res);
             },
-            error:function(err){
-              alert(err?.responseJSON.message);
+            error: function(err) {
+                alert(err?.responseJSON.message);
             }
-        })
-    })
+        });
+    });
+    
 
 </script>
 {% endblock newtab %}
