@@ -264,10 +264,59 @@ class SearchUsersView(View):
 class UserDeatilsView(View):
     def get(self, request):
         return render(request, "components/user/user-deatils.html")
+
+
+class UserScriptMaster(View):
+    def get(self, request):
+        return render(request, "components/user/script-master.html")
+
+
+class GropuSettingView(View):
+    def get(self, request):
+        return render(request, "components/user/group-setting.html")
+    
+    
+class QuantitySettingView(View):
+    def get(self, request):
+        return render(request, "components/user/quantity-setting.html")
     
 
+class BrkView(View):
+    def get(self, request):
+        return render(request, "components/user/brk.html")
+    
+    
+class TradeMargin(View):
+    def get(self, request):
+        return render(request, "components/user/trade-margin.html")
+    
 
-
+class CreditView(View):
+    def get(self, request):
+        return render(request, "components/user/")
+    
+class TabAccountSummary(View):
+    def get(self, request):
+        return render(request, "components/user/account-summary.html")
+    
+class TabSettlement(View):
+    def get(self, request):
+        return render(request, "components/user/settlement.html")
+    
+class RejectionLogView(View):
+    def get(self, request):
+        return render(request, "components/user/rejection-log.html")
+    
+class ShareDetailsView(View):
+    def get(self, request):
+        return render(request, "components/user/share-deatils.html")
+    
+    
+class UserInfoView(View):
+    def get(self , request):
+        return render(request, "components/user/")
+    
+#==================================================#
 class ChangePasswordView(View):
     def get(self, request):
         if request.user.is_authenticated:

@@ -28,6 +28,8 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+
     <style>
       .page-tab {
         border-bottom: 1px solid #d3d3d3;
@@ -54,7 +56,9 @@
     </style>
   </head>
   <body>
-    {% include "header.html" %} {% if messages %} {% for message in messages %}
+    {% include "header.html" %} 
+    
+    {% if messages %} {% for message in messages %}
     {% if message.tags == "alert-success" %}
     <p id="idd1" hidden>{{ message }}</p>
     {% elif message.tags == "alert-danger" %}

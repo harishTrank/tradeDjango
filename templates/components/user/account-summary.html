@@ -1,0 +1,103 @@
+{% include "components/new-tab/user-header.html" %}
+{% load static %}{% block newtab %}
+
+<div class="tab-content" id="accountsummary">
+    <div class="flex">
+        <div class="trade-download">
+            <div style="transform: rotate(90deg);padding-left: 10px;">
+                <p>Filter</p>
+            </div>
+            <span>
+                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+            </span>
+        </div>
+     <div class="trades-side">
+        <div class="trade-top">
+            <div class="flex space-bw">
+                <div>
+                    <p>Filter</p>
+                </div>
+                <div class="closeBtn">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            </div>
+        </div>
+        <div class="trade-btm">
+            <div class="flex space-bw">
+                <label for="">From:</label>
+                <input type="date" class="form_control">
+            </div>
+            <div class="flex space-bw">
+                <label for="">To:</label>
+                <input type="date" class="form_control">
+            </div>
+           
+            <div class="flex space-bw">
+                <label for="" >Username:</label>
+                <select name="" id="" class="form_control flex">
+                    <option value="">MANAV100</option>
+                   
+                </select>
+            </div>
+            <div class="flex space-bw">
+                <label for="">Username:</label>
+                <select name="" id="" class="form_control">
+                </select>
+            </div>
+            <div class="flex1 row">
+                <div class="mr flex">
+                 
+                    <input type="checkbox" name="" id="" class="unset mb-0">
+                    <p style="font-size: 14px; margin-right: 5px;">P/L</p>
+                   
+                </div>
+                <div class="mr flex">
+                    <input type="checkbox" name="" id="" class="unset mb-0">
+                    <p style="font-size: 14px; margin-right: 5px;">Brk</p>
+                   
+                </div>
+                <div class="mr flex">
+                    <input type="checkbox" name="" id="" class="unset mb-0">
+                    <p style="font-size: 14px; margin-right: 5px;">Credit</p>
+                  
+                </div>
+            </div>
+            <div style="display: flex;" >
+                <input type="submit" value="View" class="form-btn mr" style="border: 1px solid white;">
+                <input type="submit" value="Clear" class="cancel-btn" style="border: 1px solid white;">
+            </div>
+        </div>
+    </div>    
+     <div class="trades-body user-table ">
+         <div class="pos-relate">
+         <table style="width: 100%;">
+             <tr>
+                 <th>Date</th>
+                 <th>Username</th>
+                 <th>Particular</th>
+                 <th>Qty</th>
+                 <th>Buy/Sell</th>
+                 <th>Price</th>
+                 <th>Average Price</th>
+                 <th>Type</th>
+                 <th>Amount</th>
+                 <th>Category</th>
+                 <th>Category1</th>
+             </tr>
+             <tr>
+                 <td>29-11-2023 15:26</td>
+                 <td>MANAV 100</td>
+                 <td>NSE NIFTY 30 Nov 2023</td>
+                 <td>1000</td>
+                 <td>SELL</td>
+                 <td>20,134.05</td>
+                 <td>19,861.55</td>
+                 <td>Profit/Loss</td>
+                 <td style="color: blue;">2,72,500.00</td>
+             </tr>
+         </table>
+     </div>
+     </div>
+    </div>
+ </div>
+{% endblock newtab %}

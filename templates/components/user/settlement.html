@@ -1,0 +1,120 @@
+{% include "components/new-tab/user-header.html" %}
+{% load static %}{% block newtab %}
+
+<div class="tab-content" id="settlement">
+  <div class="flex">
+    <div class="trade-download">
+      <div style="transform: rotate(90deg); padding-left: 10px">
+        <p>Filter</p>
+      </div>
+      <span>
+        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+      </span>
+    </div>
+    <div class="trades-side">
+      <div class="trade-top">
+        <div class="flex space-bw">
+          <div>
+            <p>Filter</p>
+          </div>
+          <div class="closeBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </div>
+        </div>
+      </div>
+      <div class="trade-btm">
+        <div class="flex space-bw">
+          <label for="">From:</label>
+          <input type="date" class="form_control" />
+        </div>
+        <div class="flex space-bw">
+          <label for="">To:</label>
+          <input type="date" class="form_control" />
+        </div>
+        <div class="mb-10">
+          <label for="">Opening?:</label>
+          <div class="flex">
+            <div class="flex mr">
+              <input
+                type="radio"
+                name=""
+                id=""
+                class="unset mb-0"
+                style="margin-right: 5px"
+              />
+              <p style="font-size: 14px">Without</p>
+            </div>
+            <div class="flex">
+              <input
+                type="radio"
+                name=""
+                id=""
+                class="unset mb-0"
+                style="margin-right: 5px"
+              />
+              <p style="font-size: 14px">With</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex">
+          <input
+            type="submit"
+            value="View"
+            class="form-btn mr"
+            style="border: 1px solid white"
+          />
+          <input
+            type="submit"
+            value="Clear"
+            class="cancel-btn"
+            style="border: 1px solid white"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="trades-body user-table">
+      <div class="flex">
+        <div class="col-50">
+          <table style="width: 100%; border: 1px solid #000">
+            <div class="text-center">
+              <h3 class="green-color mb-0">Profit</h3>
+            </div>
+            <tr>
+              <th>Username</th>
+              <th>P/L</th>
+              <th>Brk</th>
+              <th>Total</th>
+            </tr>
+            <tr>
+              <td>Username</td>
+              <td>P/L</td>
+              <td>Brk</td>
+              <td>Total</td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-50">
+          <table style="width: 100%; border: 1px solid #000">
+            <div class="text-center">
+              <h3 class="red-color mb-0">Loss</h3>
+            </div>
+            <tr>
+              <th>Username</th>
+              <th>P/L</th>
+              <th>Brk</th>
+              <th>Total</th>
+            </tr>
+            <tr>
+              <td>Username</td>
+              <td>P/L</td>
+              <td>Brk</td>
+              <td>Total</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock newtab %}

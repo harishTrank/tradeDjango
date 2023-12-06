@@ -1,0 +1,35 @@
+{% include "components/new-tab/user-header.html" %}
+{% load static %}{% block newtab %}
+
+<div class="tab-content" id="quantitysetting">
+    <div class="trade-btm">
+        <div class="mb-10">
+            <label for="">Exchange:</label>
+            <select name="" id="" style="width: 250px;" class="form-control">
+                <option value="">MCX</option>
+                <option value="">NSE</option>
+                <option value="">MINI</option>
+            </select>
+            <input type="submit" value="Edit" class="form-btn mr" style="border: 1px solid white;">
+        </div>
+    </div>
+    <div class="user-table col-100" style="width: 46%;">
+        <table style="width: 100%;">
+            <tr>
+                <th>Script</th>
+                <th>Lot Size</th>
+                <th>Lot Max</th>
+                <th>Breakup Lot</th>
+                <th>Last Updated</th>
+            </tr>
+            <tr>
+                <td>ALUMINI</td>
+                <td>1000</td>
+                <td>10</td>
+                <td>10</td>
+                <td>16-07-2023 18:38</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock newtab %}

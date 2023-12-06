@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+  integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="{% static 'user-deatils.css' %}">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" /></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+
+   <!-- CDN for toast message -->
+  <script
+  src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+  integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+  crossorigin="anonymous"
+  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
+  <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css"
+/>
+
+</head>
+
+
+<body>
+<style>
+  anchorTAG.{
+   
+  }
+</style>
+
+
+  {% if messages %} {% for message in messages %}
+    {% if message.tags == "alert-success" %}
+    <p id="idd1" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-danger" %}
+    <p id="idd2" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-warning" %}
+    <p id="idd3" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-info" %}
+    <p id="idd4" hidden>{{ message }}</p>
+    {% endif %} {% endfor %} {% endif %} 
+
+    <div class="tab-head">
+      <li class="active open-file-menu" data-id="users" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-deatils' %}">Position</a></li>
+      <li data-id="trades1"><a style=" text-decoration: none;color: #000;" href="#trades">Trades</a></li>
+      <li data-id="scriptmaster" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-script' %}">Script Master</a></li>
+      <li data-id="groupsetting" class="open-view-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:group-setting' %}">Group Setting</a></li>
+      <li data-id="quantitysetting" class="open-report-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:quantity-setting' %}">Quantity Setting</a></li>
+      <li data-id="brk"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:brk' %}">Brk</a></li>
+      <li data-id="trademargin"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:trade-margin' %}">Trade Margin</a></li>
+      <li data-id="credit"><a style=" text-decoration: none;color: #000;" href="#credit">Credit</a></li>
+      <li data-id="accountsummary"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:tab-account-summary' %}">Account Summary</a></li>
+      <li data-id="settlement"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:tab-settlement' %}">Settlement</a></li>
+      <li data-id="rejectionlog"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:rejection-log' %}">Rejection Log</a></li>
+      <li data-id="sharedetails"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:share-deatils' %}">Share Details</a></li>
+      <li data-id="userinfo"><a style=" text-decoration: none; color: #000;" href="#user-info">User Info</a></li>
+  </div>
+
+</body>
+
+<script src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+        </script>
+
+    <script>
+            var toastMixin = Swal.mixin({
+              toast: true,
+              title: "General Title",
+              animation: false,
+              position: "top-right",
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+              },
+            });
+            var x = $("#idd1").text();
+            if (x !== "") {
+              toastMixin.fire({
+                animation: true,
+                title: x,
+                icon: "success",
+              });
+            }
+            var x = $("#idd2").text();
+            if (x !== "") {
+              toastMixin.fire({
+                animation: true,
+                title: x,
+                icon: "error",
+              });
+            }
+        
+            var x = $("#idd3").text();
+            if (x !== "") {
+              toastMixin.fire({
+                animation: true,
+                title: x,
+                icon: "warning",
+              });
+            }
+        
+            var x = $("#idd4").text();
+            if (x !== "") {
+              toastMixin.fire({
+                animation: true,
+                title: x,
+                icon: "info",
+              });
+            }
+
+
+            $(document).ready(function () {
+              $('.tab-head li').click(function () {
+                  var tabId = $(this).attr('data-id');
+                  $('#' + tabId).show().siblings().hide()
+                  $(this).addClass('active').siblings().removeClass('active');
+              });
+              $('.open-menu').click(function () {
+                  $(".dropdown").toggle();
+              })
+              $('.open-view-menu').click(function () {
+                  $("#view-dropdown").toggle();
+              })
+              $('.open-report-menu').click(function () {
+                  $("#report-dropdown").toggle();
+              })
+              $('.open-file-menu').click(function () {
+                  $("#file-dropdown").toggle();
+              })
+              $('.closeBtn').click(function () {
+                  $(".trades-side").hide();
+                  $(".trades-body").css("width", "100% - 30px");
+              })
+              $('#closeChangePass').click(function () {
+                  $(".change-pass").hide();
+              })
+          });
+        
+    </script>
+
+</html>

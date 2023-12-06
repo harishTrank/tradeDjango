@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Trading</title>
+    </head>
+<body>
+
+    {% include "components/user/user-header.html" %}
+    <div class="tab-wrapper">
+        {% block newtab %}
+        
+        {% endblock newtab %}
+    </div>
+
+</body>
+
+</html>

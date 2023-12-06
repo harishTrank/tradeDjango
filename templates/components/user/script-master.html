@@ -1,0 +1,40 @@
+{% include "components/new-tab/user-header.html" %}
+{% load static %}{% block newtab %}
+<div class="tab-content" id="scriptmaster">
+  <div class="flex">
+    <div class="trade-download">
+      <div style="transform: rotate(90deg); padding-left: 10px">
+        <p>Filter</p>
+      </div>
+      <span>
+        <a href=""><i class="fa-solid fa-file-cs"></i></a>
+      </span>
+    </div>
+
+    <div class="trades-body user-table">
+      <div class="pos-relate">
+        <table style="width: 100%">
+          <tr>
+            <th><input type="checkbox" /></th>
+            <th>Exchange</th>
+            <th>Script</th>
+            <th>Expiry Date</th>
+            <th>Description</th>
+            <th>Trade Attribute</th>
+            <th>Allow Trade</th>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>MCX</td>
+            <td>ALUMINI</td>
+            <td>29-12-2023</td>
+            <td>ALUMINI 29 Dec 2023</td>
+            <td>Fully</td>
+            <td>Yes</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock newtab %}

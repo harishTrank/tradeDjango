@@ -1,0 +1,124 @@
+{% include "components/new-tab/user-header.html" %}
+{% load static %}{% block newtab %}
+
+<div class="tab-content" id="brk">
+    <div class="brk-setting-tabs">
+        <ul class="flex brk-tabs">
+            <li data-id="turnover-wise" class="turnover-setting">TURNOVER WISE SETTING</li>
+            <li data-id="symbol-wise" class="symbol-setting">SYMBOL WISE SETTING</li>
+        </ul>
+     </div>
+    <div class="brk-tab-wrapper flex">
+        <div class="brk-tab-content" id="turnover-wise">
+            <div class="flex">
+                <div class="trade-download">
+                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                        <p>Filter</p>
+                    </div>
+                    <span>
+                        <a href=""><i class="fa-solid fa-file-cs"></i></a>
+                    </span>
+                </div>
+                <div class="trades-side">
+                    <div class="trade-top">
+                        <div class="flex space-bw">
+                            <div>
+                                <p>Filter</p>
+                            </div>
+                            <div class="closeBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trade-btm">
+                   
+                        <div class="flex space-bw">
+                            <label for="" >Exchange:</label>
+                            <select name="" id="" class="form_control flex">
+                                <option value="">MINI</option>
+                               
+                            </select>
+                        </div>
+                        <div class="flex space-bw">
+                            <label for="">Brk<br>Rs 1/Lac:</label>
+                            <input type="text" class="form_control">
+                        </div>
+
+                        <div style="display: flex;" >
+                            <input type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
+                            <input type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
+                        </div>
+                        
+                     
+                    </div>
+                </div>    
+            </div>
+        </div>
+
+        <div class="brk-trades-body brk-table" data-id="symbol-wise">
+            <table style="width: 100%;">
+                <tr>
+                    <th><input type="checkbox"></th>
+                    <th>Exchange</th>
+                    <th>Script</th>
+                    <th>Turnover Wise Brk (Rs.per1/Lac)</th>
+                </tr>
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>AARTINND</td>
+                    <td>10.00</td>
+                </tr>
+                 <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>AAB</td>
+                    <td>10.00</td>
+                </tr>
+                 <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>AARTINNDIA</td>
+                    <td>10.00</td>
+                </tr>
+                 <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>ABCAPITAL</td>
+                    <td>10.00</td>
+                </tr>
+                 <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>ABFRL</td>
+                    <td>10.00</td>
+                </tr>
+                 <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>ACC</td>
+                    <td>10.00</td>
+                </tr>
+                 <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>ADANIENT</td>
+                    <td>10.00</td>
+                </tr>
+                 <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>ADANIPORTS</td>
+                    <td>10.00</td>
+                </tr>
+                   <tr>
+                    <td><input type="checkbox"></td>
+                    <td>NSE</td>
+                    <td>ALKEM</td>
+                    <td>10.00</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock newtab %}

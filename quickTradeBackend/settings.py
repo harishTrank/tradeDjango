@@ -71,23 +71,23 @@ WSGI_APPLICATION = 'quickTradeBackend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-DATABASES = {  
+DATABASES = {
     'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'NAME': "postgres",
-       'USER': 'postgres',
-       'PASSWORD': ',sclBQhGIHk3',
-       'HOST': '13.127.239.118',
-       'PORT': "5432",
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {  
+#     'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': "postgres",
+#        'USER': 'postgres',
+#        'PASSWORD': ',sclBQhGIHk3',
+#        'HOST': '13.127.239.118',
+#        'PORT': "5432",
+#     }
+# }
 # postgres://oplyyyva:Z4VE3nfz5aRFI-lZvt020FSL7nIX0770@cornelius.db.elephantsql.com/oplyyyva
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

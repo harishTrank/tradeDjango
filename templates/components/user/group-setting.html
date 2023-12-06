@@ -1,0 +1,35 @@
+{% include "components/new-tab/user-header.html" %}
+{% load static %}{% block newtab %}
+
+<div class="tab-content" id="groupsetting">
+    <div class="trade-btm">
+        <div class="mb-10">
+            <label for="">Exchange:</label>
+            <select name="" id="" style="width: 250px;" class="form-control">
+                <option value="">MCX</option>
+                <option value="">NSE</option>
+                <option value="">MINI</option>
+            </select>
+            <input type="submit" value="Update" class="form-btn mr" style="border: 1px solid white;">
+        </div>
+    </div>
+    <div class="user-table col-100" style="width: 46%;">
+        <table style="width: 100%;">
+            <tr>
+                <th></th>
+                <th>Group</th>
+                <th>Last Updated</th>
+                <th>View</th>
+                
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>MCX 1 lot</td>
+                <td>07/16/2023 18:38:35</td>
+                <td><img src="images/favicon-16x16.png" alt=""></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+{% endblock newtab %}

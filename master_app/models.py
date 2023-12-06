@@ -12,6 +12,10 @@ class MastrModel(models.Model):
     limit = models.BooleanField(default=False)
     master_limit = models.PositiveIntegerField("Master Limit",default=0,blank=True,null=True)
     client_limit = models.PositiveIntegerField("Client Limit",default=0,blank=True,null=True)
+    add_order = models.BooleanField("Add Order",default=False)
+    delete_trade = models.BooleanField("Delete Trade",default=False)
+    execute_pending_order = models.BooleanField("Execute Pending Order",default=False)
+    by_manual = models.BooleanField("By Manual",default=False)
     
     
     

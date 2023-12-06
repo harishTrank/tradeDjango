@@ -137,9 +137,8 @@
                     <th>Device id</th>
                     <th>Last Login</th>
                 </tr>
-
                 <div class="pos-relate">
-                    <ul class="action_dropdown">
+                    <ul class="action_dropdown" id="actionDropDown">
                         <li><a onClick="changePasswordOpen()">Change Password</a></li>
                         <li><a href="#">Share Details</a></li>
                         <li><a onClick="accountLimit()">Account Limit</a></li>
@@ -149,7 +148,6 @@
                         <li><a href="#">Set Readonly</a></li>
                     </ul>
                 </div>
-                
            {% for i in client %}
                 <tr>
                     <td>
@@ -220,6 +218,14 @@
 
 
 <script>
+
+    $(document).on("click", function(event){
+        var $trigger = $(".pos-relate");
+        if($trigger !== event.target && !$trigger.has(event.target).length){
+            $(".action_dropdown").hide();
+        }
+    });
+ 
     $('.dropdown_action').click(function(){
         $('.action_dropdown').toggle();
     })
@@ -255,4 +261,6 @@
     
     
 </script>
+
+
 {% endblock content %}

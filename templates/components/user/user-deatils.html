@@ -1,211 +1,175 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-    
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Trading</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <link rel="stylesheet" href="{% static 'user-deatils.css' %}">
-        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" /></script>
-    </head>
+{% include "components/new-tab/user-header.html" %}
+{% block newtab %}
+<link rel="stylesheet" href="{% static 'user-deatils.css' %}">
 
-<body>
-    <div class="tab-head">
-        <li class="active open-file-menu" data-id="users" class="open-menu">Position</i></li>
-        <li data-id="trades1">Trades</li>
-        <li data-id="scriptmaster" class="open-menu">Script Master</i></li>
-        <li data-id="groupsetting" class="open-view-menu">Group Setting</i></li>
-        <li data-id="quantitysetting" class="open-report-menu">Quantity Setting</i></li>
-        <li data-id="brk">Brk</li>
-        <li data-id="trademargin">Trade Margin</li>
-        <li data-id="credit">Credit</li>
-        <li data-id="accountsummary">Account Summary</li>
-        <li data-id="settlement">Settlement</li>
-        <li data-id="rejectionlog">Rejection Log</li>
-        <li data-id="sharedetails">Share Details</li>
-        <li data-id="userinfo">User Info</li>
+<div class="tab-content" id="users">
+  <div class="flex">
+    <div class="trade-download">
+      <div style="transform: rotate(90deg); padding-left: 10px">
+        <p>Add&nbsp;Order</p>
+      </div>
     </div>
-    <div class="tab-wrapper">
-        <div class="tab-content" id="users">
-            <div class="flex">
-                <div class="trade-download">
-                    <div style="transform: rotate(90deg);padding-left: 10px;">
-                        <p>Add&nbsp;Order</p>
-                       
-                    </div>
-                    
-                </div>
-                <div class="trades-side">
-                    <div class="trade-top">
-                        <div class="flex space-bw">
-                            <div>
-                                <p>Add order</p>
-                            </div>
-                            <div class="closeBtn">
-                                <i class="fa-solid fa-xmark"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trade-btm">
-                        <div class="flex space-bw">
-                            <label for="">User:</label>&nbsp;
-                            <select name="" id="" class="form_control">
-                                <option value="{{request.user.id}}">{{request.user.user_name}}</option>
-                            </select>
-                        </div>
-                        <div class="flex space-bw">
-                            <label for="exchangeSelect">Exchange Name:</label>
-                            <select name="exchangeSelect" id="exchangeSelectId" class="form_control flex">
-                                <option value="">Select</option>
-                                <option value="MCX">MCX</option>
-                                <option value="NSE">NSE</option>
-                                <option value="MINI">MINI</option>
-                            </select>
-                            
-                           
-                        </div>
-                        <div class="flex space-bw">
-                            <label for="">Script Name:</label>
-                            <select name="" id="scriptNameId" class="form_control">
-                                <option value="">Select</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-end">
-                            <div class="mr text-center">
-                                <label for="" >Sell</label>
-                                <input readonly id="sellPriceID" type="text" class="small_width text-center">
-                            </div>
-                            <div class="text-center"> 
-                                <label for="" >Buy</label> 
-                                <input readonly id="buyPriceID" type="text"  class="small_width text-center">
-                            </div>
-                        </div>
-                        <div class="flex space-bw">
-                            <label for="">Buy/Sell:</label>
-                            <select name="" id="" class="form_control">
-                                <option value="">Sell</option>
-                                <option value="">Buy</option>
-                            </select>
-                        </div>
-                        <div class="flex space-bw">
-                            <label for="">Order Type:</label>
-                            <select name="" id="" class="form_control">
-                                <option value="">Market</option>
-                            </select>
-                        </div>
-                       
-                        <div class="flex space-bw">
-                            <label for="">Qty</label>
-                            <input type="number" class="form_control">
-                        </div>
-                        <div class="flex space-bw">
-                            <label for="">Rate By:</label>
-                            <select name="" id="" class="form_control">
-                                <option value="">Manual Price</option>
-                            </select>
-                        </div>
-                        <div class="flex space-bw">
-                            <label for="">Price</label>
-                            <input type="number" class="form_control">
-                        </div>
-                        <div style="display: flex;" >
-                            <input type="submit" value="Submit" class="form-btn mr">
-                            <input type="submit" value="Clear" class="cancel-btn">
-                        </div>
-                    </div>
-                </div>    
-                <div class="trades-body user-table ">
-                    <div class="pos-relate">
-                    <table style="width: 100%;">
-                        <tr>
-                            <th>View</th>
-                            <th>Exchange</th>
-                            <th>Symbol</th>
-                            <th>Position</th>
-                            <th>Quantity</th>
-                            <th>Average Rate</th>
-                            <th>CMP</th>
-                            <th>Profit / Loss</th>
-                        </tr>
-                        <tr>
-                            <td>View</td>
-                            <td>Exchange</td>
-                            <td>Symbol</td>
-                            <td>Position</td>
-                            <td>Quantity</td>
-                            <td>Average Rate</td>
-                            <td>CMP</td>
-                            <td>Profit / Loss</td>
-                        </tr>
-                    </table>
-                </div>
-                    <div class="totalPL">
-                        <div style="background-color: grey;width: 100%;"></div>
-                        <table border="1">
-                         
-                            <tr>
-                                <td>PL:0.00</td>
-                                <td>BK:0.00</td>
-                                <td>BAL:0.00</td>
-                                <td>CRD:0</td>
-                                <td>EQT:10,000</td>
-                                <td>Total P/L:200.00</td>
-                            </tr>
-                        </table>
-                        
-                    </div>
-                   
-                </div>
-             
-            </div>
-            
+    <div class="trades-side">
+      <div class="trade-top">
+        <div class="flex space-bw">
+          <div>
+            <p>Add order</p>
+          </div>
+          <div class="closeBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </div>
         </div>
+      </div>
+      <div class="trade-btm">
+        <div class="flex space-bw">
+          <label for="">User:</label>&nbsp;
+          <select name="" id="" class="form_control">
+            <option value="{{request.user.id}}">
+              {{request.user.user_name}}
+            </option>
+          </select>
+        </div>
+        <div class="flex space-bw">
+          <label for="exchangeSelect">Exchange Name:</label>
+          <select
+            required
+            name="exchangeSelect"
+            id="exchangeSelectId"
+            class="form_control flex"
+          >
+            <option value="">Select</option>
+            <option value="MCX">MCX</option>
+            <option value="NSE">NSE</option>
+            <option value="MINI">MINI</option>
+          </select>
+        </div>
+        <div class="flex space-bw">
+          <label for="">Script Name:</label>
+          <select required name="" id="scriptNameId" class="form_control">
+            <option value="">Select</option>
+          </select>
+        </div>
+        <div class="flex flex-end">
+          <div class="mr text-center">
+            <label for="">Sell</label>
+            <input
+              readonly
+              id="sellPriceID"
+              type="text"
+              class="small_width text-center"
+            />
+          </div>
+          <div class="text-center">
+            <label for="">Buy</label>
+            <input
+              readonly
+              id="buyPriceID"
+              type="text"
+              class="small_width text-center"
+            />
+          </div>
+        </div>
+        <div class="flex space-bw">
+          <label for="">Buy/Sell:</label>
+          <select name="" id="selectActionTypeId" class="form_control">
+            <option value="Sell">Sell</option>
+            <option value="Buy">Buy</option>
+          </select>
+        </div>
+        <div class="flex space-bw">
+          <label for="">Order Type:</label>
+          <select name="" id="" class="form_control">
+            <option value="">Market</option>
+          </select>
+        </div>
+
+        <div class="flex space-bw">
+          <label for="">Qty</label>
+          <input
+            id="quantityOderId"
+            min="1"
+            value="1"
+            type="number"
+            class="form_control"
+          />
+        </div>
+        <div class="flex space-bw">
+          <label for="">Rate By:</label>
+          <select name="" id="" class="form_control">
+            <option value="">Manual Price</option>
+          </select>
+        </div>
+        <div class="flex space-bw">
+          <label for="">Price</label>
+          <input type="number" class="form_control" />
+        </div>
+        <div style="display: flex">
+          <input
+            type="submit"
+            id="submitBtnOrderId"
+            value="Submit"
+            class="form-btn mr"
+          />
+          <input type="submit" value="Clear" class="cancel-btn" />
+        </div>
+      </div>
     </div>
+    <div class="trades-body user-table">
+      <div class="pos-relate">
+        <table style="width: 100%">
+          <tr>
+            <th>View</th>
+            <th>Exchange</th>
+            <th>Symbol</th>
+            <th>Position</th>
+            <th>Quantity</th>
+            <th>Average Rate</th>
+            <th>CMP</th>
+            <th>Profit / Loss</th>
+          </tr>
+          <tr>
+            <td>View</td>
+            <td>Exchange</td>
+            <td>Symbol</td>
+            <td>Position</td>
+            <td>Quantity</td>
+            <td>Average Rate</td>
+            <td>CMP</td>
+            <td>Profit / Loss</td>
+          </tr>
+        </table>
+      </div>
+      <div class="totalPL">
+        <div style="background-color: grey; width: 100%"></div>
+        <table border="1">
+          <tr>
+            <td>PL:0.00</td>
+            <td>BK:0.00</td>
+            <td>BAL:0.00</td>
+            <td>CRD:0</td>
+            <td>EQT:10,000</td>
+            <td>Total P/L:200.00</td>
+          </tr>
+        </table>
+      </div>
     </div>
+  </div>
+</div>
 
-    <script src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
-        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer">
-        </script>
+<input hidden id="currentCoinDataId"/>
+</div>
+<script src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+crossorigin="anonymous" referrerpolicy="no-referrer">
+</script>
 
-    // socket connection //
-   <script>
-    {% comment %} $(document).ready(() => {
-        let data = []; 
-        const socket = io("http://192.168.0.128:5000");
-    
-        socket.on("connect", () => {
-            console.log("Connected to the Socket.io server");
-        });
-    
-        socket.emit("tradeCoin");
-      
-        socket.on("tradeCoin data", (receivedData) => {
-            $('#exchangeSelect').on('change', function() {
-                const selectedExchange = $(this).val(); 
-                const filteredData = receivedData.filter(result => result.Exchange === selectedExchange);
-                console.log("filteredData====",filteredData)
-                console.log("receivedData structure: ", receivedData);
-                
-                if (filteredData.length > 0) {
-                    const buyPrice = filteredData[0].BuyPrice; 
-                    const sellPrice = filteredData[0].SellPrice; 
-                    $('#buyPriceID').val(buyPrice);
-                    $('#sellPriceID').val(sellPrice);
-                }
-            });
-        });
-
-
-    
-        socket.on("disconnect", () => {
-            console.log("Disconnected from the Socket.io server");
-        });
-    }); {% endcomment %}
+<script>
+    const dateManager = (val) => {
+        return `${val?.split("_")?.[2]?.slice(0, 2)} ${val
+          ?.split("_")?.[2]
+          ?.slice(2, 5)} ${val?.split("_")?.[2]?.slice(7)}`;
+      };
 
     const baseNodeURL = "http://192.168.0.128:5000"
 
@@ -214,7 +178,6 @@
             type:'GET',
             url:`${baseNodeURL}/api/tradeCoin?coinType=${event.target.value}`,
             success:function(res){
-                console.log("res", res?.response)
                 $("#scriptNameId").empty();
                 $("#scriptNameId").append(`<option value="">Select</option>`);
                 res?.response?.map(item => {
@@ -234,23 +197,61 @@
             console.log("Connected to the Socket.io server");
         });
         $("#scriptNameId").change(() => {
-            socket.off("getOneDataSend");
             socket.emit("getOneData", { "identifier": event.target.value });
             socket.on("getOneDataSend", (data) => {
-                console.log("datadata", data);
-                $("#buyPriceID").val(data.BuyPrice);
-                $("#sellPriceID").val(data.SellPrice);
-            });
+                if (data?.InstrumentIdentifier === event.target.value) {
+                    $("#buyPriceID").val(data.BuyPrice);
+                    $("#sellPriceID").val(data.SellPrice);
+                    $("#currentCoinDataId").val(JSON.stringify(data));
+                }
+            }); 
         });
         socket.on("disconnect", () => {
             console.log("Disconnected from the Socket.io server");
         });
     });
     
+
+    $("#submitBtnOrderId").click(() => {
+        const data = JSON.parse($("#currentCoinDataId").val());
+        if (!$("#exchangeSelectId").val()) {
+            $("#exchangeSelectId").css("border", "solid 1px red")
+        }
+        if (!$("#scriptNameId").val()) {
+            $("#scriptNameId").css("border", "solid 1px red")
+        } else {
+            const body = {
+                identifer: $("#scriptNameId").val(),
+                trade_type: "MARKET",
+                coin_name: data?.Exchange === "NSE"
+                ? `NSE ${data?.InstrumentIdentifier}`
+                : `${data?.Exchange || ""} ${
+                    data?.InstrumentIdentifier?.split("_")?.[1]
+                  }, ${dateManager(data?.InstrumentIdentifier) || ""}`,
+                ex_change: $("#exchangeSelectId").val(),
+                action: $("#selectActionTypeId").val().toUpperCase(),
+                quantity: Number($("#quantityOderId").val()),
+                price:  $("#selectActionTypeId").val().toUpperCase() === "SELL"
+                ? Number(data.SellPrice)
+                : Number(data.BuyPrice),
+                is_pending: false,
+                order_method: "Web",
+                lot_size: Number(data.QuotationLot),
+            }
+
+            axios.post(`{% url "buy-sell-coin" %}`, body, {headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(function (response) {
+                toastMixin.fire({
+                    animation: true,
+                    title: response.data.message,
+                    icon: "success",
+                });
+                setTimeout(()=>{
+                    window.location.reload();
+                },1000)
+            })
+        }
+    })
     
 </script>
 
-
-</body>
-
-</html>
+{% endblock newtab %}

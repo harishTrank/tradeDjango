@@ -195,6 +195,7 @@ class BuySellSellApi(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         user = request.user 
+        print("user", user)
         action = request.data.get('action')
         quantity = request.data.get('quantity')
         lot_size = request.data.get("lot_size")
@@ -465,8 +466,33 @@ class LimitUserCreation(APIView):
             master_user_data.master_limit = limit_data['master_limit']
         if 'client_limit' in limit_data:
             master_user_data.client_limit = limit_data['client_limit']
-        
-        # Save the changes
+
         master_user_data.save()
         return Response({"status": True, "message": "Limits updated successfully"})
+    
+    
+    
+class AdminRightApi(APIView):
+    def post(self, request):
+        user_id = request.GET.get("id")
+        admin_Right = request.data
+        try:
+            user = MyUser.objects.get(id=user_id)
+        except MyUser.DoesNotExist:
+            return Response({"status": False, "message": "User does not exist."}, status=400)
+        master_user_data , created = MastrModel.objects.get_or_create(master_user=user)
+        
+        if 'add_order' in admin_Right:
+            master_user_data.add_order = admin_Right['add_order']
+        
+        if 'delete_trade' in admin_Right:
+            master_user_data.delete_trade = admin_Right['delete_trade'] 
+            
+        if 'execute_pending_order' in admin_Right:
+            master_user_data.execute_pending_order = admin_Right['execute_pending_order'] 
+            
+        if 'by_manual' in admin_Right:
+            master_user_data.by_manual = admin_Right['by_manual']
+        master_user_data.save() 
+        return Response({"status":True, "message":"Admin Right Add Sucessfully"}, status=status.HTTP_200_OK)
 # ------------------------------------------------

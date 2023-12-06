@@ -1,53 +1,55 @@
 <div class="create-profile" id="accountLimitid">
-  <div class="create-profile-inside">
-    <div class="top-body flex align-center space-bw align-center">
-      <div class="flex admin-right">
-        <p>Account Limit-MANDEEP20</p>
+  <div class="change-pass">
+    <div class="create-profile-inside">
+      <div class="top-body flex align-center space-bw align-center">
+        <div class="flex admin-right">
+          <p>Account Limit-MANDEEP20</p>
+        </div>
+        <div>
+          <i class="fa-solid fa-x closeAccountLimit"></i>
+        </div>
       </div>
-      <div>
-        <i class="fa-solid fa-x closeAccountLimit"></i>
-      </div>
-    </div>
-    <div class="middle-body">
-      <div class="inner-middle-body">
-        <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px;">
-          <p>Limit:</p>
-          <label class="switch">
-            <input id="limitId" type="checkbox" />
-            <span class="slider round"></span>
-          </label>
-        </div>
-        <div class="flex mrg-tb pop-up-text spaceclass">
-          <p>Masters:</p>
-          <input id="master_limit" type="text" placeholder="0" />
-          <input
-            readonly
-            type="text"
-            placeholder="Occupied 0 + Created 0 = 0"
-          />
-          <input readonly type="text" placeholder="0 Remaining" />
-        </div>
-        <div class="flex mrg-tb pop-up-text clients spaceclass">
-          <p>Clients:</p>
-          <input id="client_limit" type="text" placeholder="10" />
-          <input
-            readonly
-            type="text"
-            placeholder="Occupied 0 + Created 9 = 9"
-          />
-          <input readonly type="text" placeholder="1 Remaining" />
-        </div>
-        <div class="save-cancel-btn flex space-bw mrg-tb">
-          <div><a href="">Parent Limit Info</a></div>
-          <div class="btns">
-            <button
-              style="padding: 5px 10px"
-              onClick="accountLimitHandler(event)"
-              type="submit"
-            >
-              Save
-            </button>
-            <button class="closeAccountLimit">Cancel</button>
+      <div class="middle-body">
+        <div class="inner-middle-body">
+          <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
+            <p>Limit:</p>
+            <label class="switch">
+              <input id="limitId" type="checkbox" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <div class="flex mrg-tb pop-up-text spaceclass">
+            <p>Masters:</p>
+            <input id="master_limit" type="text" placeholder="0" />
+            <input
+              readonly
+              type="text"
+              placeholder="Occupied 0 + Created 0 = 0"
+            />
+            <input readonly type="text" placeholder="0 Remaining" />
+          </div>
+          <div class="flex mrg-tb pop-up-text clients spaceclass">
+            <p>Clients:</p>
+            <input id="client_limit" type="text" placeholder="10" />
+            <input
+              readonly
+              type="text"
+              placeholder="Occupied 0 + Created 9 = 9"
+            />
+            <input readonly type="text" placeholder="1 Remaining" />
+          </div>
+          <div class="save-cancel-btn flex space-bw mrg-tb">
+            <div><a href="">Parent Limit Info</a></div>
+            <div class="btns">
+              <button
+                style="padding: 5px 10px"
+                onClick="accountLimitHandler(event)"
+                type="submit"
+              >
+                Save
+              </button>
+              <button class="closeAccountLimit">Cancel</button>
+            </div>
           </div>
         </div>
       </div>
@@ -58,6 +60,15 @@
 <style>
   #accountLimitid {
     display: none;
+  }
+
+  .change-pass {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
   }
 
   * {
@@ -189,7 +200,7 @@
         ).val()}`,
         headers: { "X-CSRFToken": "{{ csrf_token }}" },
         data: {
-          limit: $("#limitId").is(":checked"),
+          limit: $("#limitId").prop("checked"),
           master_limit: $("#master_limit").val(),
           client_limit: $("#client_limit").val(),
         },

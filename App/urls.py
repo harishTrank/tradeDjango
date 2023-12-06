@@ -18,5 +18,6 @@ urlpatterns = [
     path("get-admin-api/", GetAllAdminApiView.as_view(), name="get-admin-api"),
     path("get-master-api/", GetMasterApiView.as_view(), name="get-master-api"),
     path("limit-user-creation/", LimitUserCreation.as_view(), name="limit-user-creation"),
+    path("admin-right/", AdminRightApi.as_view(), name="admin-right"),
     
 ]
