@@ -28,4 +28,25 @@
         </table>
     </div>
 </div>
+
+<script>
+
+    $("#exchangeSelectId").change((event) => {
+        $.ajax({
+            type:'GET',
+            url:`${baseNodeURL}/api/tradeCoin?coinType=${event.target.value}`,
+            success:function(res){
+                $("#scriptNameId").empty();
+                $("#scriptNameId").append(`<option value="">Select</option>`);
+                res?.response?.map(item => {
+                    $("#scriptNameId").append(`<option value="${item?.InstrumentIdentifier}">${item?.InstrumentIdentifier}</option>`)
+                })
+            },
+            error:function(err){
+              alert(err?.responseJSON.message);
+            }
+        })
+    })
+
+</script>
 {% endblock newtab %}
