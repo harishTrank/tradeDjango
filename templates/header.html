@@ -241,7 +241,34 @@
         $("#changepass").css("display", "block");
         $('.action_dropdown').hide();
     }
+
+
+
+   
 </script>
+<script>
+    $(document).ready(function() {
+        // Function to handle tab clicks
+        $('.tab-head li').click(function() {
+            var tabId = $(this).attr('data-id');
+            $('#' + tabId).show().siblings().hide();
+            $(this).addClass('active').siblings().removeClass('active');
+    
+            // Store the active tab in local storage
+            localStorage.setItem('activeTab', tabId);
+        });
+    
+        // Function to show the stored active tab on page load
+        var activeTabId = localStorage.getItem('activeTab');
+        if (activeTabId) {
+            $('#' + activeTabId).show().siblings().hide();
+            $('[data-id="' + activeTabId + '"]').addClass('active').siblings().removeClass('active');
+        }
+    
+        // Other dropdown toggle functionality...
+        // ...
+    });
+    </script>
 
  
 </html>

@@ -6,14 +6,16 @@
       <div>
         {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
           <div class="flex">
-            <div class="mr"><input id="otherUserFlagId" type="checkbox" />&nbsp Create Account for User</div>
+            <div class="mr"><input id="otherUserFlagId" name="accountUser" type="checkbox" />&nbsp Create Account for User</div>
             <div>
-              <select name="userType" disabled id="selectedAdminId">
+              {% if request.user.user_type == "SuperAdmin" %}
+              <select name="selectedAdminName" disabled id="selectedAdminId">
                 <option value="">Select Admin</option>
               </select>
+              {% endif %}
 
-              <select name="userType" disabled id="selectedMasterId">
-                <option value="">Select Master</option>
+              <select name="selectedMasterName" disabled id="selectedMasterId">
+                <option  value="">Select Master</option>
               </select>
             </div>
           </div>
@@ -145,9 +147,9 @@
         <div class="mr">
           <input type="checkbox" name="change_password" id="" class="mr-5" />Change Password
         </div>
-        <div class="flex">
+        <div class="flex" id="addMasterTagId" style="display:none;">
           <label class="switch">
-            <input name="add_master" type="checkbox" />
+            <input name="add_master" type="checkbox" id="addMasterCheckId"/>
             <span class="slider round"></span>
           </label>
           <p>Add Master</p>
@@ -278,6 +280,9 @@ input:checked+.slider:before {
 
 
 <script>
+
+  $("#otherUserFlagId").change(() => $("#otherUserFlagId").prop("checked") &&   $("#selectedAdminId").prop("required", true) )
+
   const masterDisableHandler = () => {
       if ($("#selectedAdminId").val()) {
         $("#selectedMasterId").prop("disabled", false);
@@ -286,7 +291,7 @@ input:checked+.slider:before {
           url: '{% url "get-master-api" %}',
           headers: { "X-CSRFToken": "{{ csrf_token }}" },
           data: {
-            adminId: $("#selectedAdminId").val()
+            adminId:  $("#selectedAdminId").val()
           },
           success: function (res) {
             $("#selectedMasterId").empty();
@@ -298,16 +303,54 @@ input:checked+.slider:before {
         });
       } else {
         $("#selectedMasterId").prop("disabled", true);
+        $("#selectedMasterId").val("");
       }
   }
 
+  const adminMasterList = () => {
+      $.ajax({
+        type: "GET",
+        url: '{% url "get-master-api" %}',
+        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+        data: {
+          adminId:  "{{request.user.id}}"
+        },
+        success: function (res) {
+          $("#selectedMasterId").empty();
+          $("#selectedMasterId").append(`<option value="">Select Master</option>`);
+          res.response.map(adminItem => {
+            $("#selectedMasterId").append(`<option value="${adminItem.master_user__id}">${adminItem.master_user__user_name}</option>`)
+          })
+        },
+      })
+    }
+
+  const currentUserType = "{{request.user.user_type}}"
+  if (currentUserType !== "SuperAdmin") {
+    $("#addMasterTagId").css("display", "flex")
+  }
+
+
   $("#otherUserFlagId").click(() => {
     if ($("#otherUserFlagId").prop("checked")) {
-      $("#selectedAdminId").prop("disabled", false);
+      if (currentUserType === "SuperAdmin") {
+        $("#selectedAdminId").prop("disabled", false);
+        $("#addMasterTagId").css("display", "flex");
+      } else if (currentUserType === "Admin") {
+        $("#selectedMasterId").prop("disabled", false);
+        adminMasterList();
+      }
     } else {
-      $("#selectedAdminId").val("");
-      masterDisableHandler();
-      $("#selectedAdminId").prop("disabled", true);
+      if (currentUserType === "SuperAdmin") {
+        $("#selectedAdminId").val("");
+        masterDisableHandler();
+        $("#selectedAdminId").prop("disabled", true);
+        $("#selectedAdminId").val("");
+        $("#addMasterTagId").css("display", "none");
+        $("#addMasterCheckId").prop("checked", false);
+      }else if (currentUserType === "Admin") {
+        $("#selectedMasterId").prop("disabled", true);
+      }
     }
   })
 

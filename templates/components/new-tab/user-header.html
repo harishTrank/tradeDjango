@@ -48,8 +48,8 @@
     {% endif %} {% endfor %} {% endif %} 
 
     <div class="tab-head">
-      <li class="active open-file-menu" data-id="users" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-deatils' %}">Position</a></li>
-      <li data-id="trades1"><a style=" text-decoration: none;color: #000;" href="#trades">Trades</a></li>
+      <li class="open-file-menu" data-id="users" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-deatils' %}">Position</a></li>
+      <li data-id="trades1"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:tab-trade' %}">Trades</a></li>
       <li data-id="scriptmaster" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-script' %}">Script Master</a></li>
       <li data-id="groupsetting" class="open-view-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:group-setting' %}">Group Setting</a></li>
       <li data-id="quantitysetting" class="open-report-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:quantity-setting' %}">Quantity Setting</a></li>
@@ -120,31 +120,18 @@
             }
 
 
-            $(document).ready(function () {
-              $('.tab-head li').click(function () {
-                  var tabId = $(this).attr('data-id');
-                  $('#' + tabId).show().siblings().hide()
-                  $(this).addClass('active').siblings().removeClass('active');
-              });
-              $('.open-menu').click(function () {
-                  $(".dropdown").toggle();
-              })
-              $('.open-view-menu').click(function () {
-                  $("#view-dropdown").toggle();
-              })
-              $('.open-report-menu').click(function () {
-                  $("#report-dropdown").toggle();
-              })
-              $('.open-file-menu').click(function () {
-                  $("#file-dropdown").toggle();
-              })
-              $('.closeBtn').click(function () {
-                  $(".trades-side").hide();
-                  $(".trades-body").css("width", "100% - 30px");
-              })
-              $('#closeChangePass').click(function () {
-                  $(".change-pass").hide();
-              })
+         
+
+
+          $(document).ready(function() {
+            var currentLocation = window.location.href;
+            $('.tab-head li a').each(function() {
+              var link = $(this).attr('href');
+              if (currentLocation.indexOf(link) !== -1) {
+                $(this).addClass('active');
+                $(this).closest('li').addClass('active');
+              }
+            });
           });
         
     </script>

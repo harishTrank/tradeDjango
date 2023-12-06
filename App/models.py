@@ -116,7 +116,9 @@ class MarketWatchModel(CommonTimePicker):
     trade_coin_id = models.CharField("Trade Coin Id", max_length=200,null=True, blank=True)
     
     def __str__(self):
-        return self.trade_coin_id    
+        return self.trade_coin_id 
+    # class Meta:
+    #     ordering = ('-id',)   
     
     
 class TradHistoryModel(CommonTimePicker):

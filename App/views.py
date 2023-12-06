@@ -134,6 +134,7 @@ class MaketWatchScreenApi(APIView):
     def get(self, request):
         try:
             tradeCoinData = MarketWatchModel.objects.filter(market_user=request.user).values_list("trade_coin_id", flat=True) 
+            print("======",tradeCoinData)
             return Response({"result": tradeCoinData }, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)

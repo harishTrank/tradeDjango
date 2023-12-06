@@ -61,17 +61,12 @@ class Dashboard(View):
         return redirect("Admin:login")
         
     
-    
-   
+  
 class AddUserView(View):
     def get(self, request):
         return render(request, "User/add-user.html")
-    
+       
     def post(self, request):
-        user_name = request.POST.get("user_name")
-        if MyUser.objects.filter(user_name=user_name).exists():
-            messages.error(request, "User name already exists.")
-            return redirect("Admin:add-user")
         user_data = {
             "full_name": request.POST.get("full_name"),
             "user_name": request.POST.get("user_name"),
@@ -88,85 +83,69 @@ class AddUserView(View):
             "change_password": True if request.POST.get("change_password") and request.POST.get("change_password").lower() == 'on' else False,
             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
         }
-        user_id = request.user.id
-        limit = request.user.master_user.limit if request.user.user_type == "Master" else False
-        master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
-        client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
-       
-        if limit == False:
-            messages.error(request, f"Cannot create more users.")
-            return redirect("Admin:add-user") 
-        else:
-            pass
-        if limit:
-            if request.POST.get("add_master") == "on" and master_limit is not None:
-                master_users_count = MyUser.objects.filter(user_type="Master").count()
-                
-                if master_users_count >= master_limit:
-                    messages.error(request, f"Cannot create more Master users. Limit reached ({master_limit}).")
-                    return redirect("Admin:add-user")
-
-            if request.POST.get("add_master") != "on" and client_limit is not None:
-                # Checking client user limit
-                client_users_count = MyUser.objects.filter(user_type="Client").count()
-                if client_users_count >= client_limit:
-                    messages.error(request, f"Cannot create more Client users. Limit reached ({client_limit}).")
-                    return redirect("Admin:add-user")
-
-        if request.user.user_type == "Master":
-            current_master = MyUser.objects.get(id=user_id).master_user
-            if request.POST.get("add_master") == "on":
-                admin_belongs = current_master.admin_user
-                create_user = MyUser.objects.create(user_type="Master", **user_data)
-                new_mastr_model = MastrModel.objects.create(master_user=create_user,
-                    admin_user=admin_belongs,
-                    master_link=current_master)
-                new_mastr_model.save()
-            else:
-                create_user = MyUser.objects.create(user_type="Client",**user_data)
-                ClientModel.objects.create(client=create_user, master_user_link=current_master)
-
-        mcx_exchange = request.POST.get("mcx_exchange") == 'on'
-        mcx_turnover = request.POST.get("mcx_turnover") == 'on'
-        mcx_symbol = request.POST.get("mcx_symbol") == 'on'
-
-        nse_exchange = request.POST.get("nse_exchange") == 'on'
-        nse_turnover = request.POST.get("nse_turnover") == 'on'
-        nse_symbol = request.POST.get("nse_symbol") == 'on'
-        
-        sgx_exchange = request.POST.get("sgx_exchange") == 'on'
-        sgx_turnover = request.POST.get("sgx_turnover") == 'on'
-        sgx_symbol = request.POST.get("sgx_symbol") == 'on'
-
-        others_exchange = request.POST.get("others_exchange") == 'on'
-        others_turnover = request.POST.get("others_turnover") == 'on'
-        others_symbol = request.POST.get("others_symbol") == 'on'
         exchanges = [
-        {
-            "name": "MCX",
-            "exchange": mcx_exchange,
-            "symbols": mcx_symbol,
-            "turnover": mcx_turnover,
-        },
-        {
-            "name": "NSE",
-            "exchange": nse_exchange,
-            "symbols": nse_symbol,
-            "turnover": nse_turnover,
-        },
-        {
-            "name": "SGX",
-            "exchange": sgx_exchange,
-            "symbols": sgx_symbol,
-            "turnover": sgx_turnover,
-        },
-        {
-            "name": "OTHERS",
-            "exchange": others_exchange,
-            "symbols": others_symbol,
-            "turnover": others_turnover,
-        },]
-        try:
+            {
+                "name": "MCX",
+                "exchange": request.POST.get("mcx_exchange") == 'on',
+                "symbols": request.POST.get("mcx_symbol") == 'on',
+                "turnover": request.POST.get("mcx_turnover") == 'on',
+            },
+            {
+                "name": "NSE",
+                "exchange": request.POST.get("nse_exchange") == 'on',
+                "symbols": request.POST.get("nse_symbol") == 'on',
+                "turnover": request.POST.get("nse_turnover") == 'on',
+            },
+            {
+                "name": "SGX",
+                "exchange": request.POST.get("sgx_exchange") == 'on',
+                "symbols": request.POST.get("sgx_symbol") == 'on',
+                "turnover": request.POST.get("sgx_turnover") == 'on',
+            },
+            {
+                "name": "OTHERS",
+                "exchange": request.POST.get("others_exchange") == 'on',
+                "symbols": request.POST.get("others_symbol") == 'on',
+                "turnover": request.POST.get("others_turnover") == 'on',
+            },
+        ]     
+        if request.user.user_type == "SuperAdmin":
+            if (not request.POST.get("accountUser") == 'on'):
+                create_user = MyUser.objects.create(user_type="Admin", **user_data)
+                AdminModel.objects.create(user=create_user)
+            elif (request.POST.get("add_master") == 'on'):
+                selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
+                create_user = MyUser.objects.create(user_type="Master", **user_data)
+                MastrModel.objects.create(master_user=create_user, admin_user=selected_admin)
+            else:
+                selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
+                create_user = MyUser.objects.create(user_type="Client", **user_data)
+                if (request.POST.get("selectedMasterName") == None or request.POST.get("selectedMasterName") == ""):
+                    ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
+                else:
+                    selected_master = MastrModel.objects.get(master_user__id=request.POST.get("selectedMasterName"))
+                    ClientModel.objects.create(client=create_user, master_user_link=selected_master, admin_create_client=selected_admin)
+                    
+        elif request.user.user_type == "Admin":
+            selected_admin = AdminModel.objects.get(user__id=request.user.id)
+            if (request.POST.get("add_master") == 'on'):
+                create_user = MyUser.objects.create(user_type="Master", **user_data)
+                MastrModel.objects.create(master_user=create_user, admin_user=selected_admin)
+            else:
+                create_user = MyUser.objects.create(user_type="Client", **user_data)
+                if (request.POST.get("selectedMasterName") == None or request.POST.get("selectedMasterName") == ""):
+                    ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
+                else:
+                    selected_master = MastrModel.objects.get(master_user__id=request.POST.get("selectedMasterName"))
+                    ClientModel.objects.create(client=create_user, master_user_link=selected_master, admin_create_client=selected_admin)
+        elif request.user.user_type == "Master":
+            if (request.POST.get("add_master") == 'on'):
+                create_user = MyUser.objects.create(user_type="Master", **user_data)
+                MastrModel.objects.create(master_user=create_user, admin_user=request.user.master_user.admin_user)
+            else:
+                create_user = MyUser.objects.create(user_type="Client", **user_data)
+                ClientModel.objects.create(client=create_user,master_user_link=request.user.master_user,admin_create_client=request.user.master_user.admin_user)
+                      
             for exchange_data in exchanges:
                 ExchangeModel.objects.create(
                     user=create_user,
@@ -175,11 +154,125 @@ class AddUserView(View):
                     symbols=exchange_data['symbols'],
                     turnover=exchange_data['turnover']
                 )
-            messages.success(request,"User added successfully")
-            return redirect("Admin:dashboard")
-        except Exception as e:
-            messages.error(request, f"An error occurred: {str(e)}")
-            return redirect("Admin:add-user")
+        return render(request, "User/add-user.html")
+   
+# class AddUserView(View):
+#     def get(self, request):
+#         return render(request, "User/add-user.html")
+    
+#     def post(self, request):
+#         user_name = request.POST.get("user_name")
+#         if MyUser.objects.filter(user_name=user_name).exists():
+#             messages.error(request, "User name already exists.")
+#             return redirect("Admin:add-user")
+#         user_data = {
+#             "full_name": request.POST.get("full_name"),
+#             "user_name": request.POST.get("user_name"),
+#             "phone_number": request.POST.get("phone_number"),
+#             "city": request.POST.get("city"),
+#             "credit": request.POST.get("credit") if request.POST.get("credit") else 0,
+#             "remark": request.POST.get("remark"),
+#             "password": make_password(request.POST.get("password")),
+#             "mcx": True if request.POST.get("mcx") and request.POST.get("mcx").lower() == 'on' else False,
+#             "nse": True if request.POST.get("nse") and request.POST.get("nse").lower() == 'on' else False,
+#             "sgx": True if request.POST.get("sgx") and request.POST.get("sgx").lower() == 'on' else False,
+#             "others": True if request.POST.get("others") and request.POST.get("others").lower() == 'on' else False,
+#             "mini": True if request.POST.get("mini") and request.POST.get("mini").lower() == 'on' else False,
+#             "change_password": True if request.POST.get("change_password") and request.POST.get("change_password").lower() == 'on' else False,
+#             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
+#         }
+#         user_id = request.user.id
+#         limit = request.user.master_user.limit if request.user.user_type == "Master" else False
+#         master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
+#         client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
+       
+#         if limit == False:
+#             messages.error(request, f"Cannot create more users.")
+#             return redirect("Admin:add-user") 
+#         else:
+#             pass
+#         if limit:
+#             if request.POST.get("add_master") == "on" and master_limit is not None:
+#                 master_users_count = MyUser.objects.filter(user_type="Master").count()
+                
+#                 if master_users_count >= master_limit:
+#                     messages.error(request, f"Cannot create more Master users. Limit reached ({master_limit}).")
+#                     return redirect("Admin:add-user")
+
+#             if request.POST.get("add_master") != "on" and client_limit is not None:
+#                 # Checking client user limit
+#                 client_users_count = MyUser.objects.filter(user_type="Client").count()
+#                 if client_users_count >= client_limit:
+#                     messages.error(request, f"Cannot create more Client users. Limit reached ({client_limit}).")
+#                     return redirect("Admin:add-user")
+
+#         if request.user.user_type == "Master":
+#             current_master = MyUser.objects.get(id=user_id).master_user
+#             if request.POST.get("add_master") == "on":
+#                 admin_belongs = current_master.admin_user
+#                 create_user = MyUser.objects.create(user_type="Master", **user_data)
+#                 new_mastr_model = MastrModel.objects.create(master_user=create_user,
+#                     admin_user=admin_belongs,
+#                     master_link=current_master)
+#                 new_mastr_model.save()
+#             else:
+#                 create_user = MyUser.objects.create(user_type="Client",**user_data)
+#                 ClientModel.objects.create(client=create_user, master_user_link=current_master)
+
+#         mcx_exchange = request.POST.get("mcx_exchange") == 'on'
+#         mcx_turnover = request.POST.get("mcx_turnover") == 'on'
+#         mcx_symbol = request.POST.get("mcx_symbol") == 'on'
+
+#         nse_exchange = request.POST.get("nse_exchange") == 'on'
+#         nse_turnover = request.POST.get("nse_turnover") == 'on'
+#         nse_symbol = request.POST.get("nse_symbol") == 'on'
+        
+#         sgx_exchange = request.POST.get("sgx_exchange") == 'on'
+#         sgx_turnover = request.POST.get("sgx_turnover") == 'on'
+#         sgx_symbol = request.POST.get("sgx_symbol") == 'on'
+
+#         others_exchange = request.POST.get("others_exchange") == 'on'
+#         others_turnover = request.POST.get("others_turnover") == 'on'
+#         others_symbol = request.POST.get("others_symbol") == 'on'
+#         exchanges = [
+#         {
+#             "name": "MCX",
+#             "exchange": mcx_exchange,
+#             "symbols": mcx_symbol,
+#             "turnover": mcx_turnover,
+#         },
+#         {
+#             "name": "NSE",
+#             "exchange": nse_exchange,
+#             "symbols": nse_symbol,
+#             "turnover": nse_turnover,
+#         },
+#         {
+#             "name": "SGX",
+#             "exchange": sgx_exchange,
+#             "symbols": sgx_symbol,
+#             "turnover": sgx_turnover,
+#         },
+#         {
+#             "name": "OTHERS",
+#             "exchange": others_exchange,
+#             "symbols": others_symbol,
+#             "turnover": others_turnover,
+#         },]
+#         try:
+#             for exchange_data in exchanges:
+#                 ExchangeModel.objects.create(
+#                     user=create_user,
+#                     symbol_name=exchange_data['name'],
+#                     exchange=exchange_data['exchange'],
+#                     symbols=exchange_data['symbols'],
+#                     turnover=exchange_data['turnover']
+#                 )
+#             messages.success(request,"User added successfully")
+#             return redirect("Admin:dashboard")
+#         except Exception as e:
+#             messages.error(request, f"An error occurred: {str(e)}")
+#             return redirect("Admin:add-user")
         
        
         
@@ -266,6 +359,13 @@ class UserDeatilsView(View):
         return render(request, "components/user/user-deatils.html")
 
 
+
+class TabTrades(View):
+    def get(self, request):
+        return render(request, "components/user/trade.html")
+    
+    
+    
 class UserScriptMaster(View):
     def get(self, request):
         return render(request, "components/user/script-master.html")
