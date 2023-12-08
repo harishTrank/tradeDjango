@@ -95,7 +95,6 @@
     const socket = io("http://localhost:5000"); 
     const profitLossHandler = (item, socketResponse) => {
         return (
-        
           item?.total_quantity > 0
             ? (socketResponse?.BuyPrice - item?.avg_price) *
               item?.total_quantity *
@@ -104,7 +103,6 @@
               Math.abs(item?.total_quantity) *
               socketResponse?.QuotationLot
               ).toFixed(2);
-             
     };
     
 

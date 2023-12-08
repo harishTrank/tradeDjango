@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="" />
   </head>
   <body>
-    <div class="create-profile" id="adminRightsId">
+    <div class="create-profile" id="tradeRightId">
       <div class="change-pass">
-        <div class="create-profile-inside-admin">
+        <div class="create-profile-inside-admin" style="width:21%;">
           <div class="top-body flex align-center space-bw align-center">
             <div class="flex admin-right">
-              <p>Admin Rights</p>
+              <p>Market Trade Rights</p>
             </div>
             <div>
               <i class="fa-solid fa-x adminRightClose"></i>
@@ -24,30 +24,17 @@
             <div class="inner-middle-body">
               <div class="flex space-bw">
                 <div class="flex add-order cm-order common-font align-center">
-                  <input type="checkbox" name="add_order" id="add_order" />
-                  <p><b>Add Order</b></p>
+                  <p><b>Market Trade for Master &nbsp</b></p>
+                  <label class="switch">
+                    <input id="traderightID" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
                 </div>
-                <div class="flex cm-order common-font align-center">
-                  <input type="checkbox" name="" id="by_manual" />
-                  <p><b>By Manual</b></p>
-                </div>
               </div>
-              <div class="flex cm-order common-font align-center">
-                <input type="checkbox" name="" id="delete_tradeId" />
-                <p><b>Delete Trade</b></p>
-              </div>
-              <div class="flex cm-order common-font align-center">
-                <input type="checkbox" name="" id="execute_pending_order" />
-                <p><b>Execute Pending Order</b></p>
-              </div>
-            </div>
-            <div class="flex toggle-btm space-bw">
-              <div></div>
-              <div><p>Give rights to his down user?</p></div>
-            </div>
+           
             <div class="save-cancel-btn flex space-bw">
-              <button onClick="adminRightHandler(event)">Save</button>
-              <button class="adminRightClose">Cancel</button>
+              <button onClick="tradeRightHandler(event)" type="submit" >Save</button>
+              <button class="">Cancel</button>
             </div>
           </div>
         </div>
@@ -55,7 +42,7 @@
     </div>
     <script src="" async defer></script>
     <style>
-      #adminRightsId {
+      #tradeRightId {
         display: none;
       }
 
@@ -180,31 +167,23 @@
         color: #fff;
         border: none;
       }
-      
     </style>
     <script>
       $(".adminRightClose").click(() =>
-        $("#adminRightsId").css("display", "none")
+        $("#tradeRightId").css("display", "none")
       );
-      const adminRightHandler = (event) => {
+
+      const tradeRightHandler = (event) => {
         if (
-          $("#current_selected_userId").val() !== "" &&
-          $("#add_order").val() !== "" &&
-          $("#delete_tradeId").val() !== "" &&
-          $("#execute_pending_order").val() !== "" &&
-          $("#by_manual").val() !== ""
+          $("#traderightID").val() !== ""
         ) {
           event.preventDefault();
           const body = {
-            add_order: $("#add_order").prop("checked"),
-            delete_trade: $("#delete_tradeId").prop("checked"),
-            execute_pending_order: $("#execute_pending_order").prop("checked"),
-            by_manual: $("#by_manual").prop("checked"),
+            trade_right: $("#traderightID").prop("checked")
           };
-          console.log("===== ", body);
           axios
             .post(
-              `{% url 'admin-right' %}?id=${$(
+              `{% url 'admin-trade-right' %}?id=${$(
                 "#current_selected_userId"
               ).val()}`,
               body,
@@ -212,15 +191,18 @@
             )
             .then((data) => {
               console.log("res",data)
-              $("#adminRightsId").css("display", "none")
+              $("#tradeRightId").css("display", "none")
               toastMixin.fire({
                 animation:true,
                 title:data.data.message,
                 icon: "success",
               });
             });
-        }
-      };
+          }
+          };
+
+
+
     </script>
   </body>
 </html>

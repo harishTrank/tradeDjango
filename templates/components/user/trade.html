@@ -11,39 +11,36 @@
                 <th>Symbol</th>
                 <th>Order Type</th>
                 <th>Price</th>
-                <th>Price</th>
                 <th>Quantity</th>
+                <th>Ip address</th>
                 <th>Order Method</th>
+                <th>Trade Status</th>
             </tr>
-            <tr>
-                <td>UserName</td>
-                <td>Order Time</td>
-                <td>Symbol</td>
-                <td>Order Type</td>
-                <td>Price</td>
-                <td>Price</td>
-                <td>Quantity</td>
-                <td>Order Method</td>
-            </tr>
+            {% for i in response %}
+                <tr>
+                    <td>{{i.buy_sell_user__user_name}}</td>
+                    <td>{{i.created_at}}</td>
+                    <td>{{i.coin_name}}</td>
+                    {% if i.quantity > 0 %}
+                        <td style="color: blue">{{i.action}}</td>
+                        <td style="color: blue">{{i.price}}</td>
+                        <td style="color: blue">{{i.quantity |stringformat:"+d"|slice:"1:"}}</td>
+                    {% else %}
+                        <td style="color: red">{{i.action}}</td>
+                        <td style="color: red">{{i.price}}</td>
+                        <td style="color: red">{{i.quantity |stringformat:"+d"|slice:"1:"}}</td>
+                    {% endif %}
+                    <td>{{i.ip_address}}</td>
+                    <td>{{i.order_method}}</td>
+                    {% if i.is_pending %}
+                    <td>Pending</td>
+                    {% else %}
+                    <td>Complete</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
         </table>
     </div>
 </div>
 
-<script>
-
-    $(document).ready(function() {
-        $.ajax({
-            type: 'GET',
-            url: 'api/trade-history',
-            success: function(res) {
-                console.log('Trade history data:', res);
-            },
-            error: function(err) {
-                alert(err?.responseJSON.message);
-            }
-        });
-    });
-    
-
-</script>
 {% endblock newtab %}

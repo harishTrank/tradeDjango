@@ -20,6 +20,7 @@ urlpatterns = [
     
     
     path("user-deatils",UserDeatilsView.as_view(),name="user-deatils"),
+    path("user-deatils-by-id/<int:id>",UserDeatilsViewById.as_view(),name="user-deatils-by-id"),
     path("user-script",UserScriptMaster.as_view(),name="user-script"),
     
     path("group-setting",GropuSettingView.as_view(),name="group-setting"),

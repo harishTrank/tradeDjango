@@ -134,7 +134,6 @@ class MaketWatchScreenApi(APIView):
     def get(self, request):
         try:
             tradeCoinData = MarketWatchModel.objects.filter(market_user=request.user).values_list("trade_coin_id", flat=True) 
-            print("======",tradeCoinData)
             return Response({"result": tradeCoinData }, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -195,51 +194,71 @@ class MaketWatchScreenApi(APIView):
 class BuySellSellApi(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
-        user = request.user 
-        print("user", user)
+        if (request.data.get("type") == "WEB"):
+            user = MyUser.objects.get(id=request.data.get("userId"))
+        else:
+            user = request.user
         action = request.data.get('action')
         quantity = request.data.get('quantity')
         lot_size = request.data.get("lot_size")
-        
-        total_cost = lot_size * quantity * request.data.get('price')
-        if user.balance < total_cost:
-            return Response({'message': 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).values('identifer').annotate(total_quantity=Sum('quantity'))
-            if (len(totalCount) > 0):
-                totalCount = totalCount[0]["total_quantity"] + (quantity if action == 'BUY' else -quantity)
-                
-            if action == 'BUY' and user.balance >= total_cost:  
-                user.balance -= total_cost
-            else:
-                user.balance += total_cost
-            user.save()
-            buy_sell_instance = BuyAndSellModel(
-                buy_sell_user=user,
-                quantity=quantity if action == 'BUY' else -quantity,
-                trade_type=request.data.get('trade_type'),
-                action=request.data.get('action'),
-                price=request.data.get('price'),
-                coin_name=request.data.get('coin_name'),
-                ex_change=request.data.get('ex_change'),
-                is_pending=request.data.get('is_pending'),
-                identifer=request.data.get("identifer"),
-                ip_address=request.data.get("ip_address"),
-                order_method=request.data.get("order_method"),)
-            buy_sell_instance.save()
-            if (totalCount == 0):
-                BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
+
+        totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
+        try:
+            total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
+        except:
+            total_quantity = 0
+        print("quantityquantity", quantity, total_quantity)
+        if totalCount.count() > 0 and (total_quantity < quantity):
+            currentProfitLoss = total_quantity * quantity * lot_size
+            user.balance += currentProfitLoss
+            quantity -= total_quantity
             
-            return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
-           
+        total_cost = lot_size * quantity * request.data.get('price')
+        if (totalCount.count() > 0 and (total_quantity == quantity)):
+            if action == "SELL":
+                currentProfitLoss = ( request.data.get('price') -totalCount[0]["avg_price"] ) * quantity * lot_size
+            else:
+                currentProfitLoss = ( totalCount[0]["avg_price"] -  request.data.get('price') ) * quantity * lot_size
+                
+            user.balance += currentProfitLoss
+        
+        elif action == 'BUY' and user.balance >= total_cost:  
+            user.balance -= total_cost
+        elif action == 'SELL' and user.balance >= total_cost:
+            user.balance += total_cost
+        else:
+            return Response({'message': 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
+        user.save()
+        buy_sell_instance = BuyAndSellModel(
+            buy_sell_user=user,
+            quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
+            trade_type=request.data.get('trade_type'),
+            action=request.data.get('action'),
+            price=request.data.get('price'),
+            coin_name=request.data.get('coin_name'),
+            ex_change=request.data.get('ex_change'),
+            is_pending=request.data.get('is_pending'),
+            identifer=request.data.get("identifer"),
+            ip_address=request.data.get("ip_address"),
+            order_method=request.data.get("order_method"),)
+        buy_sell_instance.save()
+        print("buy_sell_instance", buy_sell_instance.id)
+        # if (totalCount.count() > 0 and totalCount[0]["total_quantity"] + quantity == request.data.get('quantity')):
+        #     BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).exclude(id=buy_sell_instance.id).update(trade_status=False)
+        if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
+            BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
+        return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
+        
 
 
 class PositionManager(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
-            user = request.user 
-            data = request.data  
+            if (request.GET.get("type") == "WEB"):
+                user = MyUser.objects.get(id = request.GET.get("id"))
+            else:
+                user = request.user 
             results = (
                 user.buy_sell_user.all()
                 .filter(is_pending=False, trade_status=True)
@@ -395,6 +414,7 @@ class UserListApiView(APIView):
 
 
 # web api ----------------------------------
+        
 class MyUserPerissionToggle(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
@@ -496,4 +516,22 @@ class AdminRightApi(APIView):
             master_user_data.by_manual = admin_Right['by_manual']
         master_user_data.save() 
         return Response({"status":True, "message":"Admin Right Add Sucessfully"}, status=status.HTTP_200_OK)
+    
+    
+class MarketTradeRight(APIView):
+    def post(self, request):
+        user_id = request.GET.get("id")
+        try:
+            user = MyUser.objects.get(id=user_id)
+        except MyUser.DoesNotExist:
+            return Response({"status": False, "message": "User does not exist."}, status=400)
+        master_user_data , created = MastrModel.objects.get_or_create(master_user=user)
+        print("master_user_data",master_user_data.trade_right)
+        trade_right = request.data.get("trade_right") 
+        if request.data.get("trade_right")  is None:
+            return Response({"status": False, "message": "Trade right is required."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            master_user_data.trade_right = trade_right
+            master_user_data.save()
+            return Response({"status":True,"message":"Trade right added sucessfully"}, status=status.HTTP_200_OK)
 # ------------------------------------------------

@@ -26,7 +26,7 @@
           <label for="">User:</label>&nbsp;
           <select name="" id="" class="form_control">
             <option value="{{request.user.id}}">
-              {{request.user.user_name}}
+              {{user.user_name}}
             </option>
           </select>
         </div>
@@ -95,15 +95,17 @@
           />
         </div>
         <div class="flex space-bw">
-          <label for="">Rate By:</label>
-          <select name="" id="" class="form_control">
-            <option value="">Manual Price</option>
+          <label for="rateBy">Rate By:</label>
+          <select id="rateBy" class="form_control">
+            <option value="market">Market</option>
+            <option id="manualPriceOption" value="manual">Manual Price</option>
           </select>
         </div>
         <div class="flex space-bw">
-          <label for="">Price</label>
-          <input type="number" class="form_control" />
+          <label for="price">Price</label>
+          <input id="priceInput" type="number" class="form_control" />
         </div>
+        
         <div style="display: flex">
           <input
             type="submit"
@@ -128,16 +130,10 @@
             <th>CMP</th>
             <th>Profit / Loss</th>
           </tr>
-          <tr>
-            <td>View</td>
-            <td>Exchange</td>
-            <td>Symbol</td>
-            <td>Position</td>
-            <td>Quantity</td>
-            <td>Average Rate</td>
-            <td>CMP</td>
-            <td>Profit / Loss</td>
-          </tr>
+
+          <tbody id="positionLiveDataid">
+           
+          </tbody>
         </table>
       </div>
       <div class="totalPL">
@@ -149,7 +145,7 @@
             <td>BAL:0.00</td>
             <td>CRD:0</td>
             <td>EQT:10,000</td>
-            <td>Total P/L:200.00</td>
+            <td id="totalPriceId">Total P/L:200.00</td>
           </tr>
         </table>
       </div>
@@ -165,13 +161,107 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
 </script>
 
 <script>
+
+
+  $(document).ready(function() {
+    $('#rateBy').change(function() {
+      if ($(this).val() === 'market') {
+        $('#priceInput').prop('disabled', true);
+      } else {
+        $('#priceInput').prop('disabled', false);
+      }
+    });
+
+    if ($('#rateBy').val() === 'market') {
+      $('#priceInput').prop('disabled', true);
+    }
+  });
+  
+  
+    
+    const baseNodeURL = BASE_URL
+    const socket = io(baseNodeURL); 
     const dateManager = (val) => {
         return `${val?.split("_")?.[2]?.slice(0, 2)} ${val
           ?.split("_")?.[2]
           ?.slice(2, 5)} ${val?.split("_")?.[2]?.slice(7)}`;
       };
 
-    const baseNodeURL = "http://192.168.0.128:5000"
+    
+    const updateTotalPrice = (socketResponse, itemResult) => {
+      return itemResult
+        .map(item => {
+          const findSocketVal = socketResponse.find(findObject =>
+              findObject?.InstrumentIdentifier === item?.identifer
+          );
+          return (
+            item?.total_quantity > 0
+              ? (findSocketVal?.BuyPrice - item?.avg_price) *
+                item?.total_quantity *
+                findSocketVal?.QuotationLot
+              : (item?.avg_price - findSocketVal?.SellPrice) *
+                Math.abs(item?.total_quantity) *
+                findSocketVal?.QuotationLot
+          ).toFixed(2);
+        })
+        .reduce((partialSum, a) => Number(partialSum) + Number(a), 0);
+      };
+
+    const profitLossHandler = (item, socketResponse) => {
+        return (
+          item?.total_quantity > 0
+            ? (socketResponse?.BuyPrice - item?.avg_price) *
+              item?.total_quantity *
+              socketResponse?.QuotationLot
+            : (item?.avg_price - socketResponse?.SellPrice) *
+              Math.abs(item?.total_quantity) *
+              socketResponse?.QuotationLot
+              ).toFixed(2);
+    };
+
+    $.ajax({
+      type:'GET',
+      url:`{% url "position" %}?type=WEB&id={{id}}`,
+      headers: { "X-CSRFToken": "{{ csrf_token }}" },
+      success:function(res){
+        console.log("res", res)
+        if (res.response.length > 0) {
+          socket.on("connect", () => {
+            console.log("Connected to the Socket.io server");
+          });
+
+          socket.emit("filterDataGet", {identifier: res.response.map(item => item.identifer)});
+
+          socket.on("filterDataSend", (data) => {
+            $("#totalPriceId").html(`P/L: ${updateTotalPrice(data, res.response)}`);
+            $("#positionLiveDataid").empty();
+            data.map(item => {
+              const current_data = res.response.find(findItem => findItem.identifer === item.InstrumentIdentifier)
+              const profitLossValue = profitLossHandler(current_data, item);
+              $("#positionLiveDataid").append(`
+                <tr>
+                  <td>View</td>
+                  <td>${item.Exchange}</td>
+                  <td>${item.InstrumentIdentifier}</td>
+                  <td style="color: ${current_data.total_quantity < 0 ? 'red' : 'blue'};">${current_data.total_quantity > 0 ? "BUY" : "SELL"}</td>
+                  <td>${current_data.total_quantity > 0 ? current_data.total_quantity : -current_data.total_quantity}</td>
+                  <td>${current_data.avg_price}</td>
+                  <td>${current_data.total_quantity > 0 ? item.BuyPrice : item.SellPrice}</td>
+                  ${profitLossValue && profitLossValue > 0 ? `<td style="color: blue">${profitLossValue}</td>` : `<td style="color: red">${profitLossValue}</td>`}
+                </tr>
+              `)
+            })
+          });
+
+          socket.on("disconnect", () => {
+              console.log("Disconnected from the Socket.io server");
+          });
+        }
+      },
+      error:function(err){
+        alert(err?.responseJSON.message);
+      }
+    })
 
     $("#exchangeSelectId").change((event) => {
         $.ajax({
@@ -190,7 +280,6 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
         })
     })
 
-    const socket = io(baseNodeURL); 
 
     $("#scriptNameId").change((event) => {
         socket.on("connect", () => {
@@ -237,6 +326,8 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
                 is_pending: false,
                 order_method: "Web",
                 lot_size: Number(data.QuotationLot),
+                userId: "{{id}}",
+                type: "WEB"
             }
 
             axios.post(`{% url "buy-sell-coin" %}`, body, {headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(function (response) {
@@ -248,6 +339,13 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
                 setTimeout(()=>{
                     window.location.reload();
                 },1000)
+            }).catch(err => {
+              console.log("err",err)
+              toastMixin.fire({
+                animation: true,
+                title: err.response.data.message,
+                icon: "error",
+            });
             })
         }
     })

@@ -66,6 +66,7 @@ class MyUser(AbstractBaseUser,CommonTimePicker):
     close_only = models.BooleanField("Close Only", default=False)
     margin_sq = models.BooleanField("Margin Sq", default=False)
     status = models.BooleanField("Status", default=True)
+    auto_square_off = models.BooleanField("Auto Square off", default=False)
     
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

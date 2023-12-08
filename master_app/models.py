@@ -16,7 +16,7 @@ class MastrModel(models.Model):
     delete_trade = models.BooleanField("Delete Trade",default=False)
     execute_pending_order = models.BooleanField("Execute Pending Order",default=False)
     by_manual = models.BooleanField("By Manual",default=False)
-    
+    trade_right = models.BooleanField("Trade Right",default=False)
     
     
     def __str__(self):

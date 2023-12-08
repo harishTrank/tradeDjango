@@ -19,5 +19,6 @@ urlpatterns = [
     path("get-master-api/", GetMasterApiView.as_view(), name="get-master-api"),
     path("limit-user-creation/", LimitUserCreation.as_view(), name="limit-user-creation"),
     path("admin-right/", AdminRightApi.as_view(), name="admin-right"),
-    
+    path("admin-trade-right/", MarketTradeRight.as_view(), name="admin-trade-right"),
+      
 ]

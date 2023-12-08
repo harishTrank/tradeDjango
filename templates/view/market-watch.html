@@ -69,7 +69,8 @@
     </div>
 </div>
 <script>
-  const socket = io("http://13.127.239.118:5000"); 
+    const baseNodeURL = BASE_URL
+    const socket = io(baseNodeURL);  
 
     function showLoader() {
         document.getElementById('loader').style.display = 'block';
@@ -125,7 +126,7 @@
   let response;
   $.ajax({
     type: "GET",
-    url: 'http://13.127.239.118:5000/api/tradeCoin',
+    url: `${BASE_URL}/api/tradeCoin`,
     success: function (data) {
       console.log(data); 
       let symbolKey = $(".symbolKey").val();

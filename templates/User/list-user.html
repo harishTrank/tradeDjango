@@ -143,7 +143,7 @@
                         <li><a href="#">Share Details</a></li>
                         <li><a onClick="accountLimit()">Account Limit</a></li>
                         <li><a onClick="adminRights()">Admin Rights</a></li>
-                        <li><a href="#">Market Trade Right</a></li>
+                        <li><a onClick="tradeRights()">Market Trade Right</a></li>
                         <li><a href="{% url 'Admin:add-user' %}">Create User</a></li>
                         <li><a href="#">Set Readonly</a></li>
                     </ul>
@@ -160,11 +160,11 @@
                     <td class="pos-relate"> 
                         <ul class="dropdown_action">
                             <li>
-                                <i class="fa-solid fa-ellipsis" onClick="clickActionBtn(event)" data-hidden-value="{{i.user_name}} {{i.id}}"></i>  
+                                <i class="fa-solid fa-ellipsis" onClick="clickActionBtn(event)" data-hidden-value="{{i.user_name}}__abc__{{i.id}}"></i>  
                             </li>
                         </ul>
                     </td>
-                    <td class="user-cell">{{i.user_name}}</td>
+                    <td class="user-cell" onClick='particularUserView("{{i.id}}")'>{{i.user_name}}</td>
                     <td>{{i.full_name}}</td>
                     <td>{{i.user_type}}</td>
                     <td>{{i.user_name}}</td>
@@ -218,6 +218,7 @@
 
 
 <script>
+    
 
     $(document).on("click", function(event){
         var $trigger = $(".pos-relate");
@@ -231,8 +232,9 @@
     })
 
     const clickActionBtn = (event) => {
-        $("#user_name_id").val(event.target.dataset.hiddenValue?.split(" ")[0]);
-        $("#current_selected_userId").val(event.target.dataset.hiddenValue?.split(" ")[1]);
+        const result = event.target.dataset.hiddenValue?.split("__abc__");
+        $("#user_name_id").val(result[0]);
+        $("#current_selected_userId").val(result[result.length - 1]);
     }
 
     const callToggleApi = (id, key) => {
@@ -248,7 +250,13 @@
     }
 
     // please dont touch harish ====>
-    const userCells = document.querySelectorAll('.user-cell');
+    //piyush bhai kuch nahi aata tuje cutiya salla  ====>
+    const particularUserView = id => {
+        window.open(`user-deatils-by-id/${id}`, 'NewWindow', 'width=1200,height=600');
+        localStorage.setItem("currentUserID", id);
+    }
+    
+    {% comment %} const userCells = document.querySelectorAll('.user-cell');
     const userTabOpen = (userName) => {
         window.open('user-deatils', 'NewWindow', 'width=1200,height=600');
     };
@@ -257,7 +265,7 @@
             const userName = cell.textContent;
             userTabOpen(userName);
         });
-    });
+    }); {% endcomment %}
     
     
 </script>

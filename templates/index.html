@@ -74,6 +74,7 @@
       {% block content %} {% endblock content %}
       {% include "components/user/account-limit.html" %}
       {% include "components/user/admin-rights.html" %}
+      {% include "components/user/market-trade-master.html" %}
       {% include "components/password-popup.html" %}
     </div>
     <script
@@ -134,15 +135,16 @@
 
 
     const accountLimit = () => {
-      console.log("accountLimit======>1")
-
       $("#accountLimitid").css("display", "block");
       $('.action_dropdown').toggle();
     }
     const adminRights = () => {
-        console.log("accountLimit======>2")
         $("#adminRightsId").css("display","block");
         $('.action_dropdown').toggle();
+    }
+    const tradeRights = () => {
+      $("#tradeRightId").css("display", "block");
+      $('.action_dropdown').toggle();
     }
     
   </script>

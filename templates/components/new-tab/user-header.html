@@ -48,7 +48,7 @@
     {% endif %} {% endfor %} {% endif %} 
 
     <div class="tab-head">
-      <li class="open-file-menu" data-id="users" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-deatils' %}">Position</a></li>
+      <li class="open-file-menu" data-id="users" class="open-menu"><a id="userDetailsLink" style=" text-decoration: none; color: #000;"  href="{% url 'Admin:user-deatils' %}">Position</a></li>
       <li data-id="trades1"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:tab-trade' %}">Trades</a></li>
       <li data-id="scriptmaster" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-script' %}">Script Master</a></li>
       <li data-id="groupsetting" class="open-view-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:group-setting' %}">Group Setting</a></li>
@@ -71,6 +71,20 @@
         </script>
 
     <script>
+      
+    const BASE_URL = "http://13.232.101.55:5000";
+
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const id = localStorage.getItem("currentUserID");
+        const userDetailsLink = document.getElementById('userDetailsLink');
+        if (id && userDetailsLink) {
+            const currentHref = userDetailsLink.getAttribute('href');
+            userDetailsLink.setAttribute('href', `${"user-deatils-by-id"}/${id}`);
+        }
+    });
+
+    
             var toastMixin = Swal.mixin({
               toast: true,
               title: "General Title",

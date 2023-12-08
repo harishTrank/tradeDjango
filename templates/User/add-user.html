@@ -62,42 +62,30 @@
         <div>
           <h3>Exchange</h3>
           <div>
-            <table
-              border="1"
-              style="text-align: center; border-collapse: collapse; width: 100%"
-            >
+            <table border="1" style="text-align: center; border-collapse: collapse; width: 100%">
               <tr>
-                <td><input type="checkbox" /></td>
-                <th>Exchange...</th>
-                <th>Turnover..</th>
-                <th>Symbol...</th>
+                <td><input id="masterCheckboxId" type="checkbox" /></td>
+                <th>Exchange</th>
+                <th>Turnover</th>
+                <th>Symbol</th>
               </tr>
               <tr>
-                <td><input name="mcx_exchange" type="checkbox" /></td>
+                <td><input id="mcx_exchangeId" name="mcx_exchange" type="checkbox" class="individualCheckbox" /></td>
                 <td>MCX</td>
-                <td><input name="mcx_turnover" type="checkbox" /></td>
-                <td><input name="mcx_symbol" type="checkbox" /></td>
-               
+                <td><input id="mcx_turnoverId" name="mcx_turnover" type="checkbox" class="mcxCheckbox" /></td>
+                <td><input id="mcx_symbolId" name="mcx_symbol" type="checkbox" class="mcxCheckbox" /></td>
               </tr>
               <tr>
-                <td><input name="nse_exchange" type="checkbox" /></td>
+                <td><input name="nse_exchange" type="checkbox" class="individualCheckbox" /></td>
                 <td>NSE</td>
-                <td><input name="nse_turnover" type="checkbox" /></td>
-                <td><input name="nse_symbol" type="checkbox" /></td>
-              
+                <td><input name="nse_turnover" type="checkbox" class="nseCheckbox" /></td>
+                <td><input name="nse_symbol" type="checkbox" class="nseCheckbox" /></td>
               </tr>
               <tr>
-                <td><input name="sgx_exchange" type="checkbox" /></td>
-                <td>SGX</td>
-                <td><input name="sgx_turnover" type="checkbox" /></td>
-                <td><input name="sgx_symbol" type="checkbox" /></td>
-              </tr>
-              <tr>
-                <td><input name="others_exchange" type="checkbox" /></td>
-                <td>OTHERS</td>
-                <td><input name="others_turnover" type="checkbox" /></td>
-                <td><input name="others_symbol" type="checkbox" /></td>
-               
+                <td><input name="mini_exchange" type="checkbox" class="individualCheckbox" /></td>
+                <td>MINI</td>
+                <td><input name="mini_turnover" type="checkbox" class="miniCheckbox" /></td>
+                <td><input name="mini_symbol" type="checkbox" class="miniCheckbox" /></td>
               </tr>
             </table>
           </div>
@@ -105,36 +93,22 @@
       </div>
       <div class="toggle-switches">
         <h4>High low between limit</h4>
-        <div class="flex space-bw">
-          <div class="col-20 flex align-center">
+        <div class="flex" style="justify-content: space-around;">
+          <div class="col-30 flex align-center">
             <label class="switch">
-              <input name="mcx" type="checkbox" />
+              <input id="highLowMCXId" name="mcx" type="checkbox" />
               <span class="slider round"></span>
             </label>
             <p>MCX</p>
           </div>
-          <div class="col-20 flex align-center">
+          <div class="col-30 flex align-center">
             <label class="switch">
-              <input name="nse" type="checkbox" />
+              <input name="nse" type="checkbox" id="nseID" />
               <span class="slider round"></span>
             </label>
             <p>NSE</p>
           </div>
-          <div class="col-20 flex align-center">
-            <label class="switch">
-              <input name="sgx" type="checkbox" />
-              <span class="slider round"></span>
-            </label>
-            <p>SGX</p>
-          </div>
-          <div class="col-20 flex align-center">
-            <label class="switch">
-              <input name="others" type="checkbox" />
-              <span class="slider round"></span>
-            </label>
-            <p>OTHERS</p>
-          </div>
-          <div class="col-20 flex align-center">
+          <div class="col-30 flex align-center">
             <label class="switch">
               <input name="mini" type="checkbox" />
               <span class="slider round"></span>
@@ -145,7 +119,7 @@
       </div>
       <div class="flex">
         <div class="mr">
-          <input type="checkbox" name="change_password" id="" class="mr-5" />Change Password
+          <input type="checkbox" name="change_password" class="mr-5" />Change Password
         </div>
         <div class="flex" id="addMasterTagId" style="display:none;">
           <label class="switch">
@@ -153,6 +127,13 @@
             <span class="slider round"></span>
           </label>
           <p>Add Master</p>
+        </div>
+        <div class="flex" id="" style="">
+          <p>&nbsp Auto Square off &nbsp</p>
+          <label class="switch">
+            <input name="auto_square" type="checkbox"/>
+            <span class="slider round"></span>
+          </label>
         </div>
       </div>
       <div class="view-cancel flex space-bw" style="margin-top:12px">
@@ -281,6 +262,8 @@ input:checked+.slider:before {
 
 <script>
 
+
+
   $("#otherUserFlagId").change(() => $("#otherUserFlagId").prop("checked") &&   $("#selectedAdminId").prop("required", true) )
 
   const masterDisableHandler = () => {
@@ -366,5 +349,39 @@ input:checked+.slider:before {
   });
 
   $("#selectedAdminId").change(masterDisableHandler)
+
+
+
+// multiple checkbox select 
+
+
+$('#masterCheckboxId').change(function() {
+if ($(this).is(":checked")) {
+    $('.individualCheckbox').prop("checked", true);
+  } else {
+    $('.individualCheckbox , .mcxCheckbox, .nseCheckbox, .miniCheckbox').prop("checked", false);
+  }
+});
+
+
+$('#mcx_exchangeId').change(function() {
+  if ($(this).is(":checked")) {
+      $('#mcx_turnoverId , #mcx_symbolId').prop("checked", true);
+    } else {
+      $('#mcx_turnoverId , #mcx_symbolId').prop("checked", false);
+    }
+  });
+
+  $('#mcx_turnoverId, #mcx_symbolId').change(function() {
+    if ($('#mcx_turnoverId').is(":checked") || $('#mcx_symbolId').is(":checked")) {
+      // Perform an action when either #mcx_turnoverId or #mcx_symbolId is checked
+      // For example, alerting a message
+      alert("MCX Master should be challenged!");
+      // You can replace the alert with any action you want to perform
+    }
+  });
+
+
+
 </script>
 {% endblock content %}
