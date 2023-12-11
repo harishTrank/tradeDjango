@@ -250,6 +250,8 @@ class BuySellSellApi(APIView):
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
         
 
+from django.db.models.functions import Coalesce
+from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
 
 class PositionManager(APIView):
     permission_classes = [IsAuthenticated]
@@ -259,14 +261,29 @@ class PositionManager(APIView):
                 user = MyUser.objects.get(id = request.GET.get("id"))
             else:
                 user = request.user 
-            results = (
-                user.buy_sell_user.all()
-                .filter(is_pending=False, trade_status=True)
-                .values('identifer','coin_name')
-                .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
-                .exclude(total_quantity=0)
+            # results = (
+            #     user.buy_sell_user.all()
+            #     .filter(is_pending=False, trade_status=True)
+            #     .values('identifer','coin_name')
+            #     .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
+            #     .exclude(total_quantity=0)
+            # )
+            result = (
+                user.buy_sell_user.filter(buy_sell_user_id=3, trade_status=True)
+                .values('identifer')
+                .annotate(
+                    total_quantity=Sum('quantity'),
+                    avg_buy_price=Coalesce(
+                        Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    ),
+                    avg_sell_price=Coalesce(
+                        Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    )
+                ).exclude(total_quantity=0)
             )
-            return Response({"status": True, "response": results}, status=status.HTTP_200_OK)
+            return Response({"status": True, "response": result}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response({"status": False}, status=status.HTTP_404_NOT_FOUND)

@@ -76,16 +76,16 @@
                 <td><input id="mcx_symbolId" name="mcx_symbol" type="checkbox" class="mcxCheckbox" /></td>
               </tr>
               <tr>
-                <td><input name="nse_exchange" type="checkbox" class="individualCheckbox" /></td>
+                <td><input id="nse_exchangeId" name="nse_exchange" type="checkbox" class="individualCheckbox" /></td>
                 <td>NSE</td>
-                <td><input name="nse_turnover" type="checkbox" class="nseCheckbox" /></td>
-                <td><input name="nse_symbol" type="checkbox" class="nseCheckbox" /></td>
+                <td><input id="nse_turnoverID" name="nse_turnover" type="checkbox" class="nseCheckbox" /></td>
+                <td><input id="nse_symbolId" name="nse_symbol" type="checkbox" class="nseCheckbox" /></td>
               </tr>
               <tr>
-                <td><input name="mini_exchange" type="checkbox" class="individualCheckbox" /></td>
+                <td><input id="mini_exchangeId" name="mini_exchange" type="checkbox" class="individualCheckbox" /></td>
                 <td>MINI</td>
-                <td><input name="mini_turnover" type="checkbox" class="miniCheckbox" /></td>
-                <td><input name="mini_symbol" type="checkbox" class="miniCheckbox" /></td>
+                <td><input id="mini_turnoverId" name="mini_turnover" type="checkbox" class="miniCheckbox" /></td>
+                <td><input id="mini_symbolId" name="mini_symbol" type="checkbox" class="miniCheckbox" /></td>
               </tr>
             </table>
           </div>
@@ -103,14 +103,14 @@
           </div>
           <div class="col-30 flex align-center">
             <label class="switch">
-              <input name="nse" type="checkbox" id="nseID" />
+              <input id="highLowNSEId" name="nse" type="checkbox" id="nseID" />
               <span class="slider round"></span>
             </label>
             <p>NSE</p>
           </div>
           <div class="col-30 flex align-center">
             <label class="switch">
-              <input name="mini" type="checkbox" />
+              <input id="higtLowMINIId" name="mini" type="checkbox" />
               <span class="slider round"></span>
             </label>
             <p>MINI</p>
@@ -352,34 +352,58 @@ input:checked+.slider:before {
 
 
 
+  
 // multiple checkbox select 
 
-
 $('#masterCheckboxId').change(function() {
-if ($(this).is(":checked")) {
-    $('.individualCheckbox').prop("checked", true);
-  } else {
-    $('.individualCheckbox , .mcxCheckbox, .nseCheckbox, .miniCheckbox').prop("checked", false);
-  }
-});
-
-
-$('#mcx_exchangeId').change(function() {
   if ($(this).is(":checked")) {
-      $('#mcx_turnoverId , #mcx_symbolId').prop("checked", true);
+      $('.individualCheckbox').prop("checked", true);
+      $('#mcx_turnoverId, #mcx_symbolId, #highLowMCXId, #nse_turnoverID , #nse_symbolId , #highLowNSEId, #mini_turnoverId , #mini_symbolId , #higtLowMINIId').prop("disabled", false);
     } else {
-      $('#mcx_turnoverId , #mcx_symbolId').prop("checked", false);
+      $('.individualCheckbox , .mcxCheckbox, .nseCheckbox, .miniCheckbox').prop("checked", false);
+      $('#mcx_turnoverId, #mcx_symbolId, #highLowMCXId, #nse_turnoverID , #nse_symbolId , #highLowNSEId, #mini_turnoverId , #mini_symbolId , #higtLowMINIId').prop("disabled", true);
     }
   });
-
-  $('#mcx_turnoverId, #mcx_symbolId').change(function() {
-    if ($('#mcx_turnoverId').is(":checked") || $('#mcx_symbolId').is(":checked")) {
-      // Perform an action when either #mcx_turnoverId or #mcx_symbolId is checked
-      // For example, alerting a message
-      alert("MCX Master should be challenged!");
-      // You can replace the alert with any action you want to perform
-    }
+  // ===================================
+  
+  
+  // mcx checkbox
+  $(document).ready(function() {
+    $('#mcx_exchangeId').change(function() {
+        var isChecked = $(this).is(":checked");
+        $('#mcx_turnoverId, #mcx_symbolId, #highLowMCXId')
+            .prop("checked", isChecked)
+            .prop("disabled", !isChecked);
+    });
+    $('#mcx_exchangeId').change();
   });
+  // ===================================
+  
+  
+  // nse checkbox
+  $(document).ready(function(){
+    $('#nse_exchangeId').change(function(){
+      var isChecked = $(this).is(":checked");
+      $('#nse_turnoverID , #nse_symbolId , #highLowNSEId')
+      .prop("checked", isChecked)
+      .prop("disabled", !isChecked);
+    });
+    $('#nse_exchangeId').change();
+  });
+  // ===================================
+  
+  
+  // mini checkbox
+  $(document).ready(function(){
+    $('#mini_exchangeId').change(function(){
+      var isChecked = $(this).is(":checked");
+      $('#mini_turnoverId , #mini_symbolId , #higtLowMINIId')
+      .prop("checked", isChecked)
+      .prop("disabled", !isChecked);
+    });
+    $('#mini_exchangeId').change();
+  });
+  // ===================================
 
 
 
