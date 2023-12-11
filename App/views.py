@@ -135,9 +135,8 @@ class UserProfileAPIView(APIView):
         data_to_send = {
             "responsecode":status.HTTP_200_OK,
             "responsemessage":"data getting sucessfully",
-            "data":serializer.data,
+            "data":{**serializer.data, "exchange": exchange},
             "tradeCoinData":tradeCoinData ,
-            "exchange": exchange   
         }
         return Response(data_to_send, status=status.HTTP_200_OK)
 
