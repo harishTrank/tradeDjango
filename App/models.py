@@ -108,7 +108,7 @@ class ExchangeModel(CommonTimePicker):
     turnover = models.BooleanField("Turnover", default=False)
 
     def __str__(self):
-        return self.symbol_name
+        return self.symbol_name + " " + self.user.user_name
 
 
 

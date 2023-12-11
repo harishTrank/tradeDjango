@@ -2,8 +2,15 @@
 {% load static %}{% block newtab %}
 <div class="tab-content" id="orders">
   <div class="flex">
+    <div class="trade-download">
+      <div style="transform: rotate(90deg);padding-left: 10px; cursor:pointer;">
+          <p id="openFilerId">Filter</p>
+      </div>
+      {% comment %} <span>
+          <a href=""><i class="fa-solid fa-file-csv"></i></a>
+      </span> {% endcomment %}
+  </div>
       <div class="trades-side" style="position: fixed;">
-
           <div class="trade-top">
               <div class="flex space-bw">
                   <div>
@@ -26,7 +33,7 @@
           </div>
               <div>
                   <label for=""></label>
-                  <input type="submit" value="Search" class="form-btn" onclick="filterResults()">
+                  <input type="submit" value="Search" class="form-btn" id="serachBtnId">
                   <input type="submit" value="Clear" class="cancel-btn">
               </div>
           </div>
@@ -34,7 +41,7 @@
       <div class="trades-body user-table" style="position:absolute;right:0;">
           <table style="width: 100%;">
             <tr>
-              <th><input type="checkbox" /></th>
+              <th><input id="checkAll" type="checkbox" /></th>
               <th>Exchange</th>
               <th>Script</th>
               <th>Expiry Date</th>
@@ -53,15 +60,26 @@
 
 <script>
 
-  {% comment %} // http://13.232.101.55:5000/api/tradeCoin/?coinType=NSE {% endcomment %}
-  function filterResults() {
-  const selectedExchange = $("#exchangeFilter").val();
-  let response;
+  $("#checkAll").click(function(){
+    $('input:checkbox').not(this).prop('checked', this.checked);
+});
+
+  $('.closeBtn').click(function () {
+    $(".trades-side").hide();
+    $(".trades-body").css("width", "95%");
+});
+
+$('#openFilerId').click(function () {
+  $(".trades-side").show();
+});
+
+const apiCallForAllExchange = (exchange="") => {
   $.ajax({
     type: "GET",
-    url: `${BASE_URL}/api/tradeCoin`,
+    url: `${BASE_URL}/api/tradeCoin?coinType=${exchange}`,
     success: function (data) {
       console.log(data); 
+      $("#userScriptId").empty();
       data.response.map(item => {
         $("#userScriptId").append(`
           <tr>
@@ -80,5 +98,12 @@
       console.error('Error:', error);
     }
   });
+}
+
+$("#serachBtnId").click(() => {
+  apiCallForAllExchange($("#exchangeFilter").val())
+})
+
+apiCallForAllExchange();
 </script>
 {% endblock newtab %}

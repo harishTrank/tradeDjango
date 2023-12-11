@@ -123,21 +123,21 @@ class AddUserAPIView(APIView):
         except Exception as e:
             print("e",e)
             return Response({"error": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
-        
-
+    
 
 class UserProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
     def get(self, request):
         user = request.user
+        exchange = ExchangeModel.objects.filter(user=user.id).values_list('symbol_name', flat=True)
         serializer = GetMyUserSerializer(user)
         tradeCoinData = MarketWatchModel.objects.filter(market_user=request.user).values_list("trade_coin_id", flat=True) 
         data_to_send = {
             "responsecode":status.HTTP_200_OK,
             "responsemessage":"data getting sucessfully",
             "data":serializer.data,
-            "tradeCoinData":tradeCoinData      
+            "tradeCoinData":tradeCoinData ,
+            "exchange": exchange   
         }
         return Response(data_to_send, status=status.HTTP_200_OK)
 
