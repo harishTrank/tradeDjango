@@ -92,14 +92,15 @@
 <script>
     const identifer = JSON.parse("{{identifer|safe}}".replaceAll(`'`, `"`));
     const current_user_result = JSON.parse("{{response|safe}}".replaceAll(`'`, `"`));
-    const socket = io("http://localhost:5000"); 
+    const baseNodeURL = BASE_URL
+    const socket = io(baseNodeURL); 
     const profitLossHandler = (item, socketResponse) => {
         return (
           item?.total_quantity > 0
-            ? (socketResponse?.BuyPrice - item?.avg_price) *
+            ? (socketResponse?.BuyPrice - item?.avg_buy_price) *
               item?.total_quantity *
               socketResponse?.QuotationLot
-            : (item?.avg_price - socketResponse?.SellPrice) *
+            : (item?.avg_sell_price - socketResponse?.SellPrice) *
               Math.abs(item?.total_quantity) *
               socketResponse?.QuotationLot
               ).toFixed(2);
@@ -114,10 +115,10 @@
             );
             return (
               item?.total_quantity > 0
-                ? (findSocketVal?.BuyPrice - item?.avg_price) *
+                ? (findSocketVal?.BuyPrice - item?.avg_buy_price) *
                   item?.total_quantity *
                   findSocketVal?.QuotationLot
-                : (item?.avg_price - findSocketVal?.SellPrice) *
+                : (item?.avg_sell_price - findSocketVal?.SellPrice) *
                   Math.abs(item?.total_quantity) *
                   findSocketVal?.QuotationLot
             ).toFixed(2);

@@ -74,6 +74,20 @@ class ResetPasswordView(APIView):
 class AddUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
+        limit = request.user.master_user.limit if request.user.user_type == "Master" else False
+        master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
+        client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
+        if limit == False:
+            return Response({"status":False, "message":"Cannot create more users."},status=401)
+        
+        master_users_count = MastrModel.objects.filter(master_link=request.user.master_user).count()
+        if request.data.get("add_master") == True:
+            if master_users_count >= master_limit:
+                return Response({"status":False, "message":"Cannot create more master. Limit reached."},status=401)
+        else:
+            client_users_count = ClientModel.objects.filter(master_user_link=request.user.master_user).count()
+            if client_users_count >= client_limit:
+                return Response({"status":False, "message":"Cannot create client users. Limit reached."},status=401)
         try:
             if MyUser.objects.filter(user_name=request.data.get("user_name")).exists():
                 return Response({"status": False, "message": "This User Already exists."}, status=status.HTTP_400_BAD_REQUEST)
@@ -87,7 +101,8 @@ class AddUserAPIView(APIView):
             if request.data.get("add_master"):
                 admin_belongs = current_master.admin_user
                 create_user = MyUser.objects.create(user_type="Master", **request.data, password=make_password(password))
-                MastrModel.objects.create(master_user=create_user, admin_user=admin_belongs)
+                current_master = MyUser.objects.get(id=request.user.id).master_user
+                MastrModel.objects.create(master_user=create_user, admin_user=admin_belongs, master_link=current_master)
             else:
                 create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password))
                 ClientModel.objects.create(client=create_user, master_user_link=current_master)
@@ -125,7 +140,6 @@ class UserProfileAPIView(APIView):
             "tradeCoinData":tradeCoinData      
         }
         return Response(data_to_send, status=status.HTTP_200_OK)
-
 
 
 class MaketWatchScreenApi(APIView):
@@ -249,6 +263,65 @@ class BuySellSellApi(APIView):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
         
+        
+
+
+class BuySellSL(APIView):
+    def post(self, request):
+        user = MyUser.objects.get(id=request.data.get("id"))
+        action = request.data.get('action')
+        quantity = request.data.get('quantity')
+        lot_size = request.data.get("lot_size")
+
+        totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
+        try:
+            total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
+        except:
+            total_quantity = 0
+        print("quantityquantity", quantity, total_quantity)
+        if totalCount.count() > 0 and (total_quantity < quantity):
+            currentProfitLoss = total_quantity * quantity * lot_size
+            user.balance += currentProfitLoss
+            quantity -= total_quantity
+            
+        total_cost = lot_size * quantity * request.data.get('price')
+        if (totalCount.count() > 0 and (total_quantity == quantity)):
+            if action == "SELL":
+                currentProfitLoss = ( request.data.get('price') -totalCount[0]["avg_price"] ) * quantity * lot_size
+            else:
+                currentProfitLoss = ( totalCount[0]["avg_price"] -  request.data.get('price') ) * quantity * lot_size
+                
+            user.balance += currentProfitLoss
+        
+        elif action == 'BUY' and user.balance >= total_cost:  
+            user.balance -= total_cost
+        elif action == 'SELL' and user.balance >= total_cost:
+            user.balance += total_cost
+        else:
+            return Response({'message': 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
+        user.save()
+        buy_sell_instance = BuyAndSellModel(
+            buy_sell_user=user,
+            quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
+            trade_type=request.data.get('trade_type'),
+            action=request.data.get('action'),
+            price=request.data.get('price'),
+            coin_name=request.data.get('coin_name'),
+            ex_change=request.data.get('ex_change'),
+            is_pending=request.data.get('is_pending'),
+            identifer=request.data.get("identifer"),
+            ip_address=request.data.get("ip_address"),
+            order_method=request.data.get("order_method"),)
+        buy_sell_instance.save()
+        print("buy_sell_instance", buy_sell_instance.id)
+        if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
+            BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
+        return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
+                
+        
+        
+        
+
 
 from django.db.models.functions import Coalesce
 from django.db.models import Sum, Avg, Case, When, F, Value, FloatField

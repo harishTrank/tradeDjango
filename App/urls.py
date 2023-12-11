@@ -7,6 +7,7 @@ urlpatterns = [
     path('user-profile/', UserProfileAPIView.as_view(), name='user-profile'),
     path('market-coin/', MaketWatchScreenApi.as_view(), name='add-market-coin'),
     path('buy-sell-coin/', BuySellSellApi.as_view(), name='buy-sell-coin'),
+    path('buy-sell-sl/', BuySellSL.as_view(), name='buy-sell-sl'),
     path('trade-history/', TradeHistoryApi.as_view(), name='trade-history'),
     path('user-coin-list/', CoinNameApi.as_view(), name='user-coin-list'),
     path('user-list/', UserListApiView.as_view(), name='user-list'),

@@ -69,45 +69,56 @@
                 <th>Turnover</th>
                 <th>Symbol</th>
               </tr>
+              {% if request.user.user_type == "Admin" and request.user.mcx or request.user.user_type != "Admin" %}
               <tr>
                 <td><input id="mcx_exchangeId" name="mcx_exchange" type="checkbox" class="individualCheckbox" /></td>
                 <td>MCX</td>
                 <td><input id="mcx_turnoverId" name="mcx_turnover" type="checkbox" class="mcxCheckbox" /></td>
                 <td><input id="mcx_symbolId" name="mcx_symbol" type="checkbox" class="mcxCheckbox" /></td>
               </tr>
+              {% endif %}
+              {% if request.user.user_type == "Admin" and request.user.nse or request.user.user_type != "Admin" %}
               <tr>
                 <td><input id="nse_exchangeId" name="nse_exchange" type="checkbox" class="individualCheckbox" /></td>
                 <td>NSE</td>
                 <td><input id="nse_turnoverID" name="nse_turnover" type="checkbox" class="nseCheckbox" /></td>
                 <td><input id="nse_symbolId" name="nse_symbol" type="checkbox" class="nseCheckbox" /></td>
               </tr>
+              {% endif %}
+              {% if request.user.user_type == "Admin" and request.user.mini or request.user.user_type != "Admin" %}
               <tr>
                 <td><input id="mini_exchangeId" name="mini_exchange" type="checkbox" class="individualCheckbox" /></td>
                 <td>MINI</td>
                 <td><input id="mini_turnoverId" name="mini_turnover" type="checkbox" class="miniCheckbox" /></td>
                 <td><input id="mini_symbolId" name="mini_symbol" type="checkbox" class="miniCheckbox" /></td>
               </tr>
+              {% endif %}
             </table>
           </div>
         </div>
       </div>
       <div class="toggle-switches">
         <h4>High low between limit</h4>
-        <div class="flex" style="justify-content: space-around;">
+        <div class="flex">
+          {% if request.user.user_type == "Admin" and request.user.mcx or request.user.user_type != "Admin" %}
           <div class="col-30 flex align-center">
             <label class="switch">
               <input id="highLowMCXId" name="mcx" type="checkbox" />
               <span class="slider round"></span>
             </label>
-            <p>MCX</p>
+            <p>MCX &nbsp&nbsp</p>
           </div>
+          {% endif %}
+          {% if request.user.user_type == "Admin" and request.user.nse or request.user.user_type != "Admin" %}
           <div class="col-30 flex align-center">
             <label class="switch">
               <input id="highLowNSEId" name="nse" type="checkbox" id="nseID" />
               <span class="slider round"></span>
             </label>
-            <p>NSE</p>
+            <p>NSE &nbsp&nbsp</p>
           </div>
+          {% endif %}
+          {% if request.user.user_type == "Admin" and request.user.mini or request.user.user_type != "Admin" %}
           <div class="col-30 flex align-center">
             <label class="switch">
               <input id="higtLowMINIId" name="mini" type="checkbox" />
@@ -115,6 +126,7 @@
             </label>
             <p>MINI</p>
           </div>
+          {% endif %}
         </div>  
       </div>
       <div class="flex">
@@ -261,7 +273,8 @@ input:checked+.slider:before {
 
 
 <script>
-
+const checkAdmin = `{{request.user.user_name}}`;
+console.log("-=-=-=-=->",checkAdmin)
 
 
   $("#otherUserFlagId").change(() => $("#otherUserFlagId").prop("checked") &&   $("#selectedAdminId").prop("required", true) )

@@ -113,7 +113,12 @@ class AddUserView(View):
                 "symbols": request.POST.get("others_symbol") == 'on',
                 "turnover": request.POST.get("others_turnover") == 'on',
             },
-        ]     
+        ]  
+            
+        user_name = request.POST.get("user_name")
+        if MyUser.objects.filter(user_name=user_name).exists():
+            messages.error(request, f"Username '{user_name}' already exists. Please choose a different one.")
+            return redirect("Admin:add-user") 
         
         if request.user.user_type == "SuperAdmin":
             if (not request.POST.get("accountUser") == 'on'):
