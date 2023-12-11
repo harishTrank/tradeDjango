@@ -270,7 +270,7 @@ class PositionManager(APIView):
             # )
             result = (
                 user.buy_sell_user.filter(buy_sell_user_id=3, trade_status=True)
-                .values('identifer')
+                .values('identifer','coin_name')
                 .annotate(
                     total_quantity=Sum('quantity'),
                     avg_buy_price=Coalesce(
