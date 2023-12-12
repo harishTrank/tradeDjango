@@ -220,7 +220,6 @@ class BuySellSellApi(APIView):
             total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
         except:
             total_quantity = 0
-        print("quantityquantity", quantity, total_quantity)
         if totalCount.count() > 0 and (total_quantity < quantity):
             currentProfitLoss = total_quantity * quantity * lot_size
             user.balance += currentProfitLoss
