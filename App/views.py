@@ -18,9 +18,8 @@ from django.contrib import messages
 from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg
 
 class LoginApi(APIView):
-    permission_classes = [AllowAny,]
-
     def post(self, request):
+        print(request.data)
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             response = serializer.create(serializer.validated_data)
