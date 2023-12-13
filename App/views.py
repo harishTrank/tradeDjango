@@ -378,7 +378,7 @@ class PositionManager(APIView):
             #     .exclude(total_quantity=0)
             # )
             result = (
-                user.buy_sell_user.filter(trade_status=True)
+                user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name')
                 .annotate(
                     total_quantity=Sum('quantity'),
