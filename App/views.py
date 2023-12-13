@@ -213,19 +213,20 @@ class BuySellSellApi(APIView):
         action = request.data.get('action')
         quantity = request.data.get('quantity')
         lot_size = request.data.get("lot_size")
-
+        is_cancel = request.data.get("is_cancel")
+        
         totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
         try:
             total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
         except:
             total_quantity = 0
-        if totalCount.count() > 0 and (total_quantity < quantity):
+        if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
             currentProfitLoss = total_quantity * quantity * lot_size
             user.balance += currentProfitLoss
             quantity -= total_quantity
             
         total_cost = lot_size * quantity * request.data.get('price')
-        if (totalCount.count() > 0 and (total_quantity == quantity)):
+        if (totalCount.count() > 0 and (total_quantity == quantity)) and not is_cancel:
             if action == "SELL":
                 currentProfitLoss = ( request.data.get('price') -totalCount[0]["avg_price"] ) * quantity * lot_size
             else:
@@ -233,9 +234,9 @@ class BuySellSellApi(APIView):
                 
             user.balance += currentProfitLoss
         
-        elif action == 'BUY' and user.balance >= total_cost:  
+        elif action == 'BUY' and user.balance >= total_cost and not is_cancel:  
             user.balance -= total_cost
-        elif action == 'SELL' and user.balance >= total_cost:
+        elif action == 'SELL' and user.balance >= total_cost and not is_cancel:
             user.balance += total_cost
         else:
             buy_sell_instance = BuyAndSellModel(
@@ -251,11 +252,11 @@ class BuySellSellApi(APIView):
                 ip_address=request.data.get("ip_address"),
                 order_method=request.data.get("order_method"),
                 stop_loss=request.data.get("stop_loss"),
-                message='Insufficient balance/quantity',
+                message='Market is closed. Please try again later!' if is_cancel else 'Insufficient balance/quantity',
                 is_cancel=True
             )
             buy_sell_instance.save()
-            return Response({'message': 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Market is closed. Please try again later!' if is_cancel else 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
         user.save()
         buy_sell_instance = BuyAndSellModel(
             buy_sell_user=user,
