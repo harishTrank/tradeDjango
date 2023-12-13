@@ -11,13 +11,11 @@ from django.db.models import Sum, Avg , Q ,F
 import csv
 from django.http import HttpResponse
 
-
-
 class LoginView(View):
     def get(self, request):
         if request.user.is_authenticated:
             if request.user is not None and request.user.user_type == "SuperAdmin":
-                return redirect("Admin:dashboard")
+                return redirect("Admin:list-user")
             elif request.user is not None and request.user.user_type == "Admin":
                 return redirect("Admin:dashboard")
             elif request.user is not None and request.user.user_type == "Master":
@@ -31,7 +29,7 @@ class LoginView(View):
         user = authenticate(user_name=params["user_name"], password=params["password"])
         if user is not None and user.user_type == "SuperAdmin":
             login(request,user)
-            return redirect("Admin:dashboard")
+            return redirect("Admin:list-user")
         elif user is not None and user.user_type == "Admin":
             login(request, user)
             return redirect("Admin:dashboard")

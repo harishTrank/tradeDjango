@@ -13,10 +13,9 @@ from rest_framework.generics import get_object_or_404
 from django.http import Http404
 from django.contrib.auth.hashers import make_password
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import Sum, Avg , Q
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-
+from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg
 
 class LoginApi(APIView):
     permission_classes = [AllowAny,]
@@ -378,7 +377,7 @@ class PositionManager(APIView):
             #     .exclude(total_quantity=0)
             # )
             result = (
-                user.buy_sell_user.filter(buy_sell_user_id=3, trade_status=True)
+                user.buy_sell_user.filter(trade_status=True)
                 .values('identifer','coin_name')
                 .annotate(
                     total_quantity=Sum('quantity'),
@@ -540,6 +539,22 @@ class UserListApiView(APIView):
 
 
 # web api ----------------------------------
+class ChildUserFetchAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            user = request.user
+            if user.user_type == "Master":
+                response_user = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True))).values("user_name", "id")
+            elif user.user_type == "Admin":
+                master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
+                client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
+                response_user = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids)).values("user_name", "id")
+            elif request.user.user_type == "SuperAdmin":
+                response_user = MyUser.objects.exclude(id=request.user.id).values("user_name", "id")
+            return Response({"success": True, "message": "Fetch user record successfully.", "users": list(response_user)}, status=status.HTTP_200_OK)
+        except:
+            return Response({"success": False, "message": "This api only for admin and master user type."}, status=status.HTTP_404_NOT_FOUND)
         
 class MyUserPerissionToggle(APIView):
     permission_classes = [IsAuthenticated]
@@ -680,37 +695,84 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 class TableChartAPi(APIView):
-    def get(self, request):
+    def post(self, request):
         params = request.data
-        user = MyUser.objects.get(id=request.GET.get("user_id"))
-        date_array , cancelArray, successArray = [] , [] , []
+        user = MyUser.objects.get(id=request.data["user_id"])
+        currentCoins = request.data["currentCoin"]
+        date_array , cancelArray, successArray = [] , [] , [] 
         
-        if request.GET.get("type") == "day":
+        if request.data["type"] == "day":
             four_days_ago = timezone.now().date() - timedelta(days=3)
             current_date = four_days_ago
             while current_date <= timezone.now().date():
                 date_array.append(current_date)
-                cancel_query = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=True, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
+                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=True, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
                 cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
                 
-                success_query = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=False, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
+                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=False, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
                 successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
                 current_date += timedelta(days=1)
                 
-        elif request.GET.get("type") == "week":
-            pass
-        else:
-            current_month = timezone.now().month
-            for i in range (0, 4):
-                date_array.append(current_month ) 
-                cancel_query = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=True, created_at__month=current_month).values('created_at__month').annotate(count=Count('id'))
-                cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
-                success_query = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=False, created_at__month=current_month).values('created_at__month').annotate(count=Count('id'))
-                successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
-                current_month -= 1
-            
-            current_month
+        elif  request.data["type"] == "week":
+            current_date = timezone.now()
+            for i in range(4):
+                end_of_week = current_date - timedelta(days=current_date.weekday())
+                start_of_week = end_of_week - timedelta(days=6)
+                date_array.append((start_of_week.strftime('%Y-%m-%d'), end_of_week.strftime('%Y-%m-%d')))
                 
-        return Response({"status":True, "date_array": date_array, "cancel": cancelArray, "success": successArray})
-    
+                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=True, created_at__range=(start_of_week, end_of_week)).count()
+                cancelArray.append(cancel_query)
+                
+                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=False, created_at__range=(start_of_week, end_of_week)).count()
+                successArray.append(success_query)
+                
+                current_date = start_of_week - timedelta(days=1)
+        else:
+            current_date = timezone.now()
+            for i in range (0, 4):
+                month_year = current_date.strftime("%B %Y")
+                date_array.append(month_year)
+                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=True, created_at__month=current_date.month, created_at__year=current_date.year).values('created_at__month').annotate(count=Count('id'))
+                cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
+                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=False, created_at__month=current_date.month, created_at__year=current_date.year).values('created_at__month').annotate(count=Count('id'))
+                successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
+                current_date = current_date - timedelta(days=current_date.day)
+                
+        tableResponse = [{"trade": date_array[i], "cancel": cancelArray[i], "success" : successArray[i]} for i in range(4)]
+        return Response({"status":True, "date_array": date_array, "cancel": cancelArray, "success": successArray, "tableResponse": tableResponse})
+
+
+class PieChartHandlerApi(APIView):
+    def post(self, request):
+        try:
+            filterType = request.data["type"]
+            limit = request.data["limit"]
+            currentUser = MyUser.objects.get(id=request.data["user_id"])
+            
+            currentResult = (
+                BuyAndSellModel.objects
+                .filter(
+                    buy_sell_user=currentUser,
+                    ex_change__in=request.data["currentCoin"],
+                    created_at__date__gte=request.data["fromDate"],
+                    created_at__date__lte=request.data["toDate"]
+                )
+            )
+            
+            totalQuantity = currentResult.values('coin_name').annotate(total_quantity=Sum(Case(
+                When(quantity__lt=0, then=F('quantity') * Value(-1)),
+                default=F('quantity'),
+                output_field=IntegerField(),
+            )))
+            
+            buyTotalRecord = currentResult.filter(action="BUY").values('coin_name', 'action').annotate(total_quantity=Sum('quantity'))
+            sellTotalRecord = currentResult.filter(action="SELL").values('coin_name', 'action').annotate(total_quantity=Sum('quantity'))
+            
+            print(buyTotalRecord, "buyTotalRecord")
+            print(sellTotalRecord, "sellTotalRecord")
+            
+            return Response({"success": True, "message": "Pie chart data fetch successfully.", "labels": totalQuantity.values_list("coin_name", flat=True), "chartValue": totalQuantity.values_list("total_quantity", flat=True)}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e, "eeeeee")
+            return Response({"success": False, "message": "No record found"}, status=status.HTTP_404_NOT_FOUND)
 # ------------------------------------------------

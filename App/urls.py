@@ -22,7 +22,7 @@ urlpatterns = [
     path("admin-right/", AdminRightApi.as_view(), name="admin-right"),
     path("admin-trade-right/", MarketTradeRight.as_view(), name="admin-trade-right"),
     path("brk/", BrkApi.as_view(), name="brk"),
-    path("brk/", BrkApi.as_view(), name="brk"),
     path("table-chart/", TableChartAPi.as_view(), name="table-chart"),
-      
+    path("pie-chart-api/", PieChartHandlerApi.as_view(), name="pie-chart-api"),
+    path("child-user-api/", ChildUserFetchAPI.as_view(), name="child-user-api"),
 ]

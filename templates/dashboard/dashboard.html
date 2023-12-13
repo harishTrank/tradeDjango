@@ -7,11 +7,12 @@
               <div class="left-top">
                   <div class="flex align-center">
                       <div class="mr">
-                          <p>Filter:</p>
+                          <p>Select User:</p>
                       </div>
                       <div class="mr">
-                          <label>User:</label>
-                          <input type="text" class="form-group">
+                        <select name="" id="barChartUserListId" class="form-group">
+                            <option value="{{request.user.id}}">Own</option>
+                        </select>
                       </div>
                       <div class="mr">
                           <label>Show:</label>
@@ -22,30 +23,21 @@
                           </select>
                       </div>
                       <div>
-                          <input type="submit" class="form-btn" value="View">
+                          <input onClick="submitBarGraphFilter()" type="submit" class="form-btn" value="View">
                       </div>
                   </div>
               </div>
               <div class="left-body flex">
                   <div class="side-pannel">
-                    {% if request.user.user_type == "Admin" and request.user.mcx or request.user.user_type != "Admin" %}
                       <div>
-                          <input type="checkbox">MCX
+                          <input id="mcxPieChartId" type="checkbox" checked>MCX
                       </div>
-                    {% endif %}
-                    {% if request.user.user_type == "Admin" and request.user.nse or request.user.user_type != "Admin" %}
                       <div>
-                          <input type="checkbox">NSE
+                          <input id="nseBarCheckedId" type="checkbox" checked>NSE
                       </div>
-                    {% endif %}
-                    {% if request.user.user_type == "Admin" and request.user.mini or request.user.user_type != "Admin" %}
                       <div>
-                          <input type="checkbox">MINI
+                          <input id="miniBarCheckedId" type="checkbox" checked>MINI
                       </div>
-                    {% endif %}
-                     
-                     
-                     
                   </div>
                   <div class="pannel-body">
                       <div class="tab-head">
@@ -59,17 +51,13 @@
                         <div id="chartTableId" class="user-table col-100" style="width: 100%; display:none;">
                             <table style="width: 100%;">
                                 <tr>
-                                    <th>Trade Date</th>
-                                    <th>Success</th>
+                                    <th>Trade </th>
                                     <th>Canceled</th>
-                                    <th>Deleted</th>
+                                    <th>Success</th>
                                 </tr>
-                                <tr>
-                                    <td>12/8/2023</td>
-                                    <td>07</td>
-                                    <td>0</td>
-                                    <td>1</td>
-                                </tr>
+                                <tbody  id="barChartTableId">
+                                    
+                                </tbody>
                             </table>
                         </div>
                       </div>
@@ -83,45 +71,56 @@
                   <div class="flex align-center">
                       <div class="mr">
                           <label>From:</label>
-                          <input type="date" class="form-group">
+                          <input type="date" id="pieChartFromDate" class="form-group">
                       </div>
                       <div class="mr">
                           <label>To:</label>
-                          <input type="date" class="form-group">
+                          <input type="date" id="pieChartToDate" class="form-group">
                       </div>
                       <div class="mr">
-                          <label>User</label>
-                          <input type="text" class="form-group">
+                          <label>User: </label>
+                            <select name="" id="pieChartUserListId" class="form-group">
+                                <option value="{{request.user.id}}">Own</option>
+                            </select>
                       </div>
                       <div class="mr">
                           <label>Type:</label>
-                          <select name="" id="" class="form-group">
-                              <option value="">Top</option>
-                              <option value="">Bottom</option>
+                          <select name="" id="pieTypeFilterId" class="form-group">
+                              <option value="top">Top</option>
+                              <option value="bottom">Bottom</option>
                           </select>
                       </div>
+
+                      <div class="mr">
+                        <label>Type:</label>
+                        <select name="" id="limitPieChartId" class="form-group">
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
                       <div>
-                          <input type="submit" class="form-btn" value="View">
+                          <input id="submitPieChartFilterBtn" type="submit" class="form-btn" value="View">
                       </div>
                   </div>
               </div>
               <div class="left-body flex">
                   <div class="side-pannel">
-                    {% if request.user.user_type == "Admin" and request.user.mcx or request.user.user_type != "Admin" %}
                     <div>
-                        <input type="checkbox">MCX
+                        <input id="mcxPieChartId" type="checkbox" checked>MCX
                     </div>
-                  {% endif %}
-                  {% if request.user.user_type == "Admin" and request.user.nse or request.user.user_type != "Admin" %}
                     <div>
-                        <input type="checkbox">NSE
+                        <input id="nsePieChartId" type="checkbox" checked>NSE
                     </div>
-                  {% endif %}
-                  {% if request.user.user_type == "Admin" and request.user.mini or request.user.user_type != "Admin" %}
                     <div>
-                        <input type="checkbox">MINI
+                        <input id="miniPieChartId" type="checkbox" checked>MINI
                     </div>
-                  {% endif %}
                   </div>
                   <div class="pannel-body">
                       <div class="tab-head">
@@ -129,7 +128,7 @@
                           <li onClick="sectable()" data-id="table">Table View</li>
                       </div>
                       <div>
-                        <div id="secChartID" class="chart-container" style="position: relative; height:44.2vh; width:90vw">
+                        <div id="secChartID" class="chart-container" style="position: relative; height:60.2vh; width:60.2vh">
                             <canvas id="secondChart"></canvas>
                         </div>
                         <div>
@@ -179,11 +178,32 @@
         $("#secchartTableId").css('display','block');
        }
 
+    
+    // fetch users -------
+    {% if request.user.user_type != "Client" %}
+        axios.get(`{% url "child-user-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            res.data.users.map(item => {
+                $("#barChartUserListId").append(`<option value=${item.id}>${item.user_name}</option>`)
+                $("#pieChartUserListId").append(`<option value=${item.id}>${item.user_name}</option>`)
+            })
+        }).catch(err=> console.log("err", err))
+    {% endif %}
+    // --------------------
 
-    // frist chart js 
+
+    // first chart js 
     var barChart;
-    const barChartCreator = (user_id, type="day") => {
-        axios.get(`{% url "table-chart" %}?user_id=${user_id}&type=${type}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(res => {
+    const barChartCreator = (user_id="{{request.user.id}}") => {
+        let currentCoin = [];
+        $("#mcxBarCheckedId").is(":checked") ? currentCoin.push("MCX") : currentCoin = currentCoin.filter(item => item !== "MCX");
+        $("#nseBarCheckedId").is(":checked") ?  currentCoin.push("NSE") : currentCoin = currentCoin.filter(item => item !== "NSE");
+        $("#miniBarCheckedId").is(":checked") ? currentCoin.push("MINI") : currentCoin = currentCoin.filter(item => item !== "MINI");
+        axios.post(`{% url "table-chart" %}`, {
+            user_id : $("#barChartUserListId").val(),
+            type: $("#barChartFilterId").val(),
+            currentCoin
+        } ,{headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(res => {
             barChart = new Chart($("#myChart"), {
               type: 'bar',
               data: {
@@ -210,42 +230,73 @@
                 }
               }
             });
+            $("#barChartTableId").empty();
+            res.data.tableResponse.map(mapItem => {
+                $("#barChartTableId").append(`
+                <tr>
+                    <td>${mapItem.trade}</td>
+                    <td>${mapItem.cancel}</td>
+                    <td>${mapItem.success}</td>
+                </tr>
+                `)
+            })
+        })
+    }
+    barChartCreator();
+    const submitBarGraphFilter = () => {
+        barChart.destroy();
+        barChartCreator();
+    }
+    // --------------------------------------------
+
+
+    //pie chart creation -------------------------------
+    var pieChart;
+    const yesterdayDate = new Date(Date.now() - 864e5)
+    $("#pieChartFromDate").val(dayjs(yesterdayDate).format("YYYY-MM-DD"));
+    $("#pieChartToDate").val(dayjs().format("YYYY-MM-DD"));
+    const pieChartCreateHandler = () => {
+        let currentCoin = [];
+        $("#mcxPieChartId").is(":checked") ? currentCoin.push("MCX") : currentCoin = currentCoin.filter(item => item !== "MCX");
+        $("#nsePieChartId").is(":checked") ?  currentCoin.push("NSE") : currentCoin = currentCoin.filter(item => item !== "NSE");
+        $("#miniPieChartId").is(":checked") ? currentCoin.push("MINI") : currentCoin = currentCoin.filter(item => item !== "MINI");
+        axios.post(`{% url "pie-chart-api" %}`, {
+            fromDate: $("#pieChartFromDate").val(),
+            toDate: $("#pieChartToDate").val(),
+            user_id: $("#pieChartUserListId").val(),
+            type:  $("#pieTypeFilterId").val(),
+            limit:  $("#limitPieChartId").val(),
+            currentCoin
+        }, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            pieChart = new Chart($("#secondChart"), {
+                type: 'pie',
+                data: {
+                    labels: res.data.labels,
+                    datasets: [{
+                      label: 'My First Dataset',
+                      data: res.data.chartValue,
+                      hoverOffset: 4
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'right', 
+                        }
+                    }
+                }
+            });
         })
     }
 
-    barChartCreator(2)
+    pieChartCreateHandler();
 
-    $("#barChartFilterId").change((event) => {
-        barChart.destroy();
-        barChartCreator(2, event.target.value);
+    $("#submitPieChartFilterBtn").click(() => {
+        pieChart.destroy();
+        pieChartCreateHandler();
     })
-
-    const second = document.getElementById('secondChart');
-
-    const data = {
-        labels: [
-          'Red',
-          'Blue',
-          'Yellow'
-        ],
-        datasets: [{
-          label: 'My First Dataset',
-          data: [300, 50, 100],
-          backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(54, 162, 235)',
-            'rgb(255, 205, 86)'
-          ],
-          hoverOffset: 4
-        }]
-      };
-    
-    new Chart(second, {
-      type: 'doughnut',
-      data: data
-    });
-    
-    
+    // --------------------------------------------
   </script>
 
 
