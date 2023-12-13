@@ -314,7 +314,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
                 trade_type: "MARKET",
                 coin_name: data?.Exchange === "NSE"
                 ? `NSE ${data?.InstrumentIdentifier}`
-                : `${data?.Exchange || ""} ${
+                : `${$("#exchangeSelectId").val()} ${
                     data?.InstrumentIdentifier?.split("_")?.[1]
                   }, ${dateManager(data?.InstrumentIdentifier) || ""}`,
                 ex_change: $("#exchangeSelectId").val(),
