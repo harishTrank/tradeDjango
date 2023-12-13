@@ -3,9 +3,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 import random
 from App.chocies import *
 from django.utils import timezone
-
-
-
+import uuid
 
 class CommonTimePicker(models.Model):
     created_at = models.DateTimeField("Created At", auto_now_add=True)
@@ -42,6 +40,7 @@ class MyUserManager(BaseUserManager):
 
 
 class MyUser(AbstractBaseUser,CommonTimePicker):
+    id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     user_type = models.CharField("User Type", max_length=20, choices=USER_TYPE_CHOICES, blank=True, null=True)
     role = models.CharField("Role", max_length=20, choices=ROLE_CHOICES, blank=True, null=True)
     full_name = models.CharField("Full Name", max_length=255, blank=True, null=True)
@@ -95,6 +94,11 @@ class MyUser(AbstractBaseUser,CommonTimePicker):
         self.otp_varify = False
         self.save()
         return otp
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = str(uuid.uuid4())
+        super().save(*args, **kwargs)
         
     class Meta:
         verbose_name_plural = 'My User'
