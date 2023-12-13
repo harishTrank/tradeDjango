@@ -271,6 +271,7 @@ class BuySellSellApi(APIView):
             ip_address=request.data.get("ip_address"),
             order_method=request.data.get("order_method"),
             stop_loss=request.data.get("stop_loss"),
+            message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
         )
         buy_sell_instance.save()
         print("buy_sell_instance", buy_sell_instance.id)
@@ -344,8 +345,9 @@ class BuySellSL(APIView):
             identifer=request.data.get("identifer"),
             ip_address=request.data.get("ip_address"),
             order_method=request.data.get("order_method"),
-             stop_loss=request.data.get("stop_loss")
-            )
+            stop_loss=request.data.get("stop_loss"),
+            message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
+        )
         buy_sell_instance.save()
         print("buy_sell_instance", buy_sell_instance.id)
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
@@ -434,7 +436,7 @@ class TradeHistoryApi(APIView):
         order_method = request.query_params.get("order_method")
         
         if user.user_type == "Client":          
-            exchange_data = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer") 
+            exchange_data = request.user.buy_sell_user.filter(is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer") 
             
             if from_date and to_date:
                 
