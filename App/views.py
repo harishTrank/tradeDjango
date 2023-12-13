@@ -754,6 +754,7 @@ class PieChartHandlerApi(APIView):
                 BuyAndSellModel.objects
                 .filter(
                     buy_sell_user=currentUser,
+                    is_cancel=False,
                     ex_change__in=request.data["currentCoin"],
                     created_at__date__gte=request.data["fromDate"],
                     created_at__date__lte=request.data["toDate"]
