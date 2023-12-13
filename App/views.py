@@ -239,6 +239,23 @@ class BuySellSellApi(APIView):
         elif action == 'SELL' and user.balance >= total_cost:
             user.balance += total_cost
         else:
+            buy_sell_instance = BuyAndSellModel(
+                buy_sell_user=user,
+                quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
+                trade_type=request.data.get('trade_type'),
+                action=request.data.get('action'),
+                price=request.data.get('price'),
+                coin_name=request.data.get('coin_name'),
+                ex_change=request.data.get('ex_change'),
+                is_pending=request.data.get('is_pending'),
+                identifer=request.data.get("identifer"),
+                ip_address=request.data.get("ip_address"),
+                order_method=request.data.get("order_method"),
+                stop_loss=request.data.get("stop_loss"),
+                message='Insufficient balance/quantity',
+                is_cancel=True
+            )
+            buy_sell_instance.save()
             return Response({'message': 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
         user.save()
         buy_sell_instance = BuyAndSellModel(
@@ -253,7 +270,7 @@ class BuySellSellApi(APIView):
             identifer=request.data.get("identifer"),
             ip_address=request.data.get("ip_address"),
             order_method=request.data.get("order_method"),
-            stop_loss=request.data.get("stop_loss")
+            stop_loss=request.data.get("stop_loss"),
         )
         buy_sell_instance.save()
         print("buy_sell_instance", buy_sell_instance.id)
@@ -296,6 +313,23 @@ class BuySellSL(APIView):
         elif action == 'SELL' and user.balance >= total_cost:
             user.balance += total_cost
         else:
+            buy_sell_instance = BuyAndSellModel(
+                buy_sell_user=user,
+                quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
+                trade_type=request.data.get('trade_type'),
+                action=request.data.get('action'),
+                price=request.data.get('price'),
+                coin_name=request.data.get('coin_name'),
+                ex_change=request.data.get('ex_change'),
+                is_pending=request.data.get('is_pending'),
+                identifer=request.data.get("identifer"),
+                ip_address=request.data.get("ip_address"),
+                order_method=request.data.get("order_method"),
+                stop_loss=request.data.get("stop_loss"),
+                message='Insufficient balance/quantity',
+                is_cancel=True
+            )
+            buy_sell_instance.save()
             return Response({'message': 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
         user.save()
         buy_sell_instance = BuyAndSellModel(
