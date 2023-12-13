@@ -53,7 +53,9 @@
       <li data-id="scriptmaster" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-script' %}">Script Master</a></li>
       <li data-id="groupsetting" class="open-view-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:group-setting' %}">Group Setting</a></li>
       <li data-id="quantitysetting" class="open-report-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:quantity-setting' %}">Quantity Setting</a></li>
+      {% if request.user.user_type == "Admin" %}
       <li data-id="brk"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:brk' %}">Brk</a></li>
+      {% endif %}
       <li data-id="trademargin"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:trade-margin' %}">Trade Margin</a></li>
       <li data-id="credit"><a style=" text-decoration: none;color: #000;" href="#credit">Credit</a></li>
       <li data-id="accountsummary"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:tab-account-summary' %}">Account Summary</a></li>

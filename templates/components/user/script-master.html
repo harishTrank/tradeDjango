@@ -73,7 +73,38 @@ $('#openFilerId').click(function () {
   $(".trades-side").show();
 });
 
-const apiCallForAllExchange = (exchange="") => {
+const extractDate = (text) => {
+  const parts = text.split('_');
+  if (parts.length >= 3) {
+    const months = {
+      'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MAY', 'JUN': 'JUN',
+      'JUL': 'JUL', 'AUG': 'AUG', 'SEP': 'SEP', 'OCT': 'OCT', 'NOV': 'NOV', 'DEC': 'DEC'
+    };
+
+    const day = parts[2].substring(0, 2);
+    const monthAbbreviation = parts[2].substring(2, 5);
+    const year = parts[2].substring(5);
+
+    const month = months[monthAbbreviation];
+    if (!month) return '-'; // Invalid month abbreviation
+
+    const formattedDate = `${day}-${month}-${year}`;
+    return formattedDate;
+  }
+  return '-';
+};
+
+const miniList = [
+  /ZINCMINI/,
+  /SILVERM/,
+  /NATGASMINI/,
+  /LEADMINI/,
+  /GOLDM/,
+  /COPPERM/,
+  /ALUMINIUM/,
+  /CRUDEOILM/,
+]
+const apiCallForAllExchange = (exchange = "") => {
   $.ajax({
     type: "GET",
     url: `${BASE_URL}/api/tradeCoin?coinType=${exchange}`,
@@ -81,13 +112,14 @@ const apiCallForAllExchange = (exchange="") => {
       console.log(data); 
       $("#userScriptId").empty();
       data.response.map(item => {
+        const expiryDate = extractDate(item.InstrumentIdentifier); // Extract date
         $("#userScriptId").append(`
           <tr>
             <td><input type="checkbox" /></td>
-            <td>${item.Exchange}</td>
+            <td>${miniList.find(itemFind => item.InstrumentIdentifier.match(itemFind)) ? "MINI" : item.Exchange}</td>
             <td>${item.InstrumentIdentifier}</td>
-            <td>Expiry Date</td> 
-            <td>${item.InstrumentIdentifier}</td>
+            <td>${expiryDate}</td>
+            <td>${item.Exchange !== "NSE" ? item.InstrumentIdentifier.replaceAll("_", " ").slice(0, -1) : item.InstrumentIdentifier}</td>
             <td>Fully</td>
             <td>Yes</td>
           </tr>

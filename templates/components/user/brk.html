@@ -13,7 +13,7 @@
             <div class="flex">
                 <div class="trade-download">
                     <div style="transform: rotate(90deg);padding-left: 10px;">
-                        <p>Filter</p>
+                        <p id="brkFilterID">Filter</p>
                     </div>
                     <span>
                         <a href=""><i class="fa-solid fa-file-cs"></i></a>
@@ -34,91 +34,136 @@
                    
                         <div class="flex space-bw">
                             <label for="" >Exchange:</label>
-                            <select name="" id="" class="form_control flex">
-                                <option value="">MINI</option>
+                            <select name="" class="form_control flex" id="brkFilterId">
+                                <option value="MCX">MCX</option>
+                                <option value="NSE">NSE</option>
+                                <option value="MINI">MINI</option>
                                
                             </select>
                         </div>
                         <div class="flex space-bw">
                             <label for="">Brk<br>Rs 1/Lac:</label>
-                            <input type="text" class="form_control">
+                            <input id="priceValueId" type="number" value="1" class="form_control">
                         </div>
 
                         <div style="display: flex;" >
-                            <input type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
-                            <input type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
+                            <input id="brkSearchID" type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
+                            <input id="updateBtnId" disabled onClick="updateBtnHandler(event)" type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
                         </div>
-                        
-                     
                     </div>
                 </div>    
             </div>
         </div>
 
-        <div class="brk-trades-body brk-table" data-id="symbol-wise">
+        <div class="trades-body user-table" style="position:absolute;right:0;">
             <table style="width: 100%;">
-                <tr>
-                    <th><input type="checkbox"></th>
+              <tr>
+                {% comment %} <th><input id="brkCheckAllId" type="checkbox"></th> {% endcomment %}
                     <th>Exchange</th>
                     <th>Script</th>
                     <th>Turnover Wise Brk (Rs.per1/Lac)</th>
-                </tr>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>AARTINND</td>
-                    <td>10.00</td>
-                </tr>
-                 <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>AAB</td>
-                    <td>10.00</td>
-                </tr>
-                 <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>AARTINNDIA</td>
-                    <td>10.00</td>
-                </tr>
-                 <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>ABCAPITAL</td>
-                    <td>10.00</td>
-                </tr>
-                 <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>ABFRL</td>
-                    <td>10.00</td>
-                </tr>
-                 <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>ACC</td>
-                    <td>10.00</td>
-                </tr>
-                 <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>ADANIENT</td>
-                    <td>10.00</td>
-                </tr>
-                 <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>ADANIPORTS</td>
-                    <td>10.00</td>
-                </tr>
-                   <tr>
-                    <td><input type="checkbox"></td>
-                    <td>NSE</td>
-                    <td>ALKEM</td>
-                    <td>10.00</td>
-                </tr>
+              </tr>
+               
+              <tbody id="brktableId">
+
+              </tbody>
             </table>
         </div>
+
     </div>
 </div>
+
+
+<script>
+    $("#brkCheckAllId").click(function(){
+        $('input:checkbox').not(this).prop('checked', this.checked);
+    });
+
+    $('#brkFilterID').click(function () {
+        $(".trades-side").show();
+      });
+
+    $("#checkAll").click(function(){
+      $('input:checkbox').not(this).prop('checked', this.checked);
+  });
+  
+    $('.closeBtn').click(function () {
+      $(".trades-side").hide();
+      $(".trades-body").css("width", "95%");
+  });
+  
+  $('#openFilerId').click(function () {
+    $(".trades-side").show();
+  });
+  
+
+  
+  const miniList = [
+    /ZINCMINI/,
+    /SILVERM/,
+    /NATGASMINI/,
+    /LEADMINI/,
+    /GOLDM/,
+    /COPPERM/,
+    /ALUMINIUM/,
+    /CRUDEOILM/,
+  ]
+  const apiCallForAllExchange = (exchange = "") => {
+    if (exchange !== "") {
+        $('#updateBtnId').prop('disabled', false);
+    }
+    $.ajax({
+      type: "GET",
+      url: `${BASE_URL}/api/tradeCoin?coinType=${exchange}`,
+      success: function (data) {
+        console.log(data); 
+        $("#brktableId").empty();
+        data.response.map(item => {
+            const currentExchange = miniList.find(itemFind => item.InstrumentIdentifier.match(itemFind)) ? "MINI" : item.Exchange
+          $("#brktableId").append(`
+            <tr>
+              <td>${currentExchange}</td>
+              <td>${item.InstrumentIdentifier}</td>
+              <td>${ currentExchange === "MCX" ? "{{request.user.admin_user.mcx_brk}}" : currentExchange === "NSE" ? "{{request.user.admin_user.nse_brk}}" : "{{request.user.admin_user.mini_brk}}" }</td>
+            </tr>
+          `);
+        });
+      },
+      error: function (xhr, status, error) {
+        console.error('Error:', error);
+      }
+    });
+  }
+  
+  $("#brkSearchID").click(() => {
+    apiCallForAllExchange($("#brkFilterId").val())
+  })
+  
+  apiCallForAllExchange();
+
+
+
+  const updateBtnHandler = (event) => {
+      event.preventDefault();
+      axios
+        .post(
+          `{% url 'brk' %}?id={{request.user.id}}`,
+          {
+            exchange: $("#brkFilterId").val(),
+            price: $("#priceValueId").val()
+          },
+          { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+        )
+        .then((res) => {
+          toastMixin.fire({
+            animation:true,
+            title: res.data.status,
+            icon: "success",
+          });
+            setTimeout(() => window.location.reload(), 2000 )
+        });
+  };
+  </script>
+
+
 {% endblock newtab %}

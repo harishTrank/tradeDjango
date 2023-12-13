@@ -327,7 +327,8 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
                 order_method: "Web",
                 lot_size: Number(data.QuotationLot),
                 userId: "{{id}}",
-                type: "WEB"
+                type: "WEB",
+                stop_loss: 0
             }
 
             axios.post(`{% url "buy-sell-coin" %}`, body, {headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(function (response) {

@@ -143,8 +143,10 @@ class BuyAndSellModel(CommonTimePicker):
     ip_address = models.CharField("Ip Address", max_length=200, default="", null=True, blank=True)
     order_method = models.CharField("Order Method", max_length=200, default="", null=True, blank=True)
     trade_status = models.BooleanField("Trade Status", default=True)
-    sl_flag = models.BooleanField("SL Flag", default=True)
-
+    is_cancel = models.BooleanField("Is Cancel", default=False)
+    sl_flag = models.BooleanField("Sl Flag", default=False,null=True, blank=True)
+    message = models.CharField("Message",max_length=200, default="", null=True, blank=True)
+    stop_loss = models.IntegerField("Quantity",default=0, null=True, blank=True)
     
     
     class Meta:

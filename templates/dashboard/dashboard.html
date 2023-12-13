@@ -15,10 +15,10 @@
                       </div>
                       <div class="mr">
                           <label>Show:</label>
-                          <select name="" id="" class="form-group">
-                              <option value="">Day</option>
-                              <option value="">Week</option>
-                              <option value="">Month</option>
+                          <select name="" id="barChartFilterId" class="form-group">
+                              <option value="day">Day</option>
+                              <option value="week">Week</option>
+                              <option value="month">Month</option>
                           </select>
                       </div>
                       <div>
@@ -28,38 +28,50 @@
               </div>
               <div class="left-body flex">
                   <div class="side-pannel">
+                    {% if request.user.user_type == "Admin" and request.user.mcx or request.user.user_type != "Admin" %}
                       <div>
                           <input type="checkbox">MCX
                       </div>
+                    {% endif %}
+                    {% if request.user.user_type == "Admin" and request.user.nse or request.user.user_type != "Admin" %}
                       <div>
                           <input type="checkbox">NSE
                       </div>
-                      <div>
-                          <input type="checkbox">SGX
-                      </div>
-                      <div>
-                          <input type="checkbox">OTHERS
-                      </div>
+                    {% endif %}
+                    {% if request.user.user_type == "Admin" and request.user.mini or request.user.user_type != "Admin" %}
                       <div>
                           <input type="checkbox">MINI
                       </div>
-                      <div>
-                          <input type="checkbox">NCDEX
-                      </div>
-                      <div>
-                          <input type="checkbox">COMEX
-                      </div>
-                      <div>
-                          <input type="checkbox">CDS
-                      </div>
-                      <div>
-                          <input type="checkbox">CALLPUT
-                      </div>
+                    {% endif %}
+                     
+                     
+                     
                   </div>
                   <div class="pannel-body">
                       <div class="tab-head">
-                          <li class="active" data-id="chart">Chart View</li>
-                          <li data-id="table">Table View</li>
+                          <li onClick="chartViewId()" class="active" data-id="chart">Chart View</li>
+                          <li onClick="tableViewId()" data-id="table">Table View</li>
+                      </div>
+                      <div id="myChartId">
+                        <canvas id="myChart"></canvas>
+                      </div>
+                      <div>
+                        <div id="chartTableId" class="user-table col-100" style="width: 100%; display:none;">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <th>Trade Date</th>
+                                    <th>Success</th>
+                                    <th>Canceled</th>
+                                    <th>Deleted</th>
+                                </tr>
+                                <tr>
+                                    <td>12/8/2023</td>
+                                    <td>07</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                </tr>
+                            </table>
+                        </div>
                       </div>
                   </div>
               </div>
@@ -95,43 +107,148 @@
               </div>
               <div class="left-body flex">
                   <div class="side-pannel">
-                      <div>
-                          <input type="checkbox">MCX
-                      </div>
-                      <div>
-                          <input type="checkbox">NSE
-                      </div>
-                      <div>
-                          <input type="checkbox">SGX
-                      </div>
-                      <div>
-                          <input type="checkbox">OTHERS
-                      </div>
-                      <div>
-                          <input type="checkbox">MINI
-                      </div>
-                      <div>
-                          <input type="checkbox">NCDEX
-                      </div>
-                      <div>
-                          <input type="checkbox">COMEX
-                      </div>
-                      <div>
-                          <input type="checkbox">CDS
-                      </div>
-                      <div>
-                          <input type="checkbox">CALLPUT
-                      </div>
+                    {% if request.user.user_type == "Admin" and request.user.mcx or request.user.user_type != "Admin" %}
+                    <div>
+                        <input type="checkbox">MCX
+                    </div>
+                  {% endif %}
+                  {% if request.user.user_type == "Admin" and request.user.nse or request.user.user_type != "Admin" %}
+                    <div>
+                        <input type="checkbox">NSE
+                    </div>
+                  {% endif %}
+                  {% if request.user.user_type == "Admin" and request.user.mini or request.user.user_type != "Admin" %}
+                    <div>
+                        <input type="checkbox">MINI
+                    </div>
+                  {% endif %}
                   </div>
                   <div class="pannel-body">
                       <div class="tab-head">
-                          <li class="active" data-id="chart">Chart View</li>
-                          <li data-id="table">Table View</li>
+                          <li onClick="secChart()" class="active" data-id="chart">Chart View</li>
+                          <li onClick="sectable()" data-id="table">Table View</li>
                       </div>
+                      <div>
+                        <div id="secChartID" class="chart-container" style="position: relative; height:44.2vh; width:90vw">
+                            <canvas id="secondChart"></canvas>
+                        </div>
+                        <div>
+                            <div id="secchartTableId" class="user-table col-100" style="width: 100%; display:none;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <th>Trade Date</th>
+                                        <th>Success</th>
+                                        <th>Canceled</th>
+                                        <th>Deleted</th>
+                                    </tr>
+                                    <tr>
+                                        <td>12/8/2023</td>
+                                        <td>07</td>
+                                        <td>0</td>
+                                        <td>1</td>
+                                    </tr>
+                                </table>
+                            </div>
+                          </div>
                   </div>
               </div>
           </div>
       </div>
   </div>
 </div>
+
+
+<script>
+    function chartViewId() {
+        $("#myChartId").css('display','block');
+        $("#chartTableId").css('display','none');
+       }
+       function tableViewId(){
+        $("#myChartId").css('display','none');
+        $("#chartTableId").css('display','block');
+       }
+
+
+
+       function secChart() {
+        $("#secChartID").css('display','block');
+        $("#secchartTableId").css('display','none');
+       }
+       function sectable(){
+        $("#secChartID").css('display','none');
+        $("#secchartTableId").css('display','block');
+       }
+
+
+    // frist chart js 
+    var barChart;
+    const barChartCreator = (user_id, type="day") => {
+        axios.get(`{% url "table-chart" %}?user_id=${user_id}&type=${type}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(res => {
+            barChart = new Chart($("#myChart"), {
+              type: 'bar',
+              data: {
+                labels: res.data.date_array,
+                datasets: [
+                {
+                    label: 'Canceled',
+                    data: res.data.cancel,
+                    borderWidth: 1,
+                    backgroundColor:"#FB8B24"
+                  },{
+                    label: 'Success',
+                    data: res.data.success,
+                    borderWidth: 1,
+                    backgroundColor:"#3081D0"
+                  }]
+              },
+              
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: true
+                  }
+                }
+              }
+            });
+        })
+    }
+
+    barChartCreator(2)
+
+    $("#barChartFilterId").change((event) => {
+        barChart.destroy();
+        barChartCreator(2, event.target.value);
+    })
+
+    const second = document.getElementById('secondChart');
+
+    const data = {
+        labels: [
+          'Red',
+          'Blue',
+          'Yellow'
+        ],
+        datasets: [{
+          label: 'My First Dataset',
+          data: [300, 50, 100],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+          ],
+          hoverOffset: 4
+        }]
+      };
+    
+    new Chart(second, {
+      type: 'doughnut',
+      data: data
+    });
+    
+    
+  </script>
+
+
+
+
 {% endblock content %}

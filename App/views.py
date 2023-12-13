@@ -253,11 +253,11 @@ class BuySellSellApi(APIView):
             is_pending=request.data.get('is_pending'),
             identifer=request.data.get("identifer"),
             ip_address=request.data.get("ip_address"),
-            order_method=request.data.get("order_method"),)
+            order_method=request.data.get("order_method"),
+            stop_loss=request.data.get("stop_loss")
+        )
         buy_sell_instance.save()
         print("buy_sell_instance", buy_sell_instance.id)
-        # if (totalCount.count() > 0 and totalCount[0]["total_quantity"] + quantity == request.data.get('quantity')):
-        #     BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).exclude(id=buy_sell_instance.id).update(trade_status=False)
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
@@ -310,7 +310,9 @@ class BuySellSL(APIView):
             is_pending=request.data.get('is_pending'),
             identifer=request.data.get("identifer"),
             ip_address=request.data.get("ip_address"),
-            order_method=request.data.get("order_method"),)
+            order_method=request.data.get("order_method"),
+             stop_loss=request.data.get("stop_loss")
+            )
         buy_sell_instance.save()
         print("buy_sell_instance", buy_sell_instance.id)
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
@@ -623,4 +625,57 @@ class MarketTradeRight(APIView):
             master_user_data.trade_right = trade_right
             master_user_data.save()
             return Response({"status":True,"message":"Trade right added sucessfully"}, status=status.HTTP_200_OK)
+
+class BrkApi(APIView):
+    def post(self, request):
+        data = request.data
+        currentAdmin = AdminModel.objects.get(user__id=request.GET.get("id"))
+        if data["price"] != 0:
+            if data["exchange"].lower() == "mcx":
+                currentAdmin.mcx_brk = data["price"]
+            elif data["exchange"].lower() == "nse":
+                currentAdmin.nse_brk = data["price"]
+            else:
+                currentAdmin.mini_brk = data["price"]
+        currentAdmin.save()
+        return Response({"status":True,"status":"Brk added succesfully"}, status=status.HTTP_200_OK)      
+
+from django.db.models import Count
+from datetime import datetime, timedelta
+from django.utils import timezone
+
+class TableChartAPi(APIView):
+    def get(self, request):
+        params = request.data
+        user = MyUser.objects.get(id=request.GET.get("user_id"))
+        date_array , cancelArray, successArray = [] , [] , []
+        
+        if request.GET.get("type") == "day":
+            four_days_ago = timezone.now().date() - timedelta(days=3)
+            current_date = four_days_ago
+            while current_date <= timezone.now().date():
+                date_array.append(current_date)
+                cancel_query = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=True, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
+                cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
+                
+                success_query = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=False, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
+                successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
+                current_date += timedelta(days=1)
+                
+        elif request.GET.get("type") == "week":
+            pass
+        else:
+            current_month = timezone.now().month
+            for i in range (0, 4):
+                date_array.append(current_month ) 
+                cancel_query = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=True, created_at__month=current_month).values('created_at__month').annotate(count=Count('id'))
+                cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
+                success_query = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=False, created_at__month=current_month).values('created_at__month').annotate(count=Count('id'))
+                successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
+                current_month -= 1
+            
+            current_month
+                
+        return Response({"status":True, "date_array": date_array, "cancel": cancelArray, "success": successArray})
+    
 # ------------------------------------------------
