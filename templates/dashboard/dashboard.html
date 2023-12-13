@@ -135,17 +135,15 @@
                             <div id="secchartTableId" class="user-table col-100" style="width: 100%; display:none;">
                                 <table style="width: 100%;">
                                     <tr>
-                                        <th>Trade Date</th>
-                                        <th>Success</th>
-                                        <th>Canceled</th>
-                                        <th>Deleted</th>
+                                        <th>Script</th>
+                                        <th>Buy</th>
+                                        <th>Sell</th>
+                                        <th>Total Trades</th>
                                     </tr>
-                                    <tr>
-                                        <td>12/8/2023</td>
-                                        <td>07</td>
-                                        <td>0</td>
-                                        <td>1</td>
-                                    </tr>
+
+                                    <tbody id='piechartTableId'>
+                                    </tbody>
+                                    
                                 </table>
                             </div>
                           </div>
@@ -287,6 +285,18 @@
                     }
                 }
             });
+
+            $("#piechartTableId").empty();
+            res.data.tableResult.map(item => {
+                $("#piechartTableId").append(`
+                    <tr>
+                        <th>${item.coin_name}</th>
+                        <th>${item.buy}</th>
+                        <th>${item.sell}</th>
+                        <th>${item.total}</th>
+                    </tr>
+                `)
+            })
         })
     }
 
