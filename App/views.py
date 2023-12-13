@@ -215,7 +215,7 @@ class BuySellSellApi(APIView):
         lot_size = request.data.get("lot_size")
         is_cancel = request.data.get("is_cancel")
         
-        totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
+        totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True,is_cancel=False).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
         try:
             total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
         except:
@@ -290,7 +290,7 @@ class BuySellSL(APIView):
         lot_size = request.data.get("lot_size")
         is_cancel = request.data.get("is_cancel")
 
-        totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
+        totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True,is_cancel=False).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
         try:
             total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
         except:
@@ -408,7 +408,7 @@ class PositionCoinsManager(APIView):
             data = request.data  
             results = (
                 user.buy_sell_user.all()
-                .filter(is_pending=False, trade_status=True)
+                .filter(is_pending=False, trade_status=True,is_cancel=False)
                 .values('identifer')
                 .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
                 .exclude(total_quantity=0)
