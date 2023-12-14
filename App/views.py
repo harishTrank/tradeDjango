@@ -431,19 +431,21 @@ class TradeHistoryApi(APIView):
         ex_change = request.query_params.get('ex_change')
         coin_name = request.query_params.get('coin_name')
         is_pending = request.query_params.get("is_pending")
-        identifer = request.query_params.get("identifer")
-        ip_address = request.query_params.get("ip_address")
-        order_method = request.query_params.get("order_method")
+        is_cancel = request.query_params.get("is_cancel")
+        # identifer = request.query_params.get("identifer")
+        # ip_address = request.query_params.get("ip_address")
+        # order_method = request.query_params.get("order_method")
         
         if user.user_type == "Client":          
-            exchange_data = request.user.buy_sell_user.filter(is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer") 
+            exchange_data = request.user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
             
             if from_date and to_date:
-                
                 from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
                 to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
-                
-                exchange_data = exchange_data.filter(created_at__range=(from_date_obj, to_date_obj))
+                exchange_data = exchange_data.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+
+            exchange_data = exchange_data.filter(is_cancel=False) if not is_cancel else exchange_data.filter(is_cancel=True)
+
             if ex_change:
                 exchange_data = exchange_data.filter(ex_change=ex_change)
             if coin_name:
@@ -451,7 +453,7 @@ class TradeHistoryApi(APIView):
             if is_pending:
                 is_pending_bool = is_pending.lower() == 'true'
                 exchange_data = exchange_data.filter(is_pending=is_pending_bool)
-                
+
             paginator = self.pagination_class()
             paginated_trade = paginator.paginate_queryset(exchange_data, request)
             response = paginator.get_paginated_response(paginated_trade)
@@ -463,12 +465,13 @@ class TradeHistoryApi(APIView):
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
-            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer")
+            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer", "message")
+            response = response.filter(is_cancel=False) if not is_cancel else response.filter(is_cancel=True)
             
             if from_date and to_date:
                 from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
                 to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
-                response = response.filter(created_at__range=(from_date_obj, to_date_obj))
+                response = response.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
                 
             if ex_change:
                 response = response.filter(ex_change=ex_change)
@@ -478,6 +481,7 @@ class TradeHistoryApi(APIView):
             if is_pending:
                 is_pending_bool = is_pending.lower() == 'true'
                 response = response.filter(is_pending=is_pending_bool)
+
             
             paginator = self.pagination_class()
             paginated_trade = paginator.paginate_queryset(response, request)
@@ -487,11 +491,7 @@ class TradeHistoryApi(APIView):
             return response
         return Response({"message":"data not found"}, status=status.HTTP_404_NOT_FOUND)  
     
-    
-    
-    
-    
-    
+
 
 class TradeParticularViewApi(APIView):
     permission_classes = [IsAuthenticated]
@@ -810,4 +810,5 @@ class PieChartHandlerApi(APIView):
         except Exception as e:
             print(e, "eeeeee")
             return Response({"success": False, "message": "No record found"}, status=status.HTTP_404_NOT_FOUND)
+
 # ------------------------------------------------
