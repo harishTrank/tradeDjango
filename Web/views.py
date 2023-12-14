@@ -436,7 +436,7 @@ class TradesView(View):
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
             to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
-            response = response.filter(created_at__range=(from_date_obj, to_date_obj))
+            response = response.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
             
         if ex_change:
             response = response.filter(ex_change=ex_change)
