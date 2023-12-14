@@ -55,7 +55,9 @@ class LogoutView(View):
 class Dashboard(View):
     def get(self, request):
         if request.user.is_authenticated:
-            return render(request, "dashboard/dashboard.html")
+            user = request.user
+            exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
+            return render(request, "dashboard/dashboard.html",{"symbols":exchange_obj})
         return redirect("Admin:login")
         
     
@@ -85,7 +87,6 @@ class AddUserView(View):
             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
             "auto_square_off": True if request.POST.get("auto_square") and request.POST.get("auto_square").lower() == 'on' else False,
         }
-        
         exchanges = [
             {
                 "name": "MCX",
@@ -99,17 +100,12 @@ class AddUserView(View):
                 "symbols": request.POST.get("nse_symbol") == 'on',
                 "turnover": request.POST.get("nse_turnover") == 'on',
             },
+          
             {
-                "name": "SGX",
-                "exchange": request.POST.get("sgx_exchange") == 'on',
-                "symbols": request.POST.get("sgx_symbol") == 'on',
-                "turnover": request.POST.get("sgx_turnover") == 'on',
-            },
-            {
-                "name": "OTHERS",
-                "exchange": request.POST.get("others_exchange") == 'on',
-                "symbols": request.POST.get("others_symbol") == 'on',
-                "turnover": request.POST.get("others_turnover") == 'on',
+                "name": "MINI",
+                "exchange": request.POST.get("mini_exchange") == 'on',
+                "symbols": request.POST.get("mini_symbol") == 'on',
+                "turnover": request.POST.get("mini_turnover") == 'on',
             },
         ]  
             
@@ -180,15 +176,15 @@ class AddUserView(View):
                 create_user = MyUser.objects.create(user_type="Client", **user_data)
                 ClientModel.objects.create(client=create_user,master_user_link=request.user.master_user,admin_create_client=request.user.master_user.admin_user)
                 messages.success(request, f"Client added successfully.")
-                      
-            for exchange_data in exchanges:
-                ExchangeModel.objects.create(
-                    user=create_user,
-                    symbol_name=exchange_data['name'],
-                    exchange=exchange_data['exchange'],
-                    symbols=exchange_data['symbols'],
-                    turnover=exchange_data['turnover']
-                )
+            print("===========",exchanges)         
+        for exchange_data in exchanges:
+            ExchangeModel.objects.create(
+                user=create_user,
+                symbol_name=exchange_data['name'],
+                exchange=exchange_data['exchange'],
+                symbols=exchange_data['symbols'],
+                turnover=exchange_data['turnover']
+            )
         return render(request, "User/add-user.html")
    
 
