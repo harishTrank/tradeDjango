@@ -201,7 +201,6 @@
             execute_pending_order: $("#execute_pending_order").prop("checked"),
             by_manual: $("#by_manual").prop("checked"),
           };
-          console.log("===== ", body);
           axios
             .post(
               `{% url 'admin-right' %}?id=${$(

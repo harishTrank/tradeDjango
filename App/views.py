@@ -16,6 +16,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg
+from django.http import JsonResponse
 
 class LoginApi(APIView):
     def post(self, request):
@@ -511,38 +512,33 @@ class CoinNameApi(APIView):
         return Response({"response":response,"status":status.HTTP_200_OK},status=status.HTTP_200_OK) 
     
     
-from django.http import JsonResponse
+
 
 class UserListApiView(APIView):
     permission_classes = [IsAuthenticated]
     pagination_class = PageNumberPagination
-    
     def get(self, request):
         user = request.user
         own_user = request.query_params.get("own_user")
-        print("=====own_user==",own_user)
         select_user = request.query_params.get("select_user")
         select_status = request.query_params.get("select_status")
         if request.user.user_type == "Client":
             users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","role","credit","balance")
             return JsonResponse(list(users), safe=False)
         else:
-            if own_user:
+            if own_user == "OWN":
                 users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","role","credit","balance")
                 return JsonResponse(list(users), safe=False)
-            elif select_user:
+            elif select_user == "MASTER":
                 users = MyUser.objects.filter(id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-            
             elif select_status == True:
                 users = MyUser.objects.filter(status=True,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
             elif select_status == False:
                 users = MyUser.objects.filter(status=False,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-                
             else:
                 users = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True))
                 | set(
                     MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-            
         serialized_users = [{
             "id":user.id,
             "user_name": user.user_name,
@@ -551,15 +547,11 @@ class UserListApiView(APIView):
              "credit":user.credit,
              "balance":user.balance}
             for user in users ]
-        return JsonResponse(serialized_users, safe=False)
-    
+        paginator = self.pagination_class()
+        paginated_users = paginator.paginate_queryset(serialized_users, request)
+        return paginator.get_paginated_response(paginated_users)
     
 
-# class UserListApi(APIView):
-#     permission_classes = [IsAuthenticated]
-#     pagination_class = PageNumberPagination
-#     def get(self, request):
-#         return Response({"status":True})
 
 
 # web api ----------------------------------

@@ -38,10 +38,16 @@
             id="exchangeSelectId"
             class="form_control flex"
           >
-            <option value="">Select</option>
-            <option value="MCX">MCX</option>
-            <option value="NSE">NSE</option>
-            <option value="MINI">MINI</option>
+          <option value="">Select</option>
+          {% for symbol in exchange_obj %}
+            {% if symbol.symbol_name == "NSE" and symbol.exchange %}
+              <option value="NSE">NSE</option>
+            {% elif symbol.symbol_name == "MCX" and symbol.exchange %}
+              <option value="MCX">MCX</option>
+            {% elif symbol.symbol_name == "MINI" and symbol.exchange %}
+              <option value="MINI">MINI</option>
+            {% endif %}
+          {% endfor %}
           </select>
         </div>
         <div class="flex space-bw">
@@ -79,8 +85,10 @@
         </div>
         <div class="flex space-bw">
           <label for="">Order Type:</label>
-          <select name="" id="" class="form_control">
-            <option value="">Market</option>
+          <select name="" id="orderTypeID" class="form_control">
+            <option value="market">Market</option>
+            <option value="limit">Limit</option>
+            <option value="sl">SL</option>
           </select>
         </div>
 
@@ -96,14 +104,14 @@
         </div>
         <div class="flex space-bw">
           <label for="rateBy">Rate By:</label>
-          <select id="rateBy" class="form_control">
+          <select id="rateByID" class="form_control" disabled>
             <option value="market">Market</option>
-            <option id="manualPriceOption" value="manual">Manual Price</option>
+            <option value="manual">Manual Price</option>
           </select>
         </div>
         <div class="flex space-bw">
           <label for="price">Price</label>
-          <input id="priceInput" type="number" class="form_control" />
+          <input id="priceInput" type="number" disabled class="form_control" />
         </div>
         
         <div style="display: flex">
@@ -161,22 +169,19 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
 </script>
 
 <script>
-
-
-  $(document).ready(function() {
-    $('#rateBy').change(function() {
-      if ($(this).val() === 'market') {
-        $('#priceInput').prop('disabled', true);
-      } else {
-        $('#priceInput').prop('disabled', false);
-      }
-    });
-
-    if ($('#rateBy').val() === 'market') {
-      $('#priceInput').prop('disabled', true);
+  $("#orderTypeID").change((event) => {
+    if (event.target.value !== "market") {
+      $("#rateByID").prop("disabled", false);
+      $("#rateByID").val("manual");
+      $("#priceInput").prop("disabled", false);
+    } else {
+      $("#rateByID").prop("disabled", true);
+      $("#rateByID").val("market");
+      $("#priceInput").prop("disabled", true);
     }
-  });
-  
+  })
+  $("#rateByID").change((event) =>  $("#priceInput").prop("disabled", event.target.value === "market" ? true : false))
+
   
     
     const baseNodeURL = BASE_URL
@@ -280,21 +285,18 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
         })
     })
 
-
     $("#scriptNameId").change((event) => {
         socket.on("connect", () => {
             console.log("Connected to the Socket.io server");
         });
-        $("#scriptNameId").change(() => {
-            socket.emit("getOneData", { "identifier": event.target.value });
-            socket.on("getOneDataSend", (data) => {
-                if (data?.InstrumentIdentifier === event.target.value) {
-                    $("#buyPriceID").val(data.BuyPrice);
-                    $("#sellPriceID").val(data.SellPrice);
-                    $("#currentCoinDataId").val(JSON.stringify(data));
-                }
-            }); 
-        });
+          socket.emit("getOneData", { "identifier": event.target.value });
+          socket.on("getOneDataSend", (data) => {
+              if (data?.InstrumentIdentifier === event.target.value) {
+                  $("#buyPriceID").val(data.BuyPrice);
+                  $("#sellPriceID").val(data.SellPrice);
+                  $("#currentCoinDataId").val(JSON.stringify(data));
+              }
+          }); 
         socket.on("disconnect", () => {
             console.log("Disconnected from the Socket.io server");
         });
@@ -303,15 +305,37 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
 
     $("#submitBtnOrderId").click(() => {
         const data = JSON.parse($("#currentCoinDataId").val());
+        
         if (!$("#exchangeSelectId").val()) {
             $("#exchangeSelectId").css("border", "solid 1px red")
         }
         if (!$("#scriptNameId").val()) {
             $("#scriptNameId").css("border", "solid 1px red")
         } else {
+          const currentButtonState = $("#orderTypeID").val().toUpperCase();
+          const currentPrice = Number($("#priceInput").val());
+          const actionType = $("#selectActionTypeId").val().toUpperCase();
+
+          if (currentButtonState === "SL") {
+            if (actionType === "BUY" && currentPrice > data.BuyPrice) {
+              toastMixin.fire({
+                animation: true,
+                title: "Price key must lower than buy price.",
+                icon: "error",
+              });
+              return;
+            } else if (actionType === "SELL" && currentPrice < data.SellPrice) {
+              toastMixin.fire({
+                animation: true,
+                title: "Price key must higher than sell price.",
+                icon: "error",
+              });
+              return;
+            }
+          }
             const body = {
                 identifer: $("#scriptNameId").val(),
-                trade_type: "MARKET",
+                trade_type: currentButtonState,
                 coin_name: data?.Exchange === "NSE"
                 ? `NSE ${data?.InstrumentIdentifier}`
                 : `${$("#exchangeSelectId").val()} ${
@@ -323,12 +347,27 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
                 price:  $("#selectActionTypeId").val().toUpperCase() === "SELL"
                 ? Number(data.SellPrice)
                 : Number(data.BuyPrice),
-                is_pending: false,
+                is_pending: currentButtonState === "LIMIT" ? true : false,
                 order_method: "Web",
                 lot_size: Number(data.QuotationLot),
                 userId: "{{id}}",
                 type: "WEB",
-                stop_loss: 0
+                stop_loss: currentPrice,
+                is_cancel: false,
+            }
+
+            if (currentButtonState === "LIMIT") {
+              body.price = currentPrice;
+              if (actionType === "SELL" && currentPrice <= data.SellPrice) {
+                setModalizeMessage("Sell price must higher than high price.");
+                return;
+              } else if (actionType === "BUY" && currentPrice >= data.BuyPrice) {
+                setModalizeMessage("Buy price must lower than low price.");
+                return;
+              }
+            }
+            if (data.SellPrice === 0 || data.BuyPrice == 0) {
+              body.is_cancel = true;
             }
 
             axios.post(`{% url "buy-sell-coin" %}`, body, {headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(function (response) {
@@ -346,7 +385,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
                 animation: true,
                 title: err.response.data.message,
                 icon: "error",
-            });
+              });
             })
         }
     })

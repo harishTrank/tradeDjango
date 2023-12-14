@@ -283,11 +283,14 @@ class SearchUsersView(View):
 class UserDeatilsViewById(View):
     def get(self, request, id):
         user = MyUser.objects.get(id=id)
-        print("user",user)
-        return render(request, "components/user/user-deatils.html", {"id":id,"user":user})
+        print("=======",user.user_type)
+        exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
+        print("=========",exchange_obj)
+        return render(request, "components/user/user-deatils.html", {"id":id,"user":user, "exchange_obj":exchange_obj})
 
 class UserDeatilsView(View):
     def get(self, request):
+        print(" iam working toooo ")
         return render(request, "components/user/user-deatils.html")
 
 
@@ -297,13 +300,9 @@ class TabTrades(View):
             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
         if request.user.user_type == "Admin":
             user_keys = [request.user.id]
-            print("====user_keys=====", user_keys)
             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
-            print("====child_clients=====", child_clients)
             user_keys += list(child_clients)
-            print("====user_keys=====", user_keys)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity","trade_type","action","price","coin_name","ex_change","created_at","is_pending","identifer","order_method","ip_address")
-            print("====response=====", response)
         if request.user.user_type == "Client":
             response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
         elif request.user.user_type == "Master":
