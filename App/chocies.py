@@ -21,3 +21,8 @@ ACTION = (
     ('BUY','BUY'),
     ('SELL','SELL')
 )
+
+ACTIONLOGIN = (
+    ('LOGIN','LOGIN'),
+    ('LOGOUT','LOGOUT')
+)

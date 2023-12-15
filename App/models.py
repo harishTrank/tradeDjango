@@ -112,6 +112,7 @@ class LoginHistoryModel(CommonTimePicker):
     user_history = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="user_history")
     ip_address = models.CharField("Ip address", max_length=200,null=True, blank=True)
     method = models.CharField("Method", max_length=200,null=True, blank=True)
+    action = models.CharField("action", max_length=20, choices=ACTIONLOGIN, blank=True, null=True)
 
     def __str__(self):
         return self.method + " " + self.user_history.user_name
