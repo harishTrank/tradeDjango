@@ -46,10 +46,10 @@ class MyUser(AbstractBaseUser,CommonTimePicker):
     full_name = models.CharField("Full Name", max_length=255, blank=True, null=True)
     user_name = models.CharField("User Name", max_length=255, blank=True, null=True,unique=True)
     phone_number = models.CharField("Phone Number",max_length=10,default=0)
-    email=models.EmailField("Email", max_length=255, blank=True, null=True)
-    city=models.CharField("City",max_length=200,blank=True,null=True)
-    credit=models.PositiveIntegerField("Credit",default=0)    
-    balance=models.IntegerField("Balance",default=0)
+    email = models.EmailField("Email", max_length=255, blank=True, null=True)
+    city = models.CharField("City",max_length=200,blank=True,null=True)
+    credit = models.PositiveIntegerField("Credit",default=0)    
+    balance = models.IntegerField("Balance",default=0)
     remark=models.CharField("Remark",max_length=200,blank=True,null=True)
     avatar = models.ImageField("Avatar", upload_to="Profile/%Y/%m/%d/", blank=True, null=True)
     dob = models.DateField("Date of Birth", max_length=20, blank=True, null=True)
@@ -70,6 +70,10 @@ class MyUser(AbstractBaseUser,CommonTimePicker):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField("Super User", default=False)
+
+    nse_brk = models.PositiveIntegerField("NSE Brk", default=0, null=True, blank=True)
+    mcx_brk = models.PositiveIntegerField("MCX Brk", default=0, null=True, blank=True)
+    mini_brk = models.PositiveIntegerField("MINI Brk", default=0, null=True, blank=True)
 
     objects = MyUserManager()
 
@@ -102,6 +106,15 @@ class MyUser(AbstractBaseUser,CommonTimePicker):
         
     class Meta:
         verbose_name_plural = 'My User'
+
+
+class LoginHistoryModel(CommonTimePicker):
+    user_history = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="user_history")
+    ip_address = models.CharField("Ip address", max_length=200,null=True, blank=True)
+    method = models.CharField("Method", max_length=200,null=True, blank=True)
+
+    def __str__(self):
+        return self.method + " " + self.user_history.user_name
 
 
 class ExchangeModel(CommonTimePicker):
