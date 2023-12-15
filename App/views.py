@@ -571,7 +571,7 @@ class LoginHistoryApi(APIView):
     def get(self, request):
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
-        user_obj = MyUser.objects.filter(id=request.user.id).values("id", "user_name", "user_type", "user_history__ip_address", "user_history__method", "user_history__action")
+        user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("user_history", "ip_address", "method", "action", "user_history__user_name", "user_history__action__user_type", "user_history__id")
 
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
