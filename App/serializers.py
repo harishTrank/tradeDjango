@@ -43,7 +43,6 @@ class LoginSerializer(serializers.Serializer):
         if unknown_fields:
             raise serializers.ValidationError(f"Unknown field: {', '.join(unknown_fields)}")
 
-        attrs['user'] = user
         print("this 47 ======",attrs)
         
         return attrs
