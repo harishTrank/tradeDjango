@@ -48,12 +48,15 @@
     {% endif %} {% endfor %} {% endif %} 
 
     <div class="tab-head">
-      <li class="open-file-menu" data-id="users" class="open-menu"><a id="userDetailsLink" style=" text-decoration: none; color: #000;"  href="{% url 'Admin:user-deatils' %}">Position</a></li>
-      <li data-id="trades1"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:tab-trade' %}">Trades</a></li>
-      <li data-id="scriptmaster" class="open-menu"><a style=" text-decoration: none; color: #000;" href="{% url 'Admin:user-script' %}">Script Master</a></li>
+      <li class="open-file-menu" data-id="users" class="open-menu"><a id="userDetailsLink" style=" text-decoration: none; color: #000;" >Position</a></li>
+      <li data-id="trades1"><a style=" text-decoration: none;color: #000;" id="tabTradeLink">Trades</a></li>
+      <li data-id="scriptmaster" class="open-menu"><a style=" text-decoration: none; color: #000;" id="scriptMasterLink">Script Master</a></li>
+      {% if request.user.user_type != "Admin" %}
       <li data-id="groupsetting" class="open-view-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:group-setting' %}">Group Setting</a></li>
+      {% endif %}
+      
       <li data-id="quantitysetting" class="open-report-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:quantity-setting' %}">Quantity Setting</a></li>
-      {% if request.user.user_type == "Admin" %}
+      {% if request.user.user_type != "Admin" %}
       <li data-id="brk"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:brk' %}">Brk</a></li>
       {% endif %}
       <li data-id="trademargin"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:trade-margin' %}">Trade Margin</a></li>
@@ -79,13 +82,13 @@
 
       document.addEventListener('DOMContentLoaded', function() {
         const id = localStorage.getItem("currentUserID");
-        const userDetailsLink = document.getElementById('userDetailsLink');
         if (id && userDetailsLink) {
             const currentHref = userDetailsLink.getAttribute('href');
-            userDetailsLink.setAttribute('href', `${"user-deatils-by-id"}/${id}`);
+            $("#userDetailsLink").attr('href', `${window.origin}/user-deatils-by-id/${id}`);
+            $("#tabTradeLink").attr('href', `${window.origin}/tab-trade/${id}`);
+            $("#scriptMasterLink").attr('href', `${window.origin}/user-script/${id}`);
         }
     });
-
     
             var toastMixin = Swal.mixin({
               toast: true,

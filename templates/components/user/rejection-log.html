@@ -88,4 +88,19 @@
     </div>
   </div>
 </div>
+
+<script>
+
+
+  axios.get(`{% url "trade-history" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+  .then(res => {
+      console.log("res ==", res);
+  })
+  .catch(err => {
+      console.log("err", err);
+  });
+
+  
+</script>
+
 {% endblock newtab %}

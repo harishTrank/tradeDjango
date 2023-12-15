@@ -55,7 +55,9 @@ class LogoutView(View):
 class Dashboard(View):
     def get(self, request):
         if request.user.is_authenticated:
-            return render(request, "dashboard/dashboard.html")
+            user = request.user
+            exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
+            return render(request, "dashboard/dashboard.html",{"symbols":exchange_obj})
         return redirect("Admin:login")
         
     
@@ -85,7 +87,6 @@ class AddUserView(View):
             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
             "auto_square_off": True if request.POST.get("auto_square") and request.POST.get("auto_square").lower() == 'on' else False,
         }
-        
         exchanges = [
             {
                 "name": "MCX",
@@ -99,20 +100,15 @@ class AddUserView(View):
                 "symbols": request.POST.get("nse_symbol") == 'on',
                 "turnover": request.POST.get("nse_turnover") == 'on',
             },
+          
             {
-                "name": "SGX",
-                "exchange": request.POST.get("sgx_exchange") == 'on',
-                "symbols": request.POST.get("sgx_symbol") == 'on',
-                "turnover": request.POST.get("sgx_turnover") == 'on',
-            },
-            {
-                "name": "OTHERS",
-                "exchange": request.POST.get("others_exchange") == 'on',
-                "symbols": request.POST.get("others_symbol") == 'on',
-                "turnover": request.POST.get("others_turnover") == 'on',
+                "name": "MINI",
+                "exchange": request.POST.get("mini_exchange") == 'on',
+                "symbols": request.POST.get("mini_symbol") == 'on',
+                "turnover": request.POST.get("mini_turnover") == 'on',
             },
         ]  
-            
+
         user_name = request.POST.get("user_name")
         if MyUser.objects.filter(user_name=user_name).exists():
             messages.error(request, f"Username '{user_name}' already exists. Please choose a different one.")
@@ -180,15 +176,15 @@ class AddUserView(View):
                 create_user = MyUser.objects.create(user_type="Client", **user_data)
                 ClientModel.objects.create(client=create_user,master_user_link=request.user.master_user,admin_create_client=request.user.master_user.admin_user)
                 messages.success(request, f"Client added successfully.")
-                      
-            for exchange_data in exchanges:
-                ExchangeModel.objects.create(
-                    user=create_user,
-                    symbol_name=exchange_data['name'],
-                    exchange=exchange_data['exchange'],
-                    symbols=exchange_data['symbols'],
-                    turnover=exchange_data['turnover']
-                )
+            print("===========",exchanges)         
+        for exchange_data in exchanges:
+            ExchangeModel.objects.create(
+                user=create_user,
+                symbol_name=exchange_data['name'],
+                exchange=exchange_data['exchange'],
+                symbols=exchange_data['symbols'],
+                turnover=exchange_data['turnover']
+            )
         return render(request, "User/add-user.html")
    
 
@@ -287,27 +283,25 @@ class SearchUsersView(View):
 class UserDeatilsViewById(View):
     def get(self, request, id):
         user = MyUser.objects.get(id=id)
-        print("user",user)
-        return render(request, "components/user/user-deatils.html", {"id":id,"user":user})
+        print("=======",user.user_type)
+        exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
+        print("=========",exchange_obj)
+        return render(request, "components/user/user-deatils.html", {"id":id,"user":user, "exchange_obj":exchange_obj})
 
 class UserDeatilsView(View):
     def get(self, request):
         return render(request, "components/user/user-deatils.html")
 
-
 class TabTrades(View):
-    def get(self, request):
+    def get(self, request, id):
+        print("userID ==== >", id)
         if request.user.user_type == "SuperAdmin":
             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
         if request.user.user_type == "Admin":
             user_keys = [request.user.id]
-            print("====user_keys=====", user_keys)
             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
-            print("====child_clients=====", child_clients)
             user_keys += list(child_clients)
-            print("====user_keys=====", user_keys)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity","trade_type","action","price","coin_name","ex_change","created_at","is_pending","identifer","order_method","ip_address")
-            print("====response=====", response)
         if request.user.user_type == "Client":
             response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
         elif request.user.user_type == "Master":
@@ -315,13 +309,32 @@ class TabTrades(View):
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer","order_method", "ip_address")
-
         return render(request, "components/user/trade.html",{"response":response})
+    
+    
+# class TabTradesID(View):
+#     def get(self, request , id):
+#         if request.user.user_type == "SuperAdmin":
+#             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
+#         if request.user.user_type == "Admin":
+#             user_keys = [request.user.id]
+#             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+#             user_keys += list(child_clients)
+#             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity","trade_type","action","price","coin_name","ex_change","created_at","is_pending","identifer","order_method","ip_address")
+#         if request.user.user_type == "Client":
+#             response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
+#         elif request.user.user_type == "Master":
+#             user_keys = [request.user.id]
+#             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
+#             user_keys += list(child_clients)
+#             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer","order_method", "ip_address")
+#         return render(request, "components/user/trade.html",{"response":response,"id"})
     
     
     
 class UserScriptMaster(View):
-    def get(self, request):
+    def get(self, request, id):
+        print("user_id", id)
         return render(request, "components/user/script-master.html")
 
 
