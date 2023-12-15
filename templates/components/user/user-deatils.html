@@ -7,7 +7,7 @@
   <div class="flex">
     <div class="trade-download">
       <div style="transform: rotate(90deg); padding-left: 10px">
-        <p>Add&nbsp;Order</p>
+        <p id="deatilsFilterOpenId">Add&nbsp;Order</p>
       </div>
     </div>
     <div class="trades-side">
@@ -16,7 +16,7 @@
           <div>
             <p>Add order</p>
           </div>
-          <div class="closeBtn">
+          <div class="user-deatils">
             <i class="fa-solid fa-xmark"></i>
           </div>
         </div>
@@ -169,6 +169,19 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
 </script>
 
 <script>
+
+$('.user-deatils').click(function () {
+    $(".trades-side").hide();
+    $(".trades-body").css("width", "95%");
+});
+
+{% comment %} $('#deatilsFilterOpenId').click(function () {
+  $(".trades-side").show();
+  $(".trades-body").css("width", "69%");
+}); {% endcomment %}
+
+
+
   $("#orderTypeID").change((event) => {
     if (event.target.value !== "market") {
       $("#rateByID").prop("disabled", false);

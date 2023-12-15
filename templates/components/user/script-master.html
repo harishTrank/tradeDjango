@@ -64,7 +64,7 @@
 
   $("#checkAll").click(function(){
     $('input:checkbox').not(this).prop('checked', this.checked);
-});
+ });
 
   $('.closeBtn').click(function () {
     $(".trades-side").hide();
@@ -73,6 +73,7 @@
 
 $('#openFilerId').click(function () {
   $(".trades-side").show();
+  $(".trades-body").css("width", "69%");
 });
 
 const extractDate = (text) => {

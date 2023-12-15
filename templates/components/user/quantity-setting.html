@@ -22,14 +22,43 @@
                 <th>Breakup Lot</th>
                 <th>Last Updated</th>
             </tr>
-            <tr>
-                <td>ALUMINI</td>
-                <td>1000</td>
-                <td>10</td>
-                <td>10</td>
-                <td>16-07-2023 18:38</td>
-            </tr>
+
+            <tbody id="quantityTableBody">
+               
+            </tbody>
         </table>
     </div>
 </div>
+
+
+<script>
+    const apiCallForAllExchange = (exchange = "") => {
+        $.ajax({
+          type: "GET",
+          url: `${BASE_URL}/api/tradeCoin?coinType=${exchange}`,
+          success: function (data) {
+            console.log(data); 
+            $("#quantityTableBody").empty();
+            data.response.map(item => {
+              $("#quantityTableBody").append(`
+                <tr>
+                  <td>${item.InstrumentIdentifier}</td>
+                  <td>Lot Size</td>
+                  <td>Lot Max</td>
+                  <td>Breakup Lot</td>
+                  <td>Last Updated</td>
+                </tr>
+              `);
+            });
+          },
+          error: function (xhr, status, error) {
+            console.error('Error:', error);
+          }
+        });
+      }
+
+      apiCallForAllExchange();
+</script>
+
+
 {% endblock newtab %}
