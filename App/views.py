@@ -18,24 +18,52 @@ from django.contrib import messages
 from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg
 from django.http import JsonResponse
 
+# class LoginApi(APIView):
+#     def post(self, request):
+#         serializer = LoginSerializer(data=request.data)
+#         if serializer.is_valid():
+#             response = serializer.create(serializer.validated_data)
+#             return Response(response)
+#         else:
+#             responcemessage = ""
+#             for item in serializer.errors.items():
+#                 responcemessage += " " + f"error in {item[0]}:-{item[1][0]}"
+#             response = {
+#                 "responsecode": status.HTTP_400_BAD_REQUEST,
+#                 "responcemessage": responcemessage
+#             }
+#             return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+# or current_user.user_type.upper() != request.data["user_type"].upper()
 class LoginApi(APIView):
     def post(self, request):
-        print(request.data)
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            response = serializer.create(serializer.validated_data)
-            return Response(response)
-        else:
-            responcemessage = ""
-            for item in serializer.errors.items():
-                responcemessage += " " + f"error in {item[0]}:-{item[1][0]}"
-            response = {
-                "responsecode": status.HTTP_400_BAD_REQUEST,
-                "responcemessage": responcemessage
-            }
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            current_user = MyUser.objects.filter(user_name__iexact=request.data["user_name"]).first()
+            if not current_user or not current_user.check_password(request.data["password"]):
+                return Response({"success": False, "message": "Invalid credentials."}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                refresh = RefreshToken.for_user(current_user)
+                token = {
+                    'access': str(refresh.access_token),
+                }
+                historyGenerator = LoginHistoryModel(user_history=current_user, ip_address=request.data['current_ip'], method=request.data['method'], action='LOGIN')
+                historyGenerator.save()
+                return Response({'responsecode':status.HTTP_200_OK,
+                                    'userid': current_user.id,
+                                    'role':current_user.role,
+                                    'token': token,
+                                'responsemessage': 'User logged in successfully.'}, status=status.HTTP_200_OK)
 
-
+        except Exception as e:
+            print(e)
+            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+        
+class LogoutUserAPIView(APIView):
+    def post(self, request):
+        current_user = MyUser.objects.filter(id__iexact=request.data["user_id"]).first()
+        historyGenerator = LoginHistoryModel(user_history=current_user, ip_address=request.data['current_ip'], method=request.data['method'], action='LOGOUT')
+        historyGenerator.save()
+        return Response({"success": True, "message": "Logout user successfully"}, status=status.HTTP_200_OK)
 
 
 class ResetPasswordView(APIView):
