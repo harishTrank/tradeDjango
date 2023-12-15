@@ -286,92 +286,11 @@ class BuySellSellApi(APIView):
             message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
         )
         buy_sell_instance.save()
-        print("buy_sell_instance", buy_sell_instance.id)
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
         
         
-
-
-class BuySellSL(APIView):
-    def post(self, request):
-        user = MyUser.objects.get(id=request.data.get("id"))
-        action = request.data.get('action')
-        quantity = request.data.get('quantity')
-        lot_size = request.data.get("lot_size")
-        is_cancel = request.data.get("is_cancel")
-
-        totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True,is_cancel=False).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
-        try:
-            total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
-        except:
-            total_quantity = 0
-        print("quantityquantity", quantity, total_quantity)
-        if totalCount.count() > 0 and (total_quantity < quantity) and not is_cancel:
-            currentProfitLoss = total_quantity * quantity * lot_size
-            user.balance += currentProfitLoss
-            quantity -= total_quantity
-            
-        total_cost = lot_size * quantity * request.data.get('price')
-        if (totalCount.count() > 0 and (total_quantity == quantity)) and not is_cancel:
-            if action == "SELL":
-                currentProfitLoss = ( request.data.get('price') -totalCount[0]["avg_price"] ) * quantity * lot_size
-            else:
-                currentProfitLoss = ( totalCount[0]["avg_price"] -  request.data.get('price') ) * quantity * lot_size
-                
-            user.balance += currentProfitLoss
-        
-        elif action == 'BUY' and user.balance >= total_cost and not is_cancel:  
-            user.balance -= total_cost
-        elif action == 'SELL' and user.balance >= total_cost and not is_cancel:
-            user.balance += total_cost
-        else:
-            buy_sell_instance = BuyAndSellModel(
-                buy_sell_user=user,
-                quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
-                trade_type=request.data.get('trade_type'),
-                action=request.data.get('action'),
-                price=request.data.get('price'),
-                coin_name=request.data.get('coin_name'),
-                ex_change=request.data.get('ex_change'),
-                is_pending=request.data.get('is_pending'),
-                identifer=request.data.get("identifer"),
-                ip_address=request.data.get("ip_address"),
-                order_method=request.data.get("order_method"),
-                stop_loss=request.data.get("stop_loss"),
-                message='Market is closed. Please try again later!' if is_cancel else 'Insufficient balance/quantity',
-                is_cancel=True
-            )
-            buy_sell_instance.save()
-            return Response({'message': 'Market is closed. Please try again later!' if is_cancel else 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
-        user.save()
-        buy_sell_instance = BuyAndSellModel(
-            buy_sell_user=user,
-            quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
-            trade_type=request.data.get('trade_type'),
-            action=request.data.get('action'),
-            price=request.data.get('price'),
-            coin_name=request.data.get('coin_name'),
-            ex_change=request.data.get('ex_change'),
-            is_pending=request.data.get('is_pending'),
-            identifer=request.data.get("identifer"),
-            ip_address=request.data.get("ip_address"),
-            order_method=request.data.get("order_method"),
-            stop_loss=request.data.get("stop_loss"),
-            message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
-        )
-        buy_sell_instance.save()
-        print("buy_sell_instance", buy_sell_instance.id)
-        if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
-            BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
-        return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
-                
-        
-        
-        
-
-
 from django.db.models.functions import Coalesce
 from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
 
@@ -383,13 +302,6 @@ class PositionManager(APIView):
                 user = MyUser.objects.get(id = request.GET.get("id"))
             else:
                 user = request.user 
-            # results = (
-            #     user.buy_sell_user.all()
-            #     .filter(is_pending=False, trade_status=True)
-            #     .values('identifer','coin_name')
-            #     .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
-            #     .exclude(total_quantity=0)
-            # )
             result = (
                 user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name')
@@ -570,12 +482,14 @@ class LoginHistoryApi(APIView):
     def get(self, request):
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
-        user_obj = MyUser.objects.filter(id=request.user.id).values("id", "user_name", "user_type", "user_history__ip_address", "user_history__method", "user_history__action")
-
+        searchInput = request.GET.get('searchInput')
+        user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id")
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
             to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
-            user_obj = user_obj.filter(user_history__created_at__gte=from_date_obj, user_history__created_at__lte=to_date_obj)
+            user_obj = user_obj.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+
+        user_obj = user_obj.filter(ip_address__icontains=searchInput)
         paginator = self.pagination_class()
         paginated_users = paginator.paginate_queryset(user_obj, request)
         return paginator.get_paginated_response(paginated_users)

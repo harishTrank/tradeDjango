@@ -176,7 +176,16 @@ class BuyAndSellModel(CommonTimePicker):
     
     class Meta:
         ordering = ('-id',)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+
+
+class AccountSummaryModal(CommonTimePicker):
+    user_summary = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="user_summary")
+    summary_type = models.CharField("Summary Type", max_length=200)
+    initial_price = models.IntegerField("Initial price", default=0)
+    final_price = models.IntegerField("Final price", default=0)
+    quantity = models.PositiveIntegerField("Quantity", default=0)
+    profit_loss = models.IntegerField("Profit Loss", default=0)
+    closing = models.IntegerField("closing", default=0)
 
 
 # class LoginHistory(models.Model):
