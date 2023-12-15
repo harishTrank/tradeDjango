@@ -26,5 +26,6 @@ urlpatterns = [
     path("table-chart/", TableChartAPi.as_view(), name="table-chart"),
     path("pie-chart-api/", PieChartHandlerApi.as_view(), name="pie-chart-api"),
     path("child-user-api/", ChildUserFetchAPI.as_view(), name="child-user-api"),
+    path("login-history/", LoginHistoryApi.as_view(), name="login-history"),
     # path("user-list/", UserListApi.as_view(), name="user-list"),
 ]

@@ -18,23 +18,7 @@ from django.contrib import messages
 from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg
 from django.http import JsonResponse
 
-# class LoginApi(APIView):
-#     def post(self, request):
-#         serializer = LoginSerializer(data=request.data)
-#         if serializer.is_valid():
-#             response = serializer.create(serializer.validated_data)
-#             return Response(response)
-#         else:
-#             responcemessage = ""
-#             for item in serializer.errors.items():
-#                 responcemessage += " " + f"error in {item[0]}:-{item[1][0]}"
-#             response = {
-#                 "responsecode": status.HTTP_400_BAD_REQUEST,
-#                 "responcemessage": responcemessage
-#             }
-#             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-# or current_user.user_type.upper() != request.data["user_type"].upper()
 class LoginApi(APIView):
     def post(self, request):
         try:
@@ -52,8 +36,8 @@ class LoginApi(APIView):
                                     'userid': current_user.id,
                                     'role':current_user.role,
                                     'token': token,
-                                'responsemessage': 'User logged in successfully.'}, status=status.HTTP_200_OK)
-
+                                    'responsemessage': 'User logged in successfully.'}
+                                , status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
@@ -578,7 +562,24 @@ class UserListApiView(APIView):
         paginator = self.pagination_class()
         paginated_users = paginator.paginate_queryset(serialized_users, request)
         return paginator.get_paginated_response(paginated_users)
-    
+
+
+
+class LoginHistoryApi(APIView):
+    permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination
+    def get(self, request):
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        user_obj = MyUser.objects.filter(id=request.user.id).values("id", "user_name", "user_type", "user_history__ip_address", "user_history__method", "user_history__action")
+
+        if from_date and to_date:
+            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+            user_obj = user_obj.filter(user_history__created_at__gte=from_date_obj, user_history__created_at__lte=to_date_obj)
+        paginator = self.pagination_class()
+        paginated_users = paginator.paginate_queryset(user_obj, request)
+        return paginator.get_paginated_response(paginated_users)
 
 
 
