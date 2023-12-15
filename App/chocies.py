@@ -26,3 +26,9 @@ ACTIONLOGIN = (
     ('LOGIN','LOGIN'),
     ('LOGOUT','LOGOUT')
 )
+
+SUMMARYFLAG = (
+    ('Profit/Loss', 'Profit/Loss'),
+    ('Brokerage', 'Brokerage'),
+    ('Credit', 'Credit'),
+)
