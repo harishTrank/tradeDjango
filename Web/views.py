@@ -108,7 +108,7 @@ class AddUserView(View):
                 "turnover": request.POST.get("mini_turnover") == 'on',
             },
         ]  
-            
+
         user_name = request.POST.get("user_name")
         if MyUser.objects.filter(user_name=user_name).exists():
             messages.error(request, f"Username '{user_name}' already exists. Please choose a different one.")

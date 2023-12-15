@@ -91,25 +91,16 @@
 
 <script>
 
-  axios
-  .post(
-    `{% url 'trade-history' %}?id=${$(
-      "#current_selected_userId"
-    ).val()}`,
-    body,
-    { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
-  )
-  .then((data) => {
-    console.log("res",data)
-    $("#adminRightsId").css("display", "none")
-    toastMixin.fire({
-      animation:true,
-      title:data.data.message,
-      icon: "success",
-    });
-  });
-}
 
+  axios.get(`{% url "trade-history" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+  .then(res => {
+      console.log("res ==", res);
+  })
+  .catch(err => {
+      console.log("err", err);
+  });
+
+  
 </script>
 
 {% endblock newtab %}
