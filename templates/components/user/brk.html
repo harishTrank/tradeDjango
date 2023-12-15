@@ -108,6 +108,7 @@
     /ALUMINIUM/,
     /CRUDEOILM/,
   ]
+
   const apiCallForAllExchange = (exchange = "") => {
     if (exchange !== "") {
         $('#updateBtnId').prop('disabled', false);
@@ -124,7 +125,7 @@
             <tr>
               <td>${currentExchange}</td>
               <td>${item.InstrumentIdentifier}</td>
-              <td>${ currentExchange === "MCX" ? "{{request.user.admin_user.mcx_brk}}" : currentExchange === "NSE" ? "{{request.user.admin_user.nse_brk}}" : "{{request.user.admin_user.mini_brk}}" }</td>
+              <td>${ currentExchange === "MCX" ? "{{user.mcx_brk}}" : currentExchange === "NSE" ? "{{user.nse_brk}}" : "{{user.mini_brk}}" }</td>
             </tr>
           `);
         });
@@ -141,13 +142,11 @@
   
   apiCallForAllExchange();
 
-
-
   const updateBtnHandler = (event) => {
       event.preventDefault();
       axios
         .post(
-          `{% url 'brk' %}?id={{request.user.id}}`,
+          `{% url 'brk' %}?id={{user.id}}`,
           {
             exchange: $("#brkFilterId").val(),
             price: $("#priceValueId").val()

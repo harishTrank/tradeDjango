@@ -445,9 +445,6 @@ class TradeHistoryApi(APIView):
         coin_name = request.query_params.get('coin_name')
         is_pending = request.query_params.get("is_pending")
         is_cancel = request.query_params.get("is_cancel")
-        # identifer = request.query_params.get("identifer")
-        # ip_address = request.query_params.get("ip_address")
-        # order_method = request.query_params.get("order_method")
         
         if user.user_type == "Client":          
             exchange_data = request.user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
@@ -475,7 +472,9 @@ class TradeHistoryApi(APIView):
             return response
         
         elif user.user_type == "Master":
+            prnt("===============")
             user_keys = [request.user.id]
+            print("============",user_keys)
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer", "message")

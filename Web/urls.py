@@ -28,12 +28,12 @@ urlpatterns = [
     
     
     path("quantity-setting",QuantitySettingView.as_view(),name="quantity-setting"),
-    path("brk",BrkView.as_view(),name="brk"),
+    path("brk/<str:id>",BrkView.as_view(),name="brk"),
     path("trade-margin",TradeMargin.as_view(),name="trade-margin"),
     path("credit",CreditView.as_view(),name="credit"),
     path("tab-account-summary",TabAccountSummary.as_view(),name="tab-account-summary"),
     path("tab-settlement",TabSettlement.as_view(),name="tab-settlement"),
-    path("rejection-log",RejectionLogView.as_view(),name="rejection-log"),
+    path("rejection-log/<str:id>",RejectionLogView.as_view(),name="rejection-log"),
     path("share-deatils",ShareDetailsView.as_view(),name="share-deatils"),
     path("user-info",UserInfoView.as_view(),name="user-info"),
     
