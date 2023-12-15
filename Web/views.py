@@ -290,9 +290,7 @@ class UserDeatilsViewById(View):
 
 class UserDeatilsView(View):
     def get(self, request):
-        print(" iam working toooo ")
         return render(request, "components/user/user-deatils.html")
-
 
 class TabTrades(View):
     def get(self, request):
@@ -310,8 +308,26 @@ class TabTrades(View):
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer","order_method", "ip_address")
-
         return render(request, "components/user/trade.html",{"response":response})
+    
+    
+# class TabTradesID(View):
+#     def get(self, request , id):
+#         if request.user.user_type == "SuperAdmin":
+#             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
+#         if request.user.user_type == "Admin":
+#             user_keys = [request.user.id]
+#             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+#             user_keys += list(child_clients)
+#             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity","trade_type","action","price","coin_name","ex_change","created_at","is_pending","identifer","order_method","ip_address")
+#         if request.user.user_type == "Client":
+#             response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
+#         elif request.user.user_type == "Master":
+#             user_keys = [request.user.id]
+#             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
+#             user_keys += list(child_clients)
+#             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer","order_method", "ip_address")
+#         return render(request, "components/user/trade.html",{"response":response,"id"})
     
     
     

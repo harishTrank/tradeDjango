@@ -24,7 +24,7 @@ urlpatterns = [
     path("user-script",UserScriptMaster.as_view(),name="user-script"),
     
     path("group-setting",GropuSettingView.as_view(),name="group-setting"),
-    path("tab-trade",TabTrades.as_view(),name="tab-trade"),
+    path("tab-trade/",TabTrades.as_view(),name="tab-trade"),
     
     
     path("quantity-setting",QuantitySettingView.as_view(),name="quantity-setting"),

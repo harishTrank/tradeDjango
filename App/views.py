@@ -695,7 +695,7 @@ class MarketTradeRight(APIView):
 class BrkApi(APIView):
     def post(self, request):
         data = request.data
-        currentAdmin = AdminModel.objects.get(user__id=request.GET.get("id"))
+        currentAdmin = MyUser.objects.get(id=request.GET.get("id"))
         if data["price"] != 0:
             if data["exchange"].lower() == "mcx":
                 currentAdmin.mcx_brk = data["price"]
