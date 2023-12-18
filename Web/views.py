@@ -213,13 +213,22 @@ class ListUserView(View):
 class DownloadCSVView(View):
     def get(self, request):
         user = request.user
-        user_clients = MyUser.objects.filter(id__in=list(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) + list(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+        if request.user.user_type == "Master":
+            user_clients = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+        elif request.user.user_type == "Admin":
+            master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
+            client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
+            user_clients = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
+        elif request.user.user_type == "SuperAdmin":
+            user_clients = MyUser.objects.exclude(id=request.user.id)
+
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
 
         writer = csv.writer(response)
         writer.writerow([
-            'Username', 'Name', 'Type', 'Parent','Credit', 'Balance','Bet','Close Only','Margin Sq', 'Status', 'Created Date', 'Last Login'])
+            'Username', 'Name', 'Type', 'Parent', 'Credit', 'Balance', 'Bet', 'Close Only', 'Margin Sq', 'Status', 'Created Date', 'Last Login'])
+
         for client in user_clients:
             writer.writerow([
                 client.user_name,
@@ -234,6 +243,7 @@ class DownloadCSVView(View):
                 client.status,
                 client.created_at,
                 client.last_login])
+
         return response
     
 
@@ -531,9 +541,35 @@ class IntradayHistory(View):
         return render(request, "view/intraday-history.html")
     
 
-class RejectionLog(View):
+class RejectionLogTab(View):
     def get(self, request):
-        return render(request, "view/rejection-log.html")
+        user = request.user
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        exchange = request.GET.get('exchange')
+        symbol = request.GET.get('symbol')
+        if request.user.user_type == "SuperAdmin":
+            print("===",request.user.user_name)
+            # exclude = MyUser.objects.filter("SuperAdmin")
+            exchange_obj = ExchangeModel.objects.exclude(user=request.user.id).values("symbol_name","exchange")
+            rejection = user.buy_sell_user.filter(is_cancel=True).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
+            print("========",rejection)
+            response = user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
+            if from_date:
+                if to_date:
+                    rejection = rejection.filter(created_at__gte=from_date,created_at__lte=to_date,is_cancel=True)
+            if exchange:
+                rejection = rejection.filter(ex_change=exchange,is_cancel=True)
+            
+            if symbol:
+                rejection = rejection.filter(coin_name=symbol,is_cancel=True)
+                
+        elif request.user.user_type == "Admin":
+            pass
+        elif request.user.user_type == "Client":
+            pass
+       
+        return render(request, "view/rejection-log.html",{"rejection":rejection})
     
     
     
@@ -541,14 +577,19 @@ class LoginHistory(View):
     def get(self, request):
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
+        user_name = request.GET.get("user_name")
+        
         user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
         if from_date and to_date:
-            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
-            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
-            user_obj = user_obj.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+            user_obj = user_obj.filter(created_at__gte=from_date, created_at__lte=to_date)
+            
+        if user_name:
+            user_obj = user_obj.filter(user_history__user_name=user_name)
 
         user_obj = user_obj.filter(ip_address__icontains="")
-        return render(request, "view/login-history.html",{"login_data":user_obj})
+        all_users = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("user_history__user_name").distinct()
+        
+        return render(request, "view/login-history.html",{"login_data":user_obj, "all_users":all_users})
     
        
     

@@ -45,7 +45,7 @@ urlpatterns = [
     path("profit-and-loss",ProfitAndLoss.as_view(),name="profit-and-loss"),
     path("m2m-profit-and-loss",M2MProfitAndLoss.as_view(),name="m2m-profit-and-loss"),
     path("intraday-history",IntradayHistory.as_view(),name="intraday-history"),
-    path("rejection-log",RejectionLog.as_view(),name="rejection-log"),
+    path("rejection-log",RejectionLogTab.as_view(),name="rejection-log"),
     path("login-history",LoginHistory.as_view(),name="login-history"),
     
     
