@@ -60,16 +60,18 @@
                     <th>City</th>
                     <th>Country</th>
                 </tr>
+                {% for i in login_data %}
                 <tr>
-                    <td>Login Date</td>
-                    <td>Logout Date</td>
-                    <td>Username</td>
-                    <td>User Type</td>
-                    <td>IP Address</td>
-                    <td>Device ID</td>
+                    <td>{{i.created_at}}</td>
+                    <td>{{i.action}}</td>
+                    <td>{{i.user_history__user_name}}</td>
+                    <td>{{i.user_history__user_type}}</td>
+                    <td>{{i.ip_address}}</td>
+                    <td>{{i.method}}</td>
                     <td>City</td>
                     <td>Country</td>
                 </tr>
+                {% endfor %}
             </table>
         </div>
     </div>
