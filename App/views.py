@@ -443,6 +443,8 @@ class UserListApiView(APIView):
         own_user = request.query_params.get("own_user")
         select_user = request.query_params.get("select_user")
         select_status = request.query_params.get("select_status")
+        print("----",select_status)
+        print("dfdfdfdf",request.user.user_type)
         if request.user.user_type == "Client":
             users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","full_name","role","credit","balance")
             return JsonResponse(list(users), safe=False)
@@ -452,9 +454,10 @@ class UserListApiView(APIView):
                 return JsonResponse(list(users), safe=False)
             elif select_user == "MASTER":
                 users = MyUser.objects.filter(id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-            elif select_status == True:
-                users = MyUser.objects.filter(status=True,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-            elif select_status == False:
+            elif select_status == "Active":
+                users = MyUser.objects.filter(status=True if select_status else False,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+                print("==========",users)
+            elif select_status == "InActive":
                 users = MyUser.objects.filter(status=False,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
             else:
                 users = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True))
