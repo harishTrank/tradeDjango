@@ -75,4 +75,31 @@
     </div>
 </div>
 
+<script>
+    const searchInput = '';
+    const from_date = '';
+    const to_date = '';
+    const page = '1';
+
+axios.get(`{% url "login-history" %}`, {
+    headers: {
+        "X-CSRFToken": "{{ csrf_token }}"
+    },
+    params: {
+        searchInput: searchInput,
+        from_date: from_date,
+        to_date:to_date,
+        page:page
+
+    }
+})
+.then(res => {
+    console.log("res ==", res);
+})
+.catch(err => {
+    console.log("err", err);
+});
+
+</script>
+
 {% endblock content %}

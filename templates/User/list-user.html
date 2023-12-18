@@ -174,25 +174,25 @@
                     {% if i.user_type == "Master" or i.user_type == "Client" %}
                     <td>
                         <label class="switch">
-                            <input onClick="callToggleApi({{i.id}}, `bet`)" type="checkbox" {% if i.bet %} checked {% endif %}>
+                            <input onClick="callToggleApi('{{i.id}}', `bet`)" type="checkbox" {% if i.bet %} checked {% endif %}>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td>
                         <label class="switch">
-                            <input onClick="callToggleApi({{i.id}}, `close_only`)" type="checkbox" {% if i.close_only %} checked {% endif %}>
+                            <input onClick="callToggleApi('{{i.id}}', `close_only`)" type="checkbox" {% if i.close_only %} checked {% endif %}>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td>
                         <label class="switch">
-                            <input onClick="callToggleApi({{i.id}}, `margin_sq`)" type="checkbox" {% if i.margin_sq %} checked {% endif %}>
+                            <input onClick="callToggleApi('{{i.id}}', `margin_sq`)" type="checkbox" {% if i.margin_sq %} checked {% endif %}>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td>
                         <label class="switch">
-                            <input onClick="callToggleApi({{i.id}}, `status`)" type="checkbox" {% if i.status %} checked {% endif %}>
+                            <input onClick="callToggleApi('{{i.id}}', `status`)" type="checkbox" {% if i.status %} checked {% endif %}>
                             <span class="slider round"></span>
                         </label>
                     </td>

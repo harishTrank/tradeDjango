@@ -4,7 +4,7 @@
     <div class="flex">
         <div class="trade-download">
             <div style="transform: rotate(90deg);padding-left: 10px;">
-                <p>Filter</p>
+                <p id="positionFilterId">Filter</p>
             </div>
             <span>
                 <a href=""><i class="fa-solid fa-file-csv"></i></a>
@@ -87,6 +87,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "95%");
+    });
+    
+    $('#positionFilterId').click(function () {
+        $(".trades-side").show();
+        $(".trades-body").css("width", "79%");
+    });
+</script>
 
 
 <script>

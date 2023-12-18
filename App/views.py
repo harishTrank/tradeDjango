@@ -451,7 +451,7 @@ class UserListApiView(APIView):
         else:
             if own_user == "OWN":
                 users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type", "full_name","role","credit","balance")
-                return JsonResponse(list(users), safe=False)
+                return JsonResponse({"results": list(users)}, safe=False)
             elif select_user == "MASTER":
                 users = MyUser.objects.filter(id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
             elif select_status == "Active":

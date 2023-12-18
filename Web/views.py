@@ -51,6 +51,10 @@ class LogoutView(View):
         logout(request)
         return redirect("Admin:login")
     
+
+
+
+    
     
     
 class Dashboard(View):
@@ -196,13 +200,13 @@ class ListUserView(View):
     def get(self , request):
         user = request.user
         if request.user.user_type == "Master":
-            response_user = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+            response_user = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True))).order_by("full_name")
         elif request.user.user_type == "Admin":
             master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
             client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
             response_user = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
         elif request.user.user_type == "SuperAdmin":
-            response_user = MyUser.objects.exclude(id=request.user.id)
+            response_user = MyUser.objects.exclude(id=request.user.id).order_by("full_name")
         return render(request, "User/list-user.html",{"client":response_user})
     
 
@@ -535,9 +539,18 @@ class RejectionLog(View):
     
 class LoginHistory(View):
     def get(self, request):
-        return render(request, "view/login-history.html")
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id")
+        if from_date and to_date:
+            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+            user_obj = user_obj.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+
+        user_obj = user_obj.filter(ip_address__icontains="")
+        return render(request, "view/login-history.html",{"login_data":user_obj})
     
-    
+       
     
     
     
