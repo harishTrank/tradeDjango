@@ -2,7 +2,8 @@ from rest_framework import serializers
 from rest_framework import status
 from .models import *
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from client_app.models import *
+from master_app.models import *
 
 
 class LoginSerializer(serializers.Serializer):
@@ -124,4 +125,32 @@ class TradeHistorySerialzer(serializers.ModelSerializer):
 class MyUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
+        fields = '__all__'
+
+
+class MyUserSerializerParticularDetails(serializers.ModelSerializer):
+    class Meta:
+        model = MyUser
+        fields = ("user_name", "user_type", "full_name", "role", "phone_number", "email", "city", "credit", "balance", "address")
+
+class ClientSerializer(serializers.ModelSerializer):
+    client_user_details = MyUserSerializerParticularDetails(source="client")
+    class Meta:
+        model = ClientModel
+        fields = '__all__'
+
+class MasterSerializer(serializers.ModelSerializer):
+    clients = ClientSerializer(many=True, read_only=True, source='master_user_link')
+    master_user_details = MyUserSerializerParticularDetails(source="master_user")
+    class Meta:
+        model = MastrModel
+        fields = '__all__'
+
+
+class AdminSerializer(serializers.ModelSerializer):
+    user_details = MyUserSerializerParticularDetails(source="user")
+    masters = MasterSerializer(many=True, read_only=True, source='admin_user')
+    clients = ClientSerializer(many=True, read_only=True, source='admin_create_client')
+    class Meta:
+        model = AdminModel
         fields = '__all__'

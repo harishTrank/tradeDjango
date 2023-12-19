@@ -15,9 +15,8 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg
+from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg, Q
 from django.http import JsonResponse
-
 
 class LoginApi(APIView):
     def post(self, request):
@@ -48,7 +47,7 @@ class LogoutUserAPIView(APIView):
         historyGenerator = LoginHistoryModel(user_history=current_user, ip_address=request.data['current_ip'], method=request.data['method'], action='LOGOUT')
         historyGenerator.save()
         return Response({"success": True, "message": "Logout user successfully"}, status=status.HTTP_200_OK)
-
+    
 
 class ResetPasswordView(APIView):
     permission_classes = [IsAuthenticated]
@@ -495,6 +494,17 @@ class LoginHistoryApi(APIView):
         paginated_users = paginator.paginate_queryset(user_obj, request)
         return paginator.get_paginated_response(paginated_users)
 
+
+class SearchUserAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        if request.user.user_type == "Master":
+            master_models = MastrModel.objects.filter(Q(master_link=request.user.master_user) | Q(id=request.user.master_user.id))
+            serializer = MasterSerializer(master_models, many=True)
+        elif request.user.user_type == "Admin":
+            admin_models = AdminModel.objects.get(user=request.user)
+            serializer = AdminSerializer(admin_models)
+        return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
 
 # web api ----------------------------------
