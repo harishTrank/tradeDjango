@@ -500,7 +500,9 @@ class SearchUserAPI(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         if request.user.user_type == "Master":
-            master_models = MastrModel.objects.filter(Q(master_link=request.user.master_user) | Q(id=request.user.master_user.id))
+            total_parent_master = MastrModel.objects.filter(master_link=request.user.master_user).values_list('id', flat=True)
+            all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
+            master_models = MastrModel.objects.filter(id__in=all_masters)
             serializer = MasterSerializer(master_models, many=True)
         elif request.user.user_type == "Admin":
             admin_models = AdminModel.objects.get(user=request.user)
