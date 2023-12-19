@@ -26,23 +26,20 @@ class LoginView(View):
         return render(request, "register/login.html")
     
     def post(self, request):
-        params = request.POST
-        user = authenticate(user_name=params["user_name"], password=params["password"])
-        if user is not None and user.user_type == "SuperAdmin":
-            login(request,user)
-            return redirect("Admin:list-user")
-        elif user is not None and user.user_type == "Admin":
-            login(request, user)
-            return redirect("Admin:dashboard")
-        elif user is not None and user.user_type == "Master":
-            login(request, user)
-            return redirect("Admin:dashboard")
-        elif user is not None and user.user_type == "Client":
-            login(request, user)
-            return redirect("Admin:dashboard")
-        else:
-            messages.error(request, "Invalid credentials")
-            return redirect("Admin:login")
+        user_name = request.POST.get("user_name")
+        password = request.POST.get("password")
+        user = authenticate(user_name=user_name, password=password)
+        
+        if user is not None:
+            if user.user_type in ["SuperAdmin", "Admin", "Master", "Client"]:
+                login(request, user)
+                if user.user_type == "SuperAdmin":
+                    return redirect("Admin:dashboard")
+                else:
+                    return redirect("Admin:dashboard")
+            else:
+                messages.error(request, "Invalid user type")
+        return redirect("Admin:login")
 
 
 
@@ -75,6 +72,7 @@ class AddUserView(View):
         limit = request.user.master_user.limit if request.user.user_type == "Master" else False
         master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
         client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
+        
         user_data = {
             "full_name": request.POST.get("full_name"),
             "user_name": request.POST.get("user_name"),
@@ -112,25 +110,27 @@ class AddUserView(View):
                 "symbols": request.POST.get("mini_symbol") == 'on',
                 "turnover": request.POST.get("mini_turnover") == 'on',
             },
-        ]  
-
+        ]
         user_name = request.POST.get("user_name")
         if MyUser.objects.filter(user_name=user_name).exists():
             messages.error(request, f"Username '{user_name}' already exists. Please choose a different one.")
             return redirect("Admin:add-user") 
-        
+
         if request.user.user_type == "SuperAdmin":
             if (not request.POST.get("accountUser") == 'on'):
                 create_user = MyUser.objects.create(user_type="Admin", **user_data)
                 AdminModel.objects.create(user=create_user)
                 messages.success(request, f"Admin create successfully.")
-                
-            elif (request.POST.get("add_master") == 'on'):
+            elif request.POST.get("add_master") == 'on':
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
+                selected_admin.user.balance -=int(request.POST.get("credit"))
+                selected_admin.user.save()
                 create_user = MyUser.objects.create(user_type="Master", **user_data)
                 try:
                     self_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     MastrModel.objects.create(master_user=create_user, admin_user=selected_admin,master_link=self_master)
+                    self_master.master_user.balance -=int(request.POST.get("credit"))
+                    self_master.master_user.save()
                     messages.success(request, f"Master create successfully.")
                 except:
                     MastrModel.objects.create(master_user=create_user, admin_user=selected_admin)
@@ -141,24 +141,61 @@ class AddUserView(View):
                 try:
                     selected_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin,master_user_link=selected_master)
+                    selected_master.master_user.balance -=int(request.POST.get("credit"))
+                    selected_master.master_user.save()
                     messages.success(request, f"Client create successfully.")   
                 except:
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
+                    selected_admin.user.balance -=int(request.POST.get("credit"))
+                    selected_admin.user.save()
                     messages.success(request, f"Client create successfully.")   
+                    
                     
         elif request.user.user_type == "Admin":
             selected_admin = AdminModel.objects.get(user__id=request.user.id)
             if (request.POST.get("add_master") == 'on'):
+                credit_amount = request.POST.get("credit")
+                if credit_amount is not None and credit_amount.isdigit():
+                    credit_amount = int(credit_amount)
+                    if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
+                        messages.error(request, f"Insufficient balance")
+                        return redirect("Admin:add-user")
+                request.user.balance -= credit_amount
+                request.user.save() 
                 create_user = MyUser.objects.create(user_type="Master", **user_data)
                 MastrModel.objects.create(master_user=create_user, admin_user=selected_admin)
+                messages.success(request, f"Master added successfully")
+                return redirect("Admin:add-user")
             else:
                 create_user = MyUser.objects.create(user_type="Client", **user_data)
                 if (request.POST.get("selectedMasterName") == None or request.POST.get("selectedMasterName") == ""):
+                    credit_amount = request.POST.get("credit")
+                    if credit_amount is not None and credit_amount.isdigit():
+                        credit_amount = int(credit_amount)
+                        if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
+                            messages.error(request, f"Insufficient balance")
+                            return redirect("Admin:add-user")
+                    request.user.balance -= credit_amount
+                    request.user.save() 
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
+                    messages.success(request, f"Client added successfully")
                 else:
+                    user = MyUser.objects.get(id=request.POST.get("selectedMasterName"))
+                    user.user_name
+                    print("----===----",user)
                     selected_master = MastrModel.objects.get(master_user__id=request.POST.get("selectedMasterName"))
                     ClientModel.objects.create(client=create_user, master_user_link=selected_master, admin_create_client=selected_admin)
         elif request.user.user_type == "Master":
+            credit_amount = request.POST.get("credit")
+            if credit_amount is not None and credit_amount.isdigit():
+                credit_amount = int(credit_amount)
+                if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
+                    messages.error(request, f"Insufficient balance")
+                    return redirect("Admin:add-user")
+                
+            request.user.balance -= credit_amount
+            request.user.save() 
+            
             if limit == False:
                 messages.error(request, f"Cannot create more users.")
                 return redirect("Admin:add-user") 
@@ -181,7 +218,7 @@ class AddUserView(View):
                 create_user = MyUser.objects.create(user_type="Client", **user_data)
                 ClientModel.objects.create(client=create_user,master_user_link=request.user.master_user,admin_create_client=request.user.master_user.admin_user)
                 messages.success(request, f"Client added successfully.")
-            print("===========",exchanges)         
+     
         for exchange_data in exchanges:
             ExchangeModel.objects.create(
                 user=create_user,
@@ -548,38 +585,55 @@ class RejectionLogTab(View):
         to_date = request.GET.get('to_date')
         exchange = request.GET.get('exchange')
         symbol = request.GET.get('symbol')
+        response = BuyAndSellModel.objects.exclude(buy_sell_user=user).order_by('-coin_name').values('coin_name').distinct()
+        print("==",response)
+        
+        
         if request.user.user_type == "SuperAdmin":
-            print("===",request.user.user_name)
-            # exclude = MyUser.objects.filter("SuperAdmin")
-            exchange_obj = ExchangeModel.objects.exclude(user=request.user.id).values("symbol_name","exchange")
-            rejection = user.buy_sell_user.filter(is_cancel=True).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
-            print("========",rejection)
-            response = user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
-            if from_date:
-                if to_date:
-                    rejection = rejection.filter(created_at__gte=from_date,created_at__lte=to_date,is_cancel=True)
-            if exchange:
-                rejection = rejection.filter(ex_change=exchange,is_cancel=True)
-            
-            if symbol:
-                rejection = rejection.filter(coin_name=symbol,is_cancel=True)
-                
+            rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+           
         elif request.user.user_type == "Admin":
-            pass
+            rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+
+        elif request.user.user_type == "Master":
+            user_keys = [request.user.id]
+            child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            user_keys += list(child_clients)
+            rejection = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+        
         elif request.user.user_type == "Client":
-            pass
+            rejection = user.buy_sell_user.filter(is_cancel=True).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
+        
+        if from_date:
+            if to_date:
+                rejection = rejection.filter(created_at__gte=from_date,created_at__lte=to_date,is_cancel=True)
+        if exchange:
+            rejection = rejection.filter(ex_change=exchange,is_cancel=True)
+        
+        if symbol:
+            rejection = rejection.filter(coin_name=symbol,is_cancel=True)
        
-        return render(request, "view/rejection-log.html",{"rejection":rejection})
+        return render(request, "view/rejection-log.html",{"rejection":rejection, "response":response})
     
     
     
 class LoginHistory(View):
     def get(self, request):
+        user = request.user
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
         user_name = request.GET.get("user_name")
         
-        user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
+        if request.user.user_type == "SuperAdmin" or request.user.user_type == "Admin":
+            user_obj = LoginHistoryModel.objects.exclude(user_history=request.user).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
+        elif request.user.user_type == "Master":
+            user_keys = [request.user.id]
+            child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            user_keys += list(child_clients)
+            user_obj = LoginHistoryModel.objects.filter(user_history__id__in=user_keys).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
+            
+        elif request.user.user_type == "Client":
+            user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
         if from_date and to_date:
             user_obj = user_obj.filter(created_at__gte=from_date, created_at__lte=to_date)
             

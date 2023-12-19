@@ -106,6 +106,9 @@ class MyUser(AbstractBaseUser,CommonTimePicker):
         
     class Meta:
         verbose_name_plural = 'My User'
+        ordering = ('-created_at',)   
+        
+        
 
 
 class LoginHistoryModel(CommonTimePicker):
@@ -180,12 +183,20 @@ class BuyAndSellModel(CommonTimePicker):
 
 class AccountSummaryModal(CommonTimePicker):
     user_summary = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="user_summary")
-    summary_type = models.CharField("Summary Type", max_length=200)
-    initial_price = models.IntegerField("Initial price", default=0)
-    final_price = models.IntegerField("Final price", default=0)
+    particular = models.CharField("Particular", max_length=200)
     quantity = models.PositiveIntegerField("Quantity", default=0)
-    profit_loss = models.IntegerField("Profit Loss", default=0)
+    buy_sell_type = models.CharField("Buy Sell Type", max_length=200)
+    price = models.IntegerField("Price", default=0)
+    average = models.IntegerField("Average", default=0)
+    type = models.CharField("Type", max_length=200,choices=SUMMARYFLAG, blank=True, null=True)
+    amount = models.IntegerField("Amount", default=0)
     closing = models.IntegerField("closing", default=0)
+    opening = models.IntegerField("Opening", default=0)
+    
+    
+    
+    
+
 
 
 # class LoginHistory(models.Model):

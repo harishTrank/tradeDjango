@@ -23,38 +23,56 @@
                 </div>
             </div>
             <div class="trade-btm">
-                <div>
-                    <label for="">From:</label>
-                    <input type="date" name="" id="">
+                <form method="get">
+                  {% csrf_token %}
+                <div class="flex space-bw">
+                  <label for="">From:</label>
+                  <input name="from_date" type="date" class="form_control" />
                 </div>
-                <div>
-                    <label for="">Date:</label>
-                    <input type="date" name="" id="">
+                <div class="flex space-bw">
+                  <label for="">To:</label>
+                  <input name="to_date" type="date" class="form_control" />
                 </div>
-                <div>
-                    <label for="">Username:</label>
-                    <select name="" id="">
-                        <option value="">Select</option>
-                    </select>
+        
+                <div class="flex space-bw">
+                  <label for="">Username:</label>
+                  <select name="user_name" id="" class="form_control flex">
+                      <option value="">{{rejection.buy_sell_user__user_name}}</option>
+                  </select>
                 </div>
-                <div>
-                    <label for="">Exchange:</label>
-                    <select name="" id="">
-                        <option value="">Select</option>
-                    </select>
+        
+                <div class="flex space-bw">
+                  <label for="">Exchange:</label>
+                  <select name="exchange" id="" class="form_control">
+                    <option value="">All Exchange</option>
+                    {% for symbol in exchange_obj %}
+                      {% if symbol.symbol_name == "NSE" and symbol.exchange %}
+                        <option value="NSE">NSE</option>
+                      {% elif symbol.symbol_name == "MCX" and symbol.exchange %}
+                        <option value="MCX">MCX</option>
+                      {% elif symbol.symbol_name == "MINI" and symbol.exchange %}
+                        <option value="MINI">MINI</option>
+                      {% endif %}
+                  {% endfor %}
+                  </select>
                 </div>
-                <div>
-                    <label for="">Symbol:</label>
-                    <select name="" id="">
-                        <option value="">Select</option>
-                    </select>
+                <div class="flex space-bw">
+                  <label for="">Symbol:</label>
+                  <select name="symbol" id="" class="form_control">
+                    <option value="">Select</option>
+                    {% for i in response %}
+                      <option value="{{i.coin_name}}">{{i.coin_name}}</option>
+                    {% endfor %}
+                  </select>
                 </div>
+        
                 <div>
                     <label for=""></label>
-                    <input type="submit" value="View" class="form-btn">
-                    <input type="submit" value="Clear" class="cancel-btn">
+                    <button type="submit" value="View" class="form-btn">View</button>
+                    <a href="{% url 'Admin:rejection-log' %}" onClick="clearRejection()" style="color:#fff !important;padding: 2px 10px; cursor:pointer;" value="Clear" class="cancel-btn">Clear</a>
                 </div>
-            </div>
+              </form>
+              </div>
         </div>
         <div class="trades-body user-table">
             <table style="width: 100%;">
@@ -77,11 +95,11 @@
                     <td>{{i.message}}</td>
                     <td>{{i.buy_sell_user__user_name}}</td>
                     <td>{{i.coin_name}}</td>
-                    <td>Type</td>
-                    <td>Quantity</td>
-                    <td>Price</td>
+                    <td>{{i.action}}</td>
+                    <td>{{i.quantity}}</td>
+                    <td>{{i.price}}</td>
                     <td>Reference Price</td>
-                    <td>IP Address</td>
+                    <td>{{i.ip_address}}</td>
                     <td>Device ID</td>
                     <td>Trade by</td>
                 </tr>

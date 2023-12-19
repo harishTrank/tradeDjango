@@ -17,7 +17,8 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg
 from django.http import JsonResponse
-
+from django.db.models.functions import Coalesce
+from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
 
 class LoginApi(APIView):
     def post(self, request):
@@ -291,8 +292,7 @@ class BuySellSellApi(APIView):
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
         
         
-from django.db.models.functions import Coalesce
-from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
+
 
 class PositionManager(APIView):
     permission_classes = [IsAuthenticated]
