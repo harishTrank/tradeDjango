@@ -7,7 +7,7 @@
   <div class="flex">
     <div class="trade-download">
       <div style="transform: rotate(90deg); padding-left: 10px">
-        <p>Add&nbsp;Order</p>
+        <p id="deatilsFilterOpenId">Add&nbsp;Order</p>
       </div>
     </div>
     <div class="trades-side">
@@ -16,7 +16,7 @@
           <div>
             <p>Add order</p>
           </div>
-          <div class="closeBtn">
+          <div class="user-deatils">
             <i class="fa-solid fa-xmark"></i>
           </div>
         </div>
@@ -169,6 +169,19 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
 </script>
 
 <script>
+
+$('.user-deatils').click(function () {
+    $(".trades-side").hide();
+    $(".trades-body").css("width", "95%");
+});
+
+{% comment %} $('#deatilsFilterOpenId').click(function () {
+  $(".trades-side").show();
+  $(".trades-body").css("width", "69%");
+}); {% endcomment %}
+
+
+
   $("#orderTypeID").change((event) => {
     if (event.target.value !== "market") {
       $("#rateByID").prop("disabled", false);
@@ -238,7 +251,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
           socket.emit("filterDataGet", {identifier: res.response.map(item => item.identifer)});
 
           socket.on("filterDataSend", (data) => {
-            $("#totalPriceId").html(`P/L: ${updateTotalPrice(data, res.response)}`);
+            $("#totalPriceId").html(`P/L: ${updateTotalPrice(data, res.response).toFixed(2)}`);
             $("#positionLiveDataid").empty();
             data.map(item => {
               const current_data = res.response.find(findItem => findItem.identifer === item.InstrumentIdentifier)
@@ -250,7 +263,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
                   <td>${item.InstrumentIdentifier}</td>
                   <td style="color: ${current_data.total_quantity < 0 ? 'red' : 'blue'};">${current_data.total_quantity > 0 ? "BUY" : "SELL"}</td>
                   <td>${current_data.total_quantity > 0 ? current_data.total_quantity : -current_data.total_quantity}</td>
-                  <td>${current_data.total_quantity > 0 ?  current_data.avg_buy_price :  current_data.avg_sell_price}</td>
+                  <td>${current_data.total_quantity > 0 ? Math.round(current_data.avg_buy_price * 100) / 100 : Math.round(current_data.avg_sell_price * 100) / 100}</td>
                   <td>${current_data.total_quantity > 0 ? item.BuyPrice : item.SellPrice}</td>
                   ${profitLossValue && profitLossValue > 0 ? `<td style="color: blue">${profitLossValue}</td>` : `<td style="color: red">${profitLossValue}</td>`}
                 </tr>

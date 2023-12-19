@@ -71,11 +71,12 @@
                     <th>Device ID</th>
                     <th>Trade by</th>
                 </tr>
+                {% for i in rejection %}
                 <tr>
-                    <td>Date</td>
-                    <td>Message</td>
-                    <td>Username</td>
-                    <td>Symbol</td>
+                    <td>{{i.created_at}}</td>
+                    <td>{{i.message}}</td>
+                    <td>{{i.buy_sell_user__user_name}}</td>
+                    <td>{{i.coin_name}}</td>
                     <td>Type</td>
                     <td>Quantity</td>
                     <td>Price</td>
@@ -84,6 +85,7 @@
                     <td>Device ID</td>
                     <td>Trade by</td>
                 </tr>
+                {% endfor %}
             </table>
         </div>
     </div>

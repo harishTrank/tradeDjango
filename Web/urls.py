@@ -28,12 +28,12 @@ urlpatterns = [
     
     
     path("quantity-setting",QuantitySettingView.as_view(),name="quantity-setting"),
-    path("brk",BrkView.as_view(),name="brk"),
+    path("brk/<str:id>",BrkView.as_view(),name="brk"),
     path("trade-margin",TradeMargin.as_view(),name="trade-margin"),
     path("credit",CreditView.as_view(),name="credit"),
     path("tab-account-summary",TabAccountSummary.as_view(),name="tab-account-summary"),
     path("tab-settlement",TabSettlement.as_view(),name="tab-settlement"),
-    path("rejection-log",RejectionLogView.as_view(),name="rejection-log"),
+    path("rejection-log/<str:id>",RejectionLogView.as_view(),name="rejection-log"),
     path("share-deatils",ShareDetailsView.as_view(),name="share-deatils"),
     path("user-info",UserInfoView.as_view(),name="user-info"),
     
@@ -45,7 +45,7 @@ urlpatterns = [
     path("profit-and-loss",ProfitAndLoss.as_view(),name="profit-and-loss"),
     path("m2m-profit-and-loss",M2MProfitAndLoss.as_view(),name="m2m-profit-and-loss"),
     path("intraday-history",IntradayHistory.as_view(),name="intraday-history"),
-    path("rejection-log",RejectionLog.as_view(),name="rejection-log"),
+    path("rejection-log",RejectionLogTab.as_view(),name="rejection-log"),
     path("login-history",LoginHistory.as_view(),name="login-history"),
     
     

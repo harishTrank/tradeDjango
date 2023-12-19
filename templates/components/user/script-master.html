@@ -34,7 +34,7 @@
               <div>
                   <label for=""></label>
                   <input type="submit" value="Search" class="form-btn" id="serachBtnId">
-                  <input type="submit" value="Clear" class="cancel-btn">
+                  <input onClick="refreshPage()" type="submit" value="Clear" class="cancel-btn">
               </div>
           </div>
       </div>
@@ -49,7 +49,6 @@
               <th>Trade Attribute</th>
               <th>Allow Trade</th>
             </tr>
-             
             <tbody id="userScriptId">
 
             </tbody>
@@ -59,10 +58,13 @@
 </div>
 
 <script>
+  function refreshPage(){
+    window.location.reload();
+} 
 
   $("#checkAll").click(function(){
     $('input:checkbox').not(this).prop('checked', this.checked);
-});
+ });
 
   $('.closeBtn').click(function () {
     $(".trades-side").hide();
@@ -71,6 +73,7 @@
 
 $('#openFilerId').click(function () {
   $(".trades-side").show();
+  $(".trades-body").css("width", "69%");
 });
 
 const extractDate = (text) => {

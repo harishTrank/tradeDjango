@@ -356,9 +356,6 @@ class TradeHistoryApi(APIView):
         coin_name = request.query_params.get('coin_name')
         is_pending = request.query_params.get("is_pending")
         is_cancel = request.query_params.get("is_cancel")
-        # identifer = request.query_params.get("identifer")
-        # ip_address = request.query_params.get("ip_address")
-        # order_method = request.query_params.get("order_method")
         
         if user.user_type == "Client":          
             exchange_data = request.user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
@@ -445,18 +442,21 @@ class UserListApiView(APIView):
         own_user = request.query_params.get("own_user")
         select_user = request.query_params.get("select_user")
         select_status = request.query_params.get("select_status")
+        print("----",select_status)
+        print("dfdfdfdf",request.user.user_type)
         if request.user.user_type == "Client":
-            users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","role","credit","balance")
+            users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","full_name","role","credit","balance")
             return JsonResponse(list(users), safe=False)
         else:
             if own_user == "OWN":
-                users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","role","credit","balance")
-                return JsonResponse(list(users), safe=False)
+                users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type", "full_name","role","credit","balance")
+                return JsonResponse({"results": list(users)}, safe=False)
             elif select_user == "MASTER":
                 users = MyUser.objects.filter(id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-            elif select_status == True:
-                users = MyUser.objects.filter(status=True,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-            elif select_status == False:
+            elif select_status == "Active":
+                users = MyUser.objects.filter(status=True if select_status else False,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+                print("==========",users)
+            elif select_status == "InActive":
                 users = MyUser.objects.filter(status=False,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
             else:
                 users = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True))
@@ -466,6 +466,7 @@ class UserListApiView(APIView):
             "id":user.id,
             "user_name": user.user_name,
              "user_type":user.user_type,
+             "full_name":user.full_name,
              "role":user.role, 
              "credit":user.credit,
              "balance":user.balance}
@@ -483,7 +484,7 @@ class LoginHistoryApi(APIView):
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
         searchInput = request.GET.get('searchInput')
-        user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id")
+        user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id", "created_at").order_by("-id")
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
             to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
