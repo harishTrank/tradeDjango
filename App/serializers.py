@@ -142,10 +142,17 @@ class ClientSerializer(serializers.ModelSerializer):
 class MasterSerializer(serializers.ModelSerializer):
     clients = ClientSerializer(many=True, read_only=True, source='master_user_link')
     master_user_details = MyUserSerializerParticularDetails(source="master_user")
+    that_masters = serializers.SerializerMethodField()
     class Meta:
         model = MastrModel
         fields = '__all__'
 
+
+    def get_that_masters(self, obj):
+        queryset = MastrModel.objects.filter(master_link=obj)
+        serializer = MasterSerializer(queryset, many=True, read_only=True, context=self.context)
+        return serializer.data
+    
 
 class AdminSerializer(serializers.ModelSerializer):
     user_details = MyUserSerializerParticularDetails(source="user")
