@@ -7,94 +7,64 @@
             <input type="search" id="user-search-input">
         </div>
         <div class="outcome-user">
-            <ul id="menu">
-                <li><a href="#">Parent</a>
-                <ul>
-              <li><a href="#">Products</a>
-                    <ul>
-                        <li>Pen</li>
-                        <li>Shoes
-                            <ul>
-                                <li>Black</li>
-                                <li>Brown</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li><a href="#">Categories</a>
-                    <ul>
-                        <li>Page</li>
-                        <li>Data</li>
-                    </ul>
-                </li>
-            </ul>
 
-            <ul id="user-list">
-              
+            <ul id="searchUserUlId">
             </ul>
         </div>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
 <script>
     $(document).ready(function () {
-        // Function to fetch and display all users
         function loadAllUsers() {
             $.ajax({
-                url: '{% url 'Admin:search-all-user' %}', // Replace with your actual URL endpoint for fetching all users
+                url: '{% url 'search-user-api' %}',
                 method: 'GET',
                 success: function (data) {
-                    $('#user-list').empty();
-                    data.forEach(function (user) {
-                        $('#user-list').append('<li>' + user.user_name + '</li>');
-                    });
+                    data.data.map(mapItem =>
+                        $("#searchUserUlId").append(`
+                            <ul>
+                                <li>
+                                    <a href="#">${mapItem.master_user_details.user_name}</a>
+                                    <ul>
+                                        ${mapItem.clients.map(child => `<li>${child.client_user_details.user_name}</li>`).join('')}
+                                    </ul>
+                                </li>
+                            </ul>`)
+                    );
                 },
                 error: function (error) {
                     console.log(error);
                 }
             });
         }
-
-        // Load all users by default when the page loads
         loadAllUsers();
-
-        // Hierarchical menu functionality
-        $('#menu li a').click(function (e) {
-            e.preventDefault(); // Prevent default anchor behavior
+    
+        // Event delegation for click
+        $('#searchUserUlId').on('click', 'li > a', function (e) {
+            e.preventDefault();
             var li = $(this).parent('li');
-            if (li.has('ul').length) {
-                li.children('ul').toggle();
+            if (!li.has('ul')) {
+                return;
             }
+            li.children('ul').toggle();
         });
+    });
 
-        // User search functionality
-        $('#user-search-input').on('input', function () {
-            var searchText = $(this).val().trim();
-            if (searchText.length > 0) {
-                $.ajax({
-                    url: '{% url 'Admin:search-all-user' %}', // Replace with your actual URL endpoint for searching users
-                    method: 'GET',
-                    data: {
-                        search_text: searchText,
-                    },
-                    success: function (data) {
-                        $('#user-list').empty();
-                        data.forEach(function (user) {
-                            $('#user-list').append('<li>' + user.master_user.user_name + '</li>');
-                        });
-                    },
-                    error: function (error) {
-                        console.log(error);
-                    }
-                });
+
+    $('#user-search-input').on('input', function () {
+        var searchTerm = $(this).val().toLowerCase();
+        $('#searchUserUlId li').each(function () {
+            var userText = $(this).text().toLowerCase();
+            if (userText.indexOf(searchTerm) === -1) {
+                $(this).hide();
             } else {
-                // If search field is empty, load all users again
-                loadAllUsers();
+                $(this).show();
             }
         });
     });
+    
+
 </script>
 
 

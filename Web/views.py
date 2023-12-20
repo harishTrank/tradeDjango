@@ -286,8 +286,10 @@ class DownloadCSVView(View):
 class SearchUserView(View):
     def get(self, request):
         user = request.user
+        print("=============",user)
         if request.user.user_type == "Master":
             user_res = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+            print("==============",user_res)
         elif request.user.user_type == "Admin":
             master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
             client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
@@ -300,42 +302,56 @@ class SearchUserView(View):
     
 from django.http import JsonResponse
 
-# class SearchUsersView(View):
-#     def get(self, request):
-#         search_text = request.GET.get('search_text', '')
-#         current_user = request.user 
+class SearchUsersView(View):
+    def get(self, request):
+        search_text = request.GET.get('search_text', '')
+        user = request.user
         
-#         if request.user.user_type == "Master":
-#             user_res = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-#         elif request.user.user_type == "Admin":
-#             master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
-#             client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
-#             user_res = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
-#         elif request.user.user_type == "SuperAdmin":
-#             user_res = MyUser.objects.exclude(id=request.user.id)
+        if user.user_type == "Master":
+            user_res = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(
+                    MastrModel.objects.filter(
+                        master_link=user.master_user
+                    ).values_list("master_user__id", flat=True)
+                )
+            )
+        elif user.user_type == "Admin":
+            master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
+            client_ids = ClientModel.objects.filter(
+                master_user_link__master_user__id__in=master_ids
+            ).values_list("client__id", flat=True)
+            user_res = MyUser.objects.filter(
+                id__in=set(master_ids) | set(client_ids)
+            )
+        elif user.user_type == "SuperAdmin":
+            user_res = MyUser.objects.exclude(id=user.id)
             
-#         matching_users = MyUser.objects.filter(
-#             user_name__icontains=search_text
-#         ).exclude(id=request.user.id)
-#         user_data = [{'user_name': user.user_name, 'user_id': user.id} for user in matching_users]
-#         return JsonResponse(user_data, safe=False)
+        matching_users = user_res.filter(
+            user_name__icontains=search_text
+        ).exclude(id=user.id)
+        
+        user_data = [
+            {'user_name': user.user_name, 'user_id': user.id} 
+            for user in matching_users
+        ]
+        
+        return JsonResponse(user_data, safe=False)
 
 from App.serializers import *
 
-class SearchUsersView(View):
-    def get(self, request):
-        if request.user.user_type == "Master":
-            total_parent_master = MastrModel.objects.filter(master_link=request.user.master_user).values_list('id', flat=True)
-            all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
-            master_models = MastrModel.objects.filter(id__in=all_masters)
-            serializer = MasterSerializer(master_models, many=True)
-            print("===",serializer.data[0]
-                  )
-        elif request.user.user_type == "Admin":
-            admin_models = AdminModel.objects.get(user=request.user)
-            serializer = AdminSerializer(admin_models)
-        user_data = [{'user_name': user.user_name, 'user_id': user.id} for user in serializer.data]
-        return JsonResponse(user_data, safe=False)
+# class SearchUsersView(View):
+#     def get(self, request):
+#         if request.user.user_type == "Master":
+#             total_parent_master = MastrModel.objects.filter(master_link=request.user.master_user).values_list('id', flat=True)
+#             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
+#             master_models = MastrModel.objects.filter(id__in=all_masters)
+#             serializer = MasterSerializer(master_models, many=True)
+#             print("===",serializer.data[0]
+#                   )
+#         elif request.user.user_type == "Admin":
+#             admin_models = AdminModel.objects.get(user=request.user)
+#             serializer = AdminSerializer(admin_models)
+#         username = serializer.data[0]['master_user_details']['user_name']
+#         return JsonResponse({'username': username})
     
     
     
