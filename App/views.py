@@ -330,8 +330,9 @@ class AccountSummaryApi(APIView):
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
         coin_name = request.query_params.get('coin_name')
-        
-        account_summary = user.user_summary.all().values('user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty')
+        p_and_l = request.query_params.get('p_and_l')
+        brk = request.query_params.get('brk')
+        account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty')
         
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
@@ -340,6 +341,15 @@ class AccountSummaryApi(APIView):
             
         if coin_name:
             account_summary = account_summary.filter(particular__icontains=coin_name)
+        
+        if p_and_l == 'true' and brk == 'true':   
+            account_summary = account_summary.filter(Q(summary_flg__icontains='Profit/Loss') | Q(summary_flg__icontains='Brokerage'))
+        if p_and_l == 'true':
+            account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
+        if brk == 'true':
+            print("fsfsdssd")
+            account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
+            
 
         paginator = self.pagination_class()
         paginated_trade = paginator.paginate_queryset(account_summary, request)
