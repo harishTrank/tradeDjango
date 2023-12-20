@@ -222,7 +222,27 @@ class MaketWatchScreenApi(APIView):
                 'responsecode': status.HTTP_400_BAD_REQUEST,
                 'responsemessage': 'No trade coin ID provided to delete'
             })
-            
+
+def accountSummaryService(data, user, pandL):
+    if (pandL != 0):
+        result = (
+            user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False, identifer=data["identifer"])
+            .values('identifer','coin_name')
+            .annotate(
+                total_quantity=Sum('quantity'),
+                avg_buy_price=Coalesce(
+                    Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                    Value(0.0)
+                ),
+                avg_sell_price=Coalesce(
+                    Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                    Value(0.0)
+                )
+            ).exclude(total_quantity=0)
+        )
+        if (result and len(list(result)) > 0):
+            create_summary = AccountSummaryModal(user_summary=user, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=f"{data['price']}", average= f"{list(result)[0]['avg_sell_price']}" if data["action"] == 'BUY' else f"{list(result)[0]['avg_buy_price']}", summary_flg="Profit/Loss", amount=pandL, closing=user.balance)
+            create_summary.save()
             
             
 class BuySellSellApi(APIView):
@@ -245,6 +265,7 @@ class BuySellSellApi(APIView):
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
             currentProfitLoss = total_quantity * quantity * lot_size
             user.balance += currentProfitLoss
+            accountSummaryService(request.data, user, currentProfitLoss)
             quantity -= total_quantity
             
         total_cost = lot_size * quantity * request.data.get('price')
@@ -255,6 +276,7 @@ class BuySellSellApi(APIView):
                 currentProfitLoss = ( totalCount[0]["avg_price"] -  request.data.get('price') ) * quantity * lot_size
                 
             user.balance += currentProfitLoss
+            accountSummaryService(request.data, user, currentProfitLoss)
         
         elif action == 'BUY' and user.balance >= total_cost and not is_cancel:  
             user.balance -= total_cost
@@ -296,119 +318,9 @@ class BuySellSellApi(APIView):
             message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
         )
         buy_sell_instance.save()
-        
-        
-        result = (
-                user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                .values('identifer','coin_name')
-                .annotate(
-                    total_quantity=Sum('quantity'),
-                    avg_buy_price=Coalesce(
-                        Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
-                        Value(0.0)
-                    ),
-                    avg_sell_price=Coalesce(
-                        Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
-                        Value(0.0)
-                    )
-                ).exclude(total_quantity=0)
-            )
-        print("====sddd=======",result)
-        
-     
-         # Create or update AccountSummary
-        account_summary = AccountSummaryModal(
-            user_summary=user,
-            particular=request.data.get('coin_name'), 
-            quantity=request.data.get('quantity'),
-            buy_sell_type= 'Buy' if action == 'BUY' else 'Sell', 
-            price=request.data.get('price'),
-            type=request.data.get('type'),
-            amount=request.data.get('amount'),
-            closing=request.data.get('closing'),
-            opening=request.data.get('opening'),
-        )
-        account_summary.save()
-        
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
-        
-        
-# class BuySellSellApi(APIView):
-#     permission_classes = [IsAuthenticated]
-#     def post(self, request):
-#         if (request.data.get("type") == "WEB"):
-#             user = MyUser.objects.get(id=request.data.get("userId"))
-#         else:
-#             user = request.user
-#         action = request.data.get('action')
-#         quantity = request.data.get('quantity')
-#         lot_size = request.data.get("lot_size")
-#         is_cancel = request.data.get("is_cancel")
-        
-#         totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True,is_cancel=False).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
-#         try:
-#             total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
-#         except:
-#             total_quantity = 0
-#         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
-#             currentProfitLoss = total_quantity * quantity * lot_size
-#             user.balance += currentProfitLoss
-#             quantity -= total_quantity
-            
-#         total_cost = lot_size * quantity * request.data.get('price')
-#         if (totalCount.count() > 0 and (total_quantity == quantity)) and not is_cancel:
-#             if action == "SELL":
-#                 currentProfitLoss = ( request.data.get('price') -totalCount[0]["avg_price"] ) * quantity * lot_size
-#             else:
-#                 currentProfitLoss = ( totalCount[0]["avg_price"] -  request.data.get('price') ) * quantity * lot_size
-                
-#             user.balance += currentProfitLoss
-        
-#         elif action == 'BUY' and user.balance >= total_cost and not is_cancel:  
-#             user.balance -= total_cost
-#         elif action == 'SELL' and user.balance >= total_cost and not is_cancel:
-#             user.balance += total_cost
-#         else:
-#             buy_sell_instance = BuyAndSellModel(
-#                 buy_sell_user=user,
-#                 quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
-#                 trade_type=request.data.get('trade_type'),
-#                 action=request.data.get('action'),
-#                 price=request.data.get('price'),
-#                 coin_name=request.data.get('coin_name'),
-#                 ex_change=request.data.get('ex_change'),
-#                 is_pending=request.data.get('is_pending'),
-#                 identifer=request.data.get("identifer"),
-#                 ip_address=request.data.get("ip_address"),
-#                 order_method=request.data.get("order_method"),
-#                 stop_loss=request.data.get("stop_loss"),
-#                 message='Market is closed. Please try again later!' if is_cancel else 'Insufficient balance/quantity',
-#                 is_cancel=True
-#             )
-#             buy_sell_instance.save()
-#             return Response({'message': 'Market is closed. Please try again later!' if is_cancel else 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
-#         user.save()
-#         buy_sell_instance = BuyAndSellModel(
-#             buy_sell_user=user,
-#             quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
-#             trade_type=request.data.get('trade_type'),
-#             action=request.data.get('action'),
-#             price=request.data.get('price'),
-#             coin_name=request.data.get('coin_name'),
-#             ex_change=request.data.get('ex_change'),
-#             is_pending=request.data.get('is_pending'),
-#             identifer=request.data.get("identifer"),
-#             ip_address=request.data.get("ip_address"),
-#             order_method=request.data.get("order_method"),
-#             stop_loss=request.data.get("stop_loss"),
-#             message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
-#         )
-#         buy_sell_instance.save()
-#         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
-#             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
-#         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
         
         
 
