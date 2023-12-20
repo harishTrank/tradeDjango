@@ -241,7 +241,7 @@ def accountSummaryService(data, user, pandL):
             ).exclude(total_quantity=0)
         )
         if (result and len(list(result)) > 0):
-            create_summary = AccountSummaryModal(user_summary=user, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=f"{data['price']}", average= f"{list(result)[0]['avg_buy_price']}" if data["action"] == 'BUY' else f"{list(result)[0]['avg_sell_price']}", summary_flg="Profit/Loss", amount=pandL, closing=user.balance)
+            create_summary = AccountSummaryModal(user_summary=user, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=f"{data['price']}", average= f"{list(result)[0]['avg_sell_price']}" if data["action"] == 'BUY' else f"{list(result)[0]['avg_buy_price']}", summary_flg="Profit/Loss", amount=pandL, closing=user.balance)
             create_summary.save()
             
             
@@ -256,7 +256,6 @@ class BuySellSellApi(APIView):
         quantity = request.data.get('quantity')
         lot_size = request.data.get("lot_size")
         is_cancel = request.data.get("is_cancel")
-        currentProfitLoss = 0
         
         totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True,is_cancel=False).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
         try:
@@ -266,6 +265,7 @@ class BuySellSellApi(APIView):
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
             currentProfitLoss = total_quantity * quantity * lot_size
             user.balance += currentProfitLoss
+            accountSummaryService(request.data, user, currentProfitLoss)
             quantity -= total_quantity
             
         total_cost = lot_size * quantity * request.data.get('price')
@@ -276,6 +276,7 @@ class BuySellSellApi(APIView):
                 currentProfitLoss = ( totalCount[0]["avg_price"] -  request.data.get('price') ) * quantity * lot_size
                 
             user.balance += currentProfitLoss
+            accountSummaryService(request.data, user, currentProfitLoss)
         
         elif action == 'BUY' and user.balance >= total_cost and not is_cancel:  
             user.balance -= total_cost
@@ -317,7 +318,6 @@ class BuySellSellApi(APIView):
             message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
         )
         buy_sell_instance.save()
-        accountSummaryService(request.data, user, currentProfitLoss)
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
