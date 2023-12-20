@@ -90,7 +90,7 @@ class AddUserAPIView(APIView):
         master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
         client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
         
-        credit_amount = request.POST.get("credit")
+        credit_amount = request.data.get("credit")
         if credit_amount is not None and credit_amount.isdigit():
             credit_amount = int(credit_amount)
             if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
