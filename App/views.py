@@ -89,6 +89,16 @@ class AddUserAPIView(APIView):
         limit = request.user.master_user.limit if request.user.user_type == "Master" else False
         master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
         client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
+        
+        credit_amount = request.POST.get("credit")
+        if credit_amount is not None and credit_amount.isdigit():
+            credit_amount = int(credit_amount)
+            if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
+                return Response({"status":False, "message":"Insufficient balance."},status=401)
+
+            request.user.balance -= credit_amount
+            request.user.save() 
+            
         if limit == False:
             return Response({"status":False, "message":"Cannot create more users."},status=401)
         
