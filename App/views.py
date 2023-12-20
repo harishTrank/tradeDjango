@@ -322,7 +322,32 @@ class BuySellSellApi(APIView):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
         
+class AccountSummaryApi(APIView):
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        coin_name = request.query_params.get('coin_name')
         
+        account_summary = user.user_summary.all().values('user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty')
+        
+        if from_date and to_date:
+            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+            account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+            
+        if coin_name:
+            account_summary = account_summary.filter(particular__icontains=coin_name)
+
+        paginator = self.pagination_class()
+        paginated_trade = paginator.paginate_queryset(account_summary, request)
+        response = paginator.get_paginated_response(paginated_trade)
+        response.data['current_page'] = paginator.page.number  
+        response.data['total'] = paginator.page.paginator.num_pages
+        return response
+     
 
 
 class PositionManager(APIView):
@@ -332,7 +357,7 @@ class PositionManager(APIView):
             if (request.GET.get("type") == "WEB"):
                 user = MyUser.objects.get(id = request.GET.get("id"))
             else:
-                user = request.user 
+                user = request.user
             result = (
                 user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name')
