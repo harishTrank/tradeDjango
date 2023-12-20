@@ -322,6 +322,8 @@ class BuySellSellApi(APIView):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
         
+        
+        
 class AccountSummaryApi(APIView):
     pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticated]
@@ -332,24 +334,22 @@ class AccountSummaryApi(APIView):
         coin_name = request.query_params.get('coin_name')
         p_and_l = request.query_params.get('p_and_l')
         brk = request.query_params.get('brk')
-        account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty')
         
+        account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
             to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
             account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
-            
         if coin_name:
             account_summary = account_summary.filter(particular__icontains=coin_name)
         
         if p_and_l == 'true' and brk == 'true':   
             account_summary = account_summary.filter(Q(summary_flg__icontains='Profit/Loss') | Q(summary_flg__icontains='Brokerage'))
-        if p_and_l == 'true':
+       
+        elif p_and_l == 'true':
             account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
-        if brk == 'true':
-            print("fsfsdssd")
+        elif brk == 'true':
             account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
-            
 
         paginator = self.pagination_class()
         paginated_trade = paginator.paginate_queryset(account_summary, request)
@@ -568,6 +568,7 @@ class SearchUserAPI(APIView):
     def get(self, request):
         if request.user.user_type == "Master":
             total_parent_master = MastrModel.objects.filter(master_link=request.user.master_user).values_list('id', flat=True)
+            print(total_parent_master,"======-=-=-=-=-")
             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
             master_models = MastrModel.objects.filter(id__in=all_masters)
             serializer = MasterSerializer(master_models, many=True)
