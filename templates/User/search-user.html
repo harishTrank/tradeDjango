@@ -7,13 +7,37 @@
             <input type="search" id="user-search-input">
         </div>
         <div class="outcome-user">
+            <ul id="menu">
+                <li><a href="#">Parent</a>
+                <ul>
+              <li><a href="#">Products</a>
+                    <ul>
+                        <li>Pen</li>
+                        <li>Shoes
+                            <ul>
+                                <li>Black</li>
+                                <li>Brown</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="#">Categories</a>
+                    <ul>
+                        <li>Page</li>
+                        <li>Data</li>
+                    </ul>
+                </li>
+            </ul>
+
             <ul id="user-list">
-                <!-- User list will be populated dynamically -->
+              
             </ul>
         </div>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
 <script>
     $(document).ready(function () {
         // Function to fetch and display all users
@@ -22,9 +46,7 @@
                 url: '{% url 'Admin:search-all-user' %}', // Replace with your actual URL endpoint for fetching all users
                 method: 'GET',
                 success: function (data) {
-                    // Clear previous search results
                     $('#user-list').empty();
-                    // Populate the user list with all users
                     data.forEach(function (user) {
                         $('#user-list').append('<li>' + user.user_name + '</li>');
                     });
@@ -38,10 +60,19 @@
         // Load all users by default when the page loads
         loadAllUsers();
 
+        // Hierarchical menu functionality
+        $('#menu li a').click(function (e) {
+            e.preventDefault(); // Prevent default anchor behavior
+            var li = $(this).parent('li');
+            if (li.has('ul').length) {
+                li.children('ul').toggle();
+            }
+        });
+
+        // User search functionality
         $('#user-search-input').on('input', function () {
-            let searchText = $(this).val().trim();
+            var searchText = $(this).val().trim();
             if (searchText.length > 0) {
-                // Perform an AJAX request to fetch matching users based on search text
                 $.ajax({
                     url: '{% url 'Admin:search-all-user' %}', // Replace with your actual URL endpoint for searching users
                     method: 'GET',
@@ -51,7 +82,7 @@
                     success: function (data) {
                         $('#user-list').empty();
                         data.forEach(function (user) {
-                            $('#user-list').append('<li>' + user.user_name + '</li>');
+                            $('#user-list').append('<li>' + user.master_user.user_name + '</li>');
                         });
                     },
                     error: function (error) {

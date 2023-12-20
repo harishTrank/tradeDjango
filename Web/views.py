@@ -329,12 +329,13 @@ class SearchUsersView(View):
             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
             master_models = MastrModel.objects.filter(id__in=all_masters)
             serializer = MasterSerializer(master_models, many=True)
-            print("===",serializer.data)
+            print("===",serializer.data[0]
+                  )
         elif request.user.user_type == "Admin":
             admin_models = AdminModel.objects.get(user=request.user)
             serializer = AdminSerializer(admin_models)
-        return JsonResponse(serializer.data, safe=False)
-        # return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
+        user_data = [{'user_name': user.user_name, 'user_id': user.id} for user in serializer.data]
+        return JsonResponse(user_data, safe=False)
     
     
     
