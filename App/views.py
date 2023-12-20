@@ -15,7 +15,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg
+from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg, Q
 from django.http import JsonResponse
 from django.db.models.functions import Coalesce
 from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
@@ -49,7 +49,7 @@ class LogoutUserAPIView(APIView):
         historyGenerator = LoginHistoryModel(user_history=current_user, ip_address=request.data['current_ip'], method=request.data['method'], action='LOGOUT')
         historyGenerator.save()
         return Response({"success": True, "message": "Logout user successfully"}, status=status.HTTP_200_OK)
-
+    
 
 class ResetPasswordView(APIView):
     permission_classes = [IsAuthenticated]
@@ -605,6 +605,19 @@ class LoginHistoryApi(APIView):
         paginated_users = paginator.paginate_queryset(user_obj, request)
         return paginator.get_paginated_response(paginated_users)
 
+
+class SearchUserAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        if request.user.user_type == "Master":
+            total_parent_master = MastrModel.objects.filter(master_link=request.user.master_user).values_list('id', flat=True)
+            all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
+            master_models = MastrModel.objects.filter(id__in=all_masters)
+            serializer = MasterSerializer(master_models, many=True)
+        elif request.user.user_type == "Admin":
+            admin_models = AdminModel.objects.get(user=request.user)
+            serializer = AdminSerializer(admin_models)
+        return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
 
 # web api ----------------------------------

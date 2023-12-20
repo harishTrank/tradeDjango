@@ -193,6 +193,9 @@ class AccountSummaryModal(CommonTimePicker):
     closing = models.IntegerField("closing", default=0)
     opening = models.IntegerField("Opening", default=0)
     
+    def __str__(self):
+        return self.user_summary.user_name
+    
     
     
     
