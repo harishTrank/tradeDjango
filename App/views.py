@@ -344,9 +344,9 @@ class AccountSummaryApi(APIView):
         
         if p_and_l == 'true' and brk == 'true':   
             account_summary = account_summary.filter(Q(summary_flg__icontains='Profit/Loss') | Q(summary_flg__icontains='Brokerage'))
-        if p_and_l == 'true':
+        elif p_and_l == 'true':
             account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
-        if brk == 'true':
+        elif brk == 'true':
             print("fsfsdssd")
             account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
             
