@@ -188,10 +188,10 @@ class AccountSummaryModal(CommonTimePicker):
     buy_sell_type = models.CharField("Buy Sell Type", max_length=200)
     price = models.IntegerField("Price", default=0)
     average = models.IntegerField("Average", default=0)
-    type = models.CharField("Type", max_length=200,choices=SUMMARYFLAG, blank=True, null=True)
+    summary_flg = models.CharField("Type", max_length=200,choices=SUMMARYFLAG, blank=True, null=True)
     amount = models.IntegerField("Amount", default=0)
     closing = models.IntegerField("closing", default=0)
-    opening = models.IntegerField("Opening", default=0)
+    open_qty = models.IntegerField("Opening", default=0)
     
     def __str__(self):
         return self.user_summary.user_name
