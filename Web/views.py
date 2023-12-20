@@ -181,8 +181,6 @@ class AddUserView(View):
                     messages.success(request, f"Client added successfully")
                 else:
                     user = MyUser.objects.get(id=request.POST.get("selectedMasterName"))
-                    user.user_name
-                    print("----===----",user)
                     selected_master = MastrModel.objects.get(master_user__id=request.POST.get("selectedMasterName"))
                     ClientModel.objects.create(client=create_user, master_user_link=selected_master, admin_create_client=selected_admin)
         elif request.user.user_type == "Master":
@@ -192,7 +190,6 @@ class AddUserView(View):
                 if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
                     messages.error(request, f"Insufficient balance")
                     return redirect("Admin:add-user")
-                
             request.user.balance -= credit_amount
             request.user.save() 
             

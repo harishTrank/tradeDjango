@@ -6,3 +6,5 @@ admin.site.register(ExchangeModel)
 admin.site.register(MarketWatchModel)
 admin.site.register(BuyAndSellModel)
 admin.site.register(LoginHistoryModel)
+admin.site.register(AccountSummaryModal)
+

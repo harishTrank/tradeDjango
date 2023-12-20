@@ -84,10 +84,11 @@ DATABASES = {
        'NAME': "postgres",
        'USER': 'postgres',
        'PASSWORD': ',sclBQhGIHk3',
-       'HOST': '13.232.101.55',
+       'HOST': '52.66.205.199',
        'PORT': "5432",
     }
 }
+
 # postgres://oplyyyva:Z4VE3nfz5aRFI-lZvt020FSL7nIX0770@cornelius.db.elephantsql.com/oplyyyva
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
