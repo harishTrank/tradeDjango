@@ -198,12 +198,20 @@ class AccountSummaryModal(CommonTimePicker):
     
     
     
-    
+class AdminCoinWithCaseModal(CommonTimePicker):
+    master_coins = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="admin_coins")
+    ex_change = models.CharField("ExChange", max_length=200)
+    identifier = models.CharField("Identifier", max_length=200)
+    breakup_qty = models.IntegerField("Break Up Quantity", default=0)
+    max_qty = models.IntegerField("Break Up Quantity", default=0)
+    breakup_lot = models.IntegerField("Break Up Quantity", default=0)
+    max_lot = models.IntegerField("Break Up Quantity", default=0)
 
-
+    def __str__(self):
+        return self.master_coins.user_name + " " + self.ex_change + " " + self.identifier
 
 # class LoginHistory(models.Model):
-#     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+#     user = models.ForeignKey(MyUser, on_delete=models.CASCADE
 #     login_time = models.DateTimeField("Login Time", auto_now_add=True)
 #     success = models.BooleanField("Login Success", default=False)
 #     ip_address = models.GenericIPAddressField("IP Address", blank=True, null=True)

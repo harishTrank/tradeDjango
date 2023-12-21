@@ -19,7 +19,9 @@ from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg, Q
 from django.http import JsonResponse
 from django.db.models.functions import Coalesce
 from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
+import requests
 
+NODEIP = '52.66.205.199'
 class LoginApi(APIView):
     def post(self, request):
         try:
@@ -128,8 +130,12 @@ class AddUserAPIView(APIView):
             else:
                 create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password))
                 ClientModel.objects.create(client=create_user, master_user_link=current_master)
-            try:     
+            try: 
+                exchangeList = []
                 for exchange_item in createUs:
+                    if exchange_item['exchange']:
+                        exchangeList.append(exchange_item['symbol_name'].upper())
+
                     ExchangeModel.objects.create(
                         user=create_user,
                         symbol_name=exchange_item['symbol_name'],
@@ -137,6 +143,16 @@ class AddUserAPIView(APIView):
                         symbols=exchange_item['symbols'],
                         turnover=exchange_item['turnover']
                     )
+
+                if request.data.get("add_master"):
+                    response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
+                        "coinList": exchangeList
+                    })
+                    if response.status_code // 100 == 2 and response.json()['success']:
+                        for obj in response.json()['response']:
+                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'])
+                    else:
+                        print("Response:", response.text)
             except Exception as e:
                 print("e",e)
             
@@ -357,8 +373,6 @@ class AccountSummaryApi(APIView):
         response.data['current_page'] = paginator.page.number  
         response.data['total'] = paginator.page.paginator.num_pages
         return response
-     
-
 
 class PositionManager(APIView):
     permission_classes = [IsAuthenticated]
@@ -577,6 +591,16 @@ class SearchUserAPI(APIView):
             serializer = AdminSerializer(admin_models)
         return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
+
+class ScriptQuantityAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            response = list(AdminCoinWithCaseModal.objects.filter(master_coins=request.user,ex_change=request.GET.get('searchInput')).values())
+            return Response({"success": True, "response": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print("eeee", e)
+            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 # web api ----------------------------------
 class ChildUserFetchAPI(APIView):
