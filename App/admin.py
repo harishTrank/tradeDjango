@@ -7,4 +7,5 @@ admin.site.register(MarketWatchModel)
 admin.site.register(BuyAndSellModel)
 admin.site.register(LoginHistoryModel)
 admin.site.register(AccountSummaryModal)
+admin.site.register(AdminCoinWithCaseModal)
 
