@@ -29,6 +29,6 @@ urlpatterns = [
     path("login-history/", LoginHistoryApi.as_view(), name="login-history"),
     # path("user-list/", UserListApi.as_view(), name="user-list"),
     path("search-user-api/", SearchUserAPI.as_view(), name="search-user-api"),
-    path("script-quantity-api/", ScriptQuantityAPI.as_view(), name="script-quantity-api")
-    
+    path("script-quantity-api/", ScriptQuantityAPI.as_view(), name="script-quantity-api"),
+    path("settlement-api/", SettlementReportApi.as_view(), name="settlement-api")
 ]

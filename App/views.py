@@ -1,20 +1,16 @@
-from django.shortcuts import render
-from django.contrib.auth import login
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .models import *
 from .serializers import *
 from client_app.models import *
 from master_app.models import *
 from rest_framework.exceptions import APIException
-from rest_framework.generics import get_object_or_404
 from django.http import Http404
 from django.contrib.auth.hashers import make_password
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
 from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg, Q
 from django.http import JsonResponse
 from django.db.models.functions import Coalesce
@@ -257,7 +253,7 @@ def accountSummaryService(data, user, pandL, summary_flag, admin=""):
             ).exclude(total_quantity=0)
         )
         if (result and len(list(result)) > 0):
-            AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=f"{data['price']}", average= f"{list(result)[0]['avg_sell_price']}" if data["action"] == 'BUY' else f"{list(result)[0]['avg_buy_price']}", summary_flg=summary_flag, amount=pandL, closing=user.balance)
+            AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
             
 class BuySellSellApi(APIView):
     permission_classes = [IsAuthenticated]
@@ -617,6 +613,19 @@ class ScriptQuantityAPI(APIView):
             return Response({"success": True, "response": response}, status=status.HTTP_200_OK)
         except Exception as e:
             print("eeee", e)
+            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SettlementReportApi(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            total_profit = request.user.user_summary.all().values()
+                            
+            print("total_profit", total_profit)
+            return Response({"success": True, "message": "Data getting successfuly."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print("error from settlement",e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 # web api ----------------------------------
