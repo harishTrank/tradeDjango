@@ -321,6 +321,7 @@
                 }
             });
 
+<<<<<<< HEAD
             $("#piechartTableId").empty();
             res.data.tableResult.map(item => {
                 $("#piechartTableId").append(`
@@ -334,6 +335,14 @@
             })
         })
     }
+=======
+  $("#submitPieChartFilterBtn").click(() => {
+      pieChart && pieChart.destroy();
+      pieChartCreateHandler();
+  })
+  // --------------------------------------------
+</script>
+>>>>>>> b002bac53a33ae5667f479b8857f1d9bd7498f29
 
     pieChartCreateHandler();
 

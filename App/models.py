@@ -195,6 +195,9 @@ class AccountSummaryModal(CommonTimePicker):
     
     def __str__(self):
         return self.user_summary.user_name
+    class Meta:
+        ordering = ('-created_at',)   
+        
     
     
     
@@ -202,12 +205,13 @@ class AdminCoinWithCaseModal(CommonTimePicker):
     master_coins = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="admin_coins")
     ex_change = models.CharField("ExChange", max_length=200)
     identifier = models.CharField("Identifier", max_length=200)
-    breakup_qty = models.IntegerField("Break Up Quantity", default=0)
-    max_qty = models.IntegerField("Break Up Quantity", default=0)
-    breakup_lot = models.IntegerField("Break Up Quantity", default=0)
-    max_lot = models.IntegerField("Break Up Quantity", default=0)
+    breakup_qty = models.FloatField("Break Up Quantity", default=0)
+    max_qty = models.FloatField("Break Up Quantity", default=0)
+    breakup_lot = models.FloatField("Break Up Quantity", default=0)
+    max_lot = models.FloatField("Break Up Quantity", default=0)
+    # trade_margin = models.FloatField("Trade Margin", default=0)
 
-    def __str__(self):
+    def __str__(self):     
         return self.master_coins.user_name + " " + self.ex_change + " " + self.identifier
     
 class UserCreditModal(CommonTimePicker):

@@ -11,6 +11,8 @@ from django.db.models import Sum, Avg , Q ,F
 import csv
 from django.http import HttpResponse
 from datetime import datetime, timedelta
+import requests
+NODEIP = '52.66.205.199'
 
 class LoginView(View):
     def get(self, request):
@@ -81,6 +83,7 @@ class AddUserView(View):
             "phone_number": request.POST.get("phone_number"),
             "city": request.POST.get("city"),
             "credit": request.POST.get("credit") if request.POST.get("credit") else 0,
+            "balance": request.POST.get("credit") if request.POST.get("credit") else 0,
             "remark": request.POST.get("remark"),
             "password": make_password(request.POST.get("password")),
             "mcx": True if request.POST.get("mcx") and request.POST.get("mcx").lower() == 'on' else False,
@@ -217,8 +220,10 @@ class AddUserView(View):
                 create_user = MyUser.objects.create(user_type="Client", **user_data)
                 ClientModel.objects.create(client=create_user,master_user_link=request.user.master_user,admin_create_client=request.user.master_user.admin_user)
                 messages.success(request, f"Client added successfully.")
-     
+       
+        exchangeList = []
         for exchange_data in exchanges:
+            exchangeList.append(exchange_data['name'].upper())
             ExchangeModel.objects.create(
                 user=create_user,
                 symbol_name=exchange_data['name'],
@@ -226,6 +231,17 @@ class AddUserView(View):
                 symbols=exchange_data['symbols'],
                 turnover=exchange_data['turnover']
             )
+        
+        if request.POST.get("add_master"):
+                    response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
+                        "coinList": exchangeList
+                    })
+                    if response.status_code // 100 == 2 and response.json()['success']:
+                        for obj in response.json()['response']:
+                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'])
+                    else:
+                        print("Response:", response.text)
+        
         return render(request, "User/add-user.html")
 
 
@@ -521,8 +537,10 @@ class GropuSettingView(View):
     
     
 class QuantitySettingView(View):
-    def get(self, request):
-        return render(request, "components/user/quantity-setting.html")
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        exchange = ExchangeModel.objects.filter(user=user)
+        return render(request, "components/user/quantity-setting.html",{"exchange":exchange,"id":id})
     
 
 class BrkView(View):
@@ -541,8 +559,29 @@ class CreditView(View):
         return render(request, "components/user/")
     
 class TabAccountSummary(View):
-    def get(self, request):
-        return render(request, "components/user/account-summary.html")
+    def get(self, request, id):
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        user_name = request.GET.get('user_name')
+        p_and_l = request.GET.get('p_and_l')
+        brk = request.GET.get('brk')
+        credit = request.GET.get('credit')
+        user = MyUser.objects.get(id=id)
+        account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
+        if from_date:
+            if to_date:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                account_summary = account_summary.filter(created_at__gte=from_date,created_at__lte=to_date)
+        
+        if p_and_l == 'on' and brk == 'on':   
+            account_summary = account_summary.filter(Q(summary_flg__icontains='Profit/Loss') | Q(summary_flg__icontains='Brokerage'))
+       
+        elif p_and_l == 'on':
+            account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
+        elif brk == 'on':
+            account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
+
+        return render(request, "components/user/account-summary.html",{"account_summary":account_summary})
     
 class TabSettlement(View):
     def get(self, request):
