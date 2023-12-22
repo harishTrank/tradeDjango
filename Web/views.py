@@ -567,7 +567,6 @@ class TabAccountSummary(View):
         credit = request.GET.get('credit')
         user = MyUser.objects.get(id=id)
         account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
-        print("-----------------",p_and_l)
         if from_date:
             if to_date:
                 to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
