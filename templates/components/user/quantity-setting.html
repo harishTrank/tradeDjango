@@ -5,26 +5,33 @@
     <div class="trade-btm">
         <div class="mb-10">
             <label for="">Exchange:</label>
-            <select name="" id="" style="width: 250px;" class="form-control">
-                <option value="">MCX</option>
-                <option value="">NSE</option>
-                <option value="">MINI</option>
+            <select name="exchange_name" id="selectedExchangeId" style="width: 250px;" class="form-control">
+              {% for i in exchange %}
+                  {% if i.symbol_name == "MCX" %}
+                      <option value="MCX">MCX</option>
+                  {% elif i.symbol_name == "NSE" %}
+                      <option value="NSE">NSE</option>
+                  {% elif i.symbol_name == "MINI" %}
+                      <option value="MINI">MINI</option>
+                  {% endif %}
+              {% endfor %}
             </select>
             <input type="submit" value="Edit" class="form-btn mr" style="border: 1px solid white;">
         </div>
     </div>
-    <div class="user-table col-100" style="width: 46%;">
+    <div class="user-table col-100" style="width: 55%;">
         <table style="width: 100%;">
             <tr>
                 <th>Script</th>
                 <th>Lot Size</th>
                 <th>Lot Max</th>
+                <th>Breakup Qty</th>
                 <th>Breakup Lot</th>
                 <th>Last Updated</th>
             </tr>
 
             <tbody id="quantityTableBody">
-               
+             
             </tbody>
         </table>
     </div>
@@ -32,33 +39,45 @@
 
 
 <script>
-    const apiCallForAllExchange = (exchange = "") => {
-        $.ajax({
-          type: "GET",
-          url: `${BASE_URL}/api/tradeCoin?coinType=${exchange}`,
-          success: function (data) {
-            console.log(data); 
-            $("#quantityTableBody").empty();
-            data.response.map(item => {
-              $("#quantityTableBody").append(`
-                <tr>
-                  <td>${item.InstrumentIdentifier}</td>
-                  <td>Lo t Size</td>
-                  <td>Lot Max</td>
-                  <td>Breakup Lot</td>
-                  <td>Last Updated</td>
-                </tr>
-              `);
-            });
-          },
-          error: function (xhr, status, error) {
-            console.error('Error:', error);
-          }
-        });
-      }
 
-      apiCallForAllExchange();
-</script>
+  const apiCallForAllExchange = () => {
+    const selectedExchange = $("#selectedExchangeId").val(); 
+   
+  
+    $.ajax({
+      type: "GET",
+      url: `{% url 'web-script-quantity-api' %}?id={{id}}&searchInput=${selectedExchange}`, // Pass the selected value as 'id'
+      success: function (data) {
+        console.log(data);
+        $("#quantityTableBody").empty();
+        data.response.map(item => {
+          const createdAt = new Date(item.created_at);
+          const formattedDate = `${createdAt.getMonth() + 1}/${createdAt.getDate()}/${createdAt.getFullYear()} ${createdAt.getHours()}:${createdAt.getMinutes()}:${createdAt.getSeconds()}`;
+          $("#quantityTableBody").append(`
+            <tr>
+              <td>${item.ex_change === "NSE" ? item.identifier : item.identifier.split("_")[1]}</td>
+              <td>${item.max_qty}</td>
+              <td>${item.max_lot}</td>
+              <td>${item.breakup_qty}</td>
+              <td>${item.breakup_lot}</td>
+              <td>${formattedDate}</td>
+            </tr>
+          `);
+        });
+      
+      },
+      error: function (xhr, status, error) {
+        console.error('Error:', error);
+      }
+    });
+  }
+  
+  $('#selectedExchangeId').on('change', function() {
+    apiCallForAllExchange(); // Trigger API call when the selection changes
+  });
+  
+  apiCallForAllExchange();
+</script> 
 
 
 {% endblock newtab %}

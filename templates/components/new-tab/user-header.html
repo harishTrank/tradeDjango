@@ -55,13 +55,13 @@
       <li data-id="groupsetting" class="open-view-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:group-setting' %}">Group Setting</a></li>
       {% endif %}
       
-      <li data-id="quantitysetting" class="open-report-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:quantity-setting' %}">Quantity Setting</a></li>
+      <li data-id="quantitysetting" class="open-report-menu"><a style=" text-decoration: none;color: #000;" id="quantitySettingID">Quantity Setting</a></li>
       {% if request.user.user_type == "Admin" %}
       <li data-id="brk"><a id="brkId" style=" text-decoration: none;color: #000;">Brk</a></li>
       {% endif %} 
       <li data-id="trademargin"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:trade-margin' %}">Trade Margin</a></li>
       <li data-id="credit"><a style=" text-decoration: none;color: #000;" href="#credit">Credit</a></li>
-      <li data-id="accountsummary"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:tab-account-summary' %}">Account Summary</a></li>
+      <li data-id="accountsummary"><a style=" text-decoration: none;color: #000;" id="accountSummaryID">Account Summary</a></li>
       <li data-id="settlement"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:tab-settlement' %}">Settlement</a></li>
       <li data-id="rejectionlog"><a style=" text-decoration: none;color: #000;" id="rejectionLogId">Rejection Log</a></li>
       {% comment %} <li data-id="sharedetails"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:share-deatils' %}">Share Details</a></li> {% endcomment %}
@@ -87,6 +87,8 @@
             $("#userDetailsLink").attr('href', `${window.origin}/user-deatils-by-id/${id}`);
             $("#tabTradeLink").attr('href', `${window.origin}/tab-trade/${id}`);
             $("#scriptMasterLink").attr('href', `${window.origin}/user-script/${id}`);
+            $("#quantitySettingID").attr('href', `${window.origin}/quantity-setting/${id}`);
+            $("#accountSummaryID").attr('href', `${window.origin}/tab-account-summary/${id}`);
             $("#rejectionLogId").attr('href', `${window.origin}/rejection-log/${id}`);
             $("#brkId").attr('href', `${window.origin}/brk/${id}`);
         }

@@ -28,11 +28,11 @@ urlpatterns = [
     path("tab-trade/<str:id>",TabTrades.as_view(),name="tab-trade"),
     
     
-    path("quantity-setting",QuantitySettingView.as_view(),name="quantity-setting"),
+    path("quantity-setting/<str:id>",QuantitySettingView.as_view(),name="quantity-setting"),
     path("brk/<str:id>",BrkView.as_view(),name="brk"),
     path("trade-margin",TradeMargin.as_view(),name="trade-margin"),
     path("credit",CreditView.as_view(),name="credit"),
-    path("tab-account-summary",TabAccountSummary.as_view(),name="tab-account-summary"),
+    path("tab-account-summary/<str:id>",TabAccountSummary.as_view(),name="tab-account-summary"),
     path("tab-settlement",TabSettlement.as_view(),name="tab-settlement"),
     path("rejection-log/<str:id>",RejectionLogView.as_view(),name="rejection-log"),
     path("share-deatils",ShareDetailsView.as_view(),name="share-deatils"),

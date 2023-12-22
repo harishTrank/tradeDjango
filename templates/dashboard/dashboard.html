@@ -324,7 +324,7 @@
   pieChartCreateHandler();
 
   $("#submitPieChartFilterBtn").click(() => {
-      pieChart.destroy();
+      pieChart && pieChart.destroy();
       pieChartCreateHandler();
   })
   // --------------------------------------------
