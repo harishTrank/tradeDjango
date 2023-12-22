@@ -760,7 +760,6 @@ from django.utils import timezone
 
 class TableChartAPi(APIView):
     def post(self, request):
-        params = request.data
         user = MyUser.objects.get(id=request.data["user_id"])
         currentCoins = request.data["currentCoin"]
         date_array , cancelArray, successArray = [] , [] , [] 
@@ -772,7 +771,6 @@ class TableChartAPi(APIView):
                 date_array.append(current_date)
                 cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=True, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
                 cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
-                
                 success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=False, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
                 successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
                 current_date += timedelta(days=1)

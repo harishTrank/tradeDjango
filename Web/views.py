@@ -59,6 +59,7 @@ class Dashboard(View):
         if request.user.is_authenticated:
             user = request.user
             exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
+            print("exchange_obj", exchange_obj)
             return render(request, "dashboard/dashboard.html",{"symbols":exchange_obj})
         return redirect("Admin:login")
         
