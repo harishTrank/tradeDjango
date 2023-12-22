@@ -19,6 +19,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = False
+CSRF_TRUSTED_ORIGINS = [
+    'http://52.66.205.199:8000',
+    'http://127.0.0.1:8000',
+]
 
 # Application definition
 

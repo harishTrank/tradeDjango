@@ -67,6 +67,7 @@ class Dashboard(View):
   
 class AddUserView(View):
     def get(self, request):
+
         return render(request, "User/add-user.html")
        
     def post(self, request):
@@ -226,6 +227,118 @@ class AddUserView(View):
                 turnover=exchange_data['turnover']
             )
         return render(request, "User/add-user.html")
+
+
+
+
+class EditUserView(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        exchange = ExchangeModel.objects.filter(user=user)
+        mcx, nse, mini = False, False, False
+        symbols_mcx, symbols_nse, symbols_mini = False, False, False
+        turnover_mcx, turnover_nse, turnover_mini = False, False, False
+        
+        for entry in exchange:
+            if entry.symbol_name == "MCX" and entry.exchange:
+                mcx = True
+            elif entry.symbol_name == "NSE" and entry.exchange:
+                nse = True
+            elif entry.symbol_name == "MINI" and entry.exchange:
+                mini = True
+                
+        for entry in exchange:
+            if entry.symbol_name == "MCX" and entry.symbols:
+                symbols_mcx = True
+            elif entry.symbol_name == "NSE" and entry.symbols:
+                symbols_nse = True
+            elif entry.symbol_name == "MINI" and entry.symbols:
+                symbols_mini = True
+                
+        for entry in exchange:
+            if entry.symbol_name == "MCX" and entry.turnover:
+                turnover_mcx = True
+            elif entry.symbol_name == "NSE" and entry.turnover:
+                turnover_nse = True
+            elif entry.symbol_name == "MINI" and entry.turnover:
+                turnover_mini = True
+        
+        return render(request, "User/edit-user.html", { "user": user,
+            "exchange": exchange,
+            "mini": mini,
+            "nse": nse,
+            "mcx": mcx,
+            "symbols_mcx":symbols_mcx,
+            "symbols_nse":symbols_nse,
+            "symbols_mini":symbols_mini,
+            "turnover_mcx":turnover_mcx,
+            "turnover_nse":turnover_nse,
+            "turnover_mini":turnover_mini
+        })
+
+    def post(self, request, id):
+        user = MyUser.objects.get(id=id)
+            
+        
+        user_data = {
+            "full_name": request.POST.get("full_name"),
+            "user_name": request.POST.get("user_name"),
+            "phone_number": request.POST.get("phone_number"),
+            "city": request.POST.get("city"),
+            "credit": request.POST.get("credit") if request.POST.get("credit") else 0,
+            "remark": request.POST.get("remark"),
+            "mcx": True if request.POST.get("mcx") and request.POST.get("mcx").lower() == 'on' else False,
+            "nse": True if request.POST.get("nse") and request.POST.get("nse").lower() == 'on' else False,
+            "sgx": True if request.POST.get("sgx") and request.POST.get("sgx").lower() == 'on' else False,
+            "others": True if request.POST.get("others") and request.POST.get("others").lower() == 'on' else False,
+            "mini": True if request.POST.get("mini") and request.POST.get("mini").lower() == 'on' else False,
+            "change_password": True if request.POST.get("change_password") and request.POST.get("change_password").lower() == 'on' else False,
+            "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
+            "auto_square_off": True if request.POST.get("auto_square") and request.POST.get("auto_square").lower() == 'on' else False,
+        }
+        if request.POST.get("password") != "":
+            user_data["password"]= make_password(request.POST.get("password"))
+        
+        exchanges = [
+            {
+                "name": "MCX",
+                "exchange": request.POST.get("mcx_exchange") == 'on',
+                "symbols": request.POST.get("mcx_symbol") == 'on',
+                "turnover": request.POST.get("mcx_turnover") == 'on',
+            },
+            {
+                "name": "NSE",
+                "exchange": request.POST.get("nse_exchange") == 'on',
+                "symbols": request.POST.get("nse_symbol") == 'on',
+                "turnover": request.POST.get("nse_turnover") == 'on',
+            },
+          
+            {
+                "name": "MINI",
+                "exchange": request.POST.get("mini_exchange") == 'on',
+                "symbols": request.POST.get("mini_symbol") == 'on',
+                "turnover": request.POST.get("mini_turnover") == 'on',
+            },
+        ]
+        user_name = request.POST.get("user_name")
+        if MyUser.objects.exclude(id=user.id).filter(user_name=user_name).exists():
+            messages.error(request, f"Username '{user_name}' already exists for another user. Please choose a different one.")
+            return redirect("Admin:list-user") 
+
+
+        for key, value in user_data.items():
+            setattr(user, key, value)
+        user.save()
+        
+           
+        for exchange_data in exchanges:
+            exchange = ExchangeModel.objects.get(user=user, symbol_name=exchange_data['name'])
+            exchange.exchange = exchange_data['exchange']
+            exchange.symbols = exchange_data['symbols']
+            exchange.turnover = exchange_data['turnover']
+            exchange.save()
+            
+        return redirect("Admin:list-user")
    
 
         
@@ -617,34 +730,40 @@ class RejectionLogTab(View):
         exchange = request.GET.get('exchange')
         symbol = request.GET.get('symbol')
         response = BuyAndSellModel.objects.exclude(buy_sell_user=user).order_by('-coin_name').values('coin_name').distinct()
-        print("==",response)
+        print("==",symbol)
         
+        rejection = BuyAndSellModel.objects.filter(is_cancel=True)
         
         if request.user.user_type == "SuperAdmin":
             rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
-           
+            user = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
+
         elif request.user.user_type == "Admin":
             rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
-
+            user = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
+        
         elif request.user.user_type == "Master":
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
             rejection = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
-        
+            user = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
+
         elif request.user.user_type == "Client":
             rejection = user.buy_sell_user.filter(is_cancel=True).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
-        
+            user = BuyAndSellModel.objects.get(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
+
         if from_date:
             if to_date:
-                rejection = rejection.filter(created_at__gte=from_date,created_at__lte=to_date,is_cancel=True)
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                rejection = rejection.filter(created_at__gte=from_date,created_at__lte=to_date)
         if exchange:
-            rejection = rejection.filter(ex_change=exchange,is_cancel=True)
+            rejection = rejection.filter(ex_change=exchange)
         
         if symbol:
-            rejection = rejection.filter(coin_name=symbol,is_cancel=True)
+            rejection = rejection.filter(coin_name__icontains=symbol)
        
-        return render(request, "view/rejection-log.html",{"rejection":rejection, "response":response})
+        return render(request, "view/rejection-log.html",{"rejection":rejection, "response":response, "user":list(set(user))})
     
     
     

@@ -11,6 +11,7 @@ urlpatterns = [
     
     path("add-user",AddUserView.as_view(),name="add-user"),
     path("list-user",ListUserView.as_view(),name="list-user"),
+    path("edit-user/<str:id>",EditUserView.as_view(),name="edit-user"),
     # path("account-limit",AccountLimitView.as_view(),name="account-limit"),
     
     
