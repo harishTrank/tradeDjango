@@ -34,7 +34,12 @@
                     </div>
                     <div>
                         <label for="">Username:</label>
-                        <input name="user_name" type="text">
+                        <select name="user_name" id="">
+                            <option value="">All Users</option>
+                            {% for i in filter_data  %}
+                            <option value="{{ i.buy_sell_user__user_name }}">{{ i.buy_sell_user__user_name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div>
                         <label for="">Exchange:</label>
@@ -50,7 +55,7 @@
                     <select name="coin_name" id="coin_name">
                         <option value="">All Symbols</option>
                         {% for coin in user_coin_names %}
-                            <option value="{{ coin }}">{{ coin }}</option>
+                            <option value="{{ coin.coin_name }}">{{ coin.coin_name }}</option>
                         {% endfor %}
                     </select>
 
@@ -58,7 +63,7 @@
                     <div>
                         <label for=""></label>
                         <button type="submit" value="View" class="form-btn">View</button>
-                        <a style="color:#fff !important;" href="{% url 'Admin:trades' %}" value="Clear" class="cancel-btn">Clear</a>
+                        <a style="color:#fff !important; padding: 2px;" href="{% url 'Admin:trades' %}" value="Clear" class="cancel-btn">Clear</a>
                     </div>
                 </div>
             </form>

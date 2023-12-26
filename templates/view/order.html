@@ -75,19 +75,21 @@
                     <th>Reference Price</th>
                     <th>Order Method</th>
                 </tr>
+                {% for i in order_list %}
                 <tr>
-                    <td>Username</td>
-                    <td>Symbol</td>
-                    <td>Type</td>
-                    <td>Quantity</td>
-                    <td>Price</td>
-                    <td>Brk</td>
-                    <td>Order Time</td>
-                    <td>Ip Address</td>
+                    <td>{{i.buy_sell_user__user_name}}</td>
+                    <td>{{i.coin_name}}</td>
+                    <td>{{i.action}}</td>
+                    <td>{{i.quantity}}</td>
+                    <td>{{i.price}}</td>
+                    <td>BRK</td>
+                    <td>{{i.created_at}}</td>
+                    <td>{{i.ip_address}}</td>
                     <td>Device id</td>
                     <td>Refernce</td>
-                    <td>Order Method</td>
+                    <td>{{i.order_method}}</td>
                 </tr>
+                {% endfor %}
             </table>
         </div>
     </div>

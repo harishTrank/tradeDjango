@@ -416,10 +416,8 @@ class DownloadCSVView(View):
 class SearchUserView(View):
     def get(self, request):
         user = request.user
-        print("=============",user)
         if request.user.user_type == "Master":
             user_res = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-            print("==============",user_res)
         elif request.user.user_type == "Admin":
             master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
             client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
@@ -551,7 +549,10 @@ class BrkView(View):
     
 class TradeMargin(View):
     def get(self, request):
-        return render(request, "components/user/trade-margin.html")
+        data = request.GET
+        print("-------------",data)
+        trade_margin = TradeMarginModel.objects.all()
+        return render(request, "components/user/trade-margin.html",{"trade_margin":trade_margin})
     
 
 class CreditView(View):
@@ -668,6 +669,9 @@ class TradesView(View):
         user_name = params.get("user_name")
         if request.user.user_type == "SuperAdmin":
             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer") 
+            filter_data = response.order_by("buy_sell_user__user_name").distinct("buy_sell_user__user_name")
+            print("=======================",filter_data)
+
         elif request.user.user_type == "Admin":
             user_keys = [request.user.id]
             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
@@ -700,13 +704,27 @@ class TradesView(View):
         user_coin_names = BuyAndSellModel.objects.filter(
             buy_sell_user__id__in=user_keys
         ).values_list('coin_name', flat=True).distinct()
-        
-        return render(request, "view/trades.html",{"response": response,"user_coin_names": user_coin_names,})
+        print("=============---------------",list({'buy_sell_user__user_name' }))
+        return render(request, "view/trades.html",{"response": response,"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' })})
+    
+    
     
     
 class OrdersView(View):
     def get(self, request):
-        return render(request, "view/order.html")
+        user = request.user
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        exchange = request.GET.get('exchange')
+        symbol = request.GET.get('symbol')
+        order_list = BuyAndSellModel.objects.all()
+        
+        if request.user.user_type == "SuperAdmin":
+            order_list = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            user = BuyAndSellModel.objects.exclude(buy_sell_user=user).values_list("buy_sell_user__user_name", flat=True)
+        return render(request, "view/order.html", {"order_list":order_list})
+    
+    
     
 from django.db.models import Avg, F, Subquery, OuterRef
 
