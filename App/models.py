@@ -195,6 +195,7 @@ class AccountSummaryModal(CommonTimePicker):
     
     def __str__(self):
         return self.user_summary.user_name
+     
     class Meta:
         ordering = ('-created_at',)   
         

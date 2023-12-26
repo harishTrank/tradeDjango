@@ -667,6 +667,7 @@ class TradesView(View):
         user_name = params.get("user_name")
         if request.user.user_type == "SuperAdmin":
             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer") 
+            filter_data = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("buy_sell_user__user_name").distinct()
         elif request.user.user_type == "Admin":
             user_keys = [request.user.id]
             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
@@ -700,12 +701,26 @@ class TradesView(View):
             buy_sell_user__id__in=user_keys
         ).values_list('coin_name', flat=True).distinct()
         
-        return render(request, "view/trades.html",{"response": response,"user_coin_names": user_coin_names,})
+        return render(request, "view/trades.html",{"response": response,"user_coin_names": user_coin_names,"filter_data":filter_data})
+    
+    
     
     
 class OrdersView(View):
     def get(self, request):
-        return render(request, "view/order.html")
+        user = request.user
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        exchange = request.GET.get('exchange')
+        symbol = request.GET.get('symbol')
+        order_list = BuyAndSellModel.objects.all()
+        
+        if request.user.user_type == "SuperAdmin":
+            order_list = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            user = BuyAndSellModel.objects.exclude(buy_sell_user=user).values_list("buy_sell_user__user_name", flat=True)
+        return render(request, "view/order.html", {"order_list":order_list})
+    
+    
     
 from django.db.models import Avg, F, Subquery, OuterRef
 
