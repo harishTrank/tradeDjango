@@ -33,16 +33,17 @@
         </div>
         <div class="left-body flex">
           <div class="side-pannel">
-            {% for symbol in symbols %}
-                {% if symbol.symbol_name == "NSE" and symbol.exchange %}
-                    <div><input id="nseBarCheckedId" type="checkbox" checked />NSE</div>
-                {% elif symbol.symbol_name == "MCX" and symbol.exchange %}
-                    <div><input id="mcxPieChartId" type="checkbox" checked />MCX</div>
-                {% elif symbol.symbol_name == "MINI" and symbol.exchange %}
-                    <div><input id="miniBarCheckedId" type="checkbox" checked />MINI</div>
-                {% endif %}
+            {% for symbol in symbols %} 
+              {% if symbol.symbol_name == "NSE" and symbol.exchange %}
+                <div><input id="nseBarCheckedId" type="checkbox" checked />NSE</div>
+              {% elif symbol.symbol_name == "MCX" and symbol.exchange %}
+                <div><input id="mcxPieChartId" type="checkbox" checked />MCX</div>
+              {% elif symbol.symbol_name == "MINI" and symbol.exchange %}
+                <div>
+                  <input id="miniBarCheckedId" type="checkbox" checked />MINI
+                </div>
+              {% endif %}
             {% endfor %}
-
           </div>
           <div class="pannel-body">
             <div class="tab-head">
@@ -80,16 +81,28 @@
           <div class="flex align-center">
             <div style="margin-right: 7px" class="mr">
               <label>From:</label>
-              <input type="date" id="pieChartFromDate" class="form-group"style="width: 90px;" />
+              <input
+                type="date"
+                id="pieChartFromDate"
+                class="form-group"
+                style="width: 90px"
+              />
             </div>
             <div style="margin-right: 7px" class="mr">
               <label>To:</label>
-              <input type="date" id="pieChartToDate" class="form-group" style="width: 90px;" />
+              <input
+                type="date"
+                id="pieChartToDate"
+                class="form-group"
+                style="width: 90px"
+              />
             </div>
             <div style="margin-right: 7px" class="mr">
               <label>User: </label>
               <select name="" id="pieChartUserListId" class="form-group">
-                <option v style="margin-right: 7px"alue="{{request.user.id}}">Own</option>
+                <option v style="margin-right: 7px" alue="{{request.user.id}}">
+                  Own
+                </option>
               </select>
             </div>
             <div style="margin-right: 7px" class="mr">
@@ -114,59 +127,61 @@
                 <option value="25">25</option>
               </select>
             </div>
-          <div>
-            <input
-              id="submitPieChartFilterBtn"
-              type="submit"
-              class="form-btn"
-              value="View"
-              style="margin-left: 6px;"/>
+            <div>
+              <input
+                id="submitPieChartFilterBtn"
+                type="submit"
+                class="form-btn"
+                value="View"
+                style="margin-left: 6px"
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <div class="left-body flex">
-        <div class="side-pannel">
-            {% for symbol in symbols %}
-                {% if symbol.symbol_name == "NSE" and symbol.exchange %}
-                    <div><input id="nsePieChartId" type="checkbox" checked />NSE</div>
-                {% elif symbol.symbol_name == "MCX" and symbol.exchange %}
-                    <div><input id="mcxPieChartId" type="checkbox" checked />MCX</div>
-                {% elif symbol.symbol_name == "MINI" and symbol.exchange %}
-                    <div><input id="miniPieChartId" type="checkbox" checked />MINI</div>
-                {% endif %}
+        <div class="left-body flex">
+          <div class="side-pannel">
+            {% for symbol in symbols %} 
+              {% if symbol.symbol_name == "NSE" and symbol.exchange %}
+                <div><input id="nsePieChartId" type="checkbox" checked />NSE</div>
+              {% elif symbol.symbol_name == "MCX" and symbol.exchange %}
+                <div><input id="mcxPieChartId" type="checkbox" checked />MCX</div>
+              {% elif symbol.symbol_name == "MINI" and symbol.exchange %}
+                <div><input id="miniPieChartId" type="checkbox" checked />MINI</div>
+              {% endif %} 
             {% endfor %}
-        </div>
-        <div class="pannel-body">
-          <div class="tab-head">
-            <li onClick="secChart()" class="active" data-id="chart">
-              Chart View
-            </li>
-            <li onClick="sectable()" data-id="table">Table View</li>
           </div>
-          <div>
-            <div
-              id="secChartID"
-              class="chart-container"
-              style="height: 44.5vh; width: 45vh"
-            >
-              <canvas id="secondChart"></canvas>
+          <div class="pannel-body">
+            <div class="tab-head">
+              <li onClick="secChart()" class="active" data-id="chart">
+                Chart View
+              </li>
+              <li onClick="sectable()" data-id="table">Table View</li>
             </div>
             <div>
               <div
-                id="secchartTableId"
-                class="user-table col-100"
-                style="width: 100%; display: none"
+                id="secChartID"
+                class="chart-container"
+                style="height: 44.5vh; width: 45vh"
               >
-                <table style="width: 100%">
-                  <tr>
-                    <th>Script</th>
-                    <th>Buy</th>
-                    <th>Sell</th>
-                    <th>Total Trades</th>
-                  </tr>
+                <canvas id="secondChart"></canvas>
+              </div>
+              <div>
+                <div
+                  id="secchartTableId"
+                  class="user-table col-100"
+                  style="width: 100%; display: none"
+                >
+                  <table style="width: 100%">
+                    <tr>
+                      <th>Script</th>
+                      <th>Buy</th>
+                      <th>Sell</th>
+                      <th>Total Trades</th>
+                    </tr>
 
-                  <tbody id="piechartTableId"></tbody>
-                </table>
+                    <tbody id="piechartTableId"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -174,160 +189,169 @@
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  function chartViewId() {
-      $("#myChartId").css('display','block');
-      $("#chartTableId").css('display','none');
-     }
-     function tableViewId(){
-      $("#myChartId").css('display','none');
-      $("#chartTableId").css('display','block');
-     }
-
+  <script>
+    function chartViewId() {
+        $("#myChartId").css('display','block');
+        $("#chartTableId").css('display','none');
+       }
+       function tableViewId(){
+        $("#myChartId").css('display','none');
+        $("#chartTableId").css('display','block');
+       }
 
 
-     function secChart() {
-      $("#secChartID").css('display','block');
-      $("#secchartTableId").css('display','none');
-     }
-     function sectable(){
-      $("#secChartID").css('display','none');
-      $("#secchartTableId").css('display','block');
-     }
+
+       function secChart() {
+        $("#secChartID").css('display','block');
+        $("#secchartTableId").css('display','none');
+       }
+       function sectable(){
+        $("#secChartID").css('display','none');
+        $("#secchartTableId").css('display','block');
+       }
 
 
-  // fetch users -------
-  {% if request.user.user_type != "Client" %}
-      axios.get(`{% url "child-user-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-      .then(res => {
-          res.data.users.map(item => {
-              $("#barChartUserListId").append(`<option value=${item.id}>${item.user_name}</option>`)
-              $("#pieChartUserListId").append(`<option value=${item.id}>${item.user_name}</option>`)
-          })
-      }).catch(err=> console.log("err", err))
-  {% endif %}
-  // --------------------
+    // fetch users -------
+    {% if request.user.user_type != "Client" %}
+        axios.get(`{% url "child-user-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            res.data.users.map(item => {
+                $("#barChartUserListId").append(`<option value=${item.id}>${item.user_name}</option>`)
+                $("#pieChartUserListId").append(`<option value=${item.id}>${item.user_name}</option>`)
+            })
+        }).catch(err=> console.log("err", err))
+    {% endif %}
+    // --------------------
 
 
-  // first chart js
-  var barChart;
-  const barChartCreator = (user_id="{{request.user.id}}") => {
-      let currentCoin = [];
-      $("#mcxBarCheckedId").is(":checked") ? currentCoin.push("MCX") : currentCoin = currentCoin.filter(item => item !== "MCX");
-      $("#nseBarCheckedId").is(":checked") ?  currentCoin.push("NSE") : currentCoin = currentCoin.filter(item => item !== "NSE");
-      $("#miniBarCheckedId").is(":checked") ? currentCoin.push("MINI") : currentCoin = currentCoin.filter(item => item !== "MINI");
-      axios.post(`{% url "table-chart" %}`, {
-          user_id : $("#barChartUserListId").val(),
-          type: $("#barChartFilterId").val(),
-          currentCoin
-      } ,{headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(res => {
-          barChart = new Chart($("#myChart"), {
-            type: 'bar',
-            data: {
-              labels: res.data.date_array,
-              datasets: [
-              {
-                  label: 'Canceled',
-                  data: res.data.cancel,
-                  borderWidth: 1,
-                  backgroundColor:"#FB8B24"
-                },{
-                  label: 'Success',
-                  data: res.data.success,
-                  borderWidth: 1,
-                  backgroundColor:"#3081D0"
-                }]
-            },
-
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              }
-            }
-          });
-          $("#barChartTableId").empty();
-          res.data.tableResponse.map(mapItem => {
-              $("#barChartTableId").append(`
-              <tr>
-                  <td>${mapItem.trade}</td>
-                  <td>${mapItem.cancel}</td>
-                  <td>${mapItem.success}</td>
-              </tr>
-              `)
-          })
-      })
-  }
-  barChartCreator();
-  const submitBarGraphFilter = () => {
-      barChart.destroy();
-      barChartCreator();
-  }
-  // --------------------------------------------
-
-
-  //pie chart creation -------------------------------
-  var pieChart;
-  const yesterdayDate = new Date(Date.now() - 864e5)
-  $("#pieChartFromDate").val(dayjs(yesterdayDate).format("YYYY-MM-DD"));
-  $("#pieChartToDate").val(dayjs().format("YYYY-MM-DD"));
-  const pieChartCreateHandler = () => {
-      let currentCoin = [];
-      $("#mcxPieChartId").is(":checked") ? currentCoin.push("MCX") : currentCoin = currentCoin.filter(item => item !== "MCX");
-      $("#nsePieChartId").is(":checked") ?  currentCoin.push("NSE") : currentCoin = currentCoin.filter(item => item !== "NSE");
-      $("#miniPieChartId").is(":checked") ? currentCoin.push("MINI") : currentCoin = currentCoin.filter(item => item !== "MINI");
-      axios.post(`{% url "pie-chart-api" %}`, {
-          fromDate: $("#pieChartFromDate").val(),
-          toDate: $("#pieChartToDate").val(),
-          user_id: $("#pieChartUserListId").val(),
-          type:  $("#pieTypeFilterId").val(),
-          limit:  $("#limitPieChartId").val(),
-          currentCoin
-      }, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-      .then(res => {
-          pieChart = new Chart($("#secondChart"), {
-              type: 'pie',
+    // first chart js
+    var barChart;
+    const barChartCreator = (user_id="{{request.user.id}}") => {
+        let currentCoin = [];
+        $("#mcxBarCheckedId").is(":checked") ? currentCoin.push("MCX") : currentCoin = currentCoin.filter(item => item !== "MCX");
+        $("#nseBarCheckedId").is(":checked") ?  currentCoin.push("NSE") : currentCoin = currentCoin.filter(item => item !== "NSE");
+        $("#miniBarCheckedId").is(":checked") ? currentCoin.push("MINI") : currentCoin = currentCoin.filter(item => item !== "MINI");
+        axios.post(`{% url "table-chart" %}`, {
+            user_id : $("#barChartUserListId").val(),
+            type: $("#barChartFilterId").val(),
+            currentCoin
+        } ,{headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(res => {
+            barChart = new Chart($("#myChart"), {
+              type: 'bar',
               data: {
-                  labels: res.data.labels,
-                  datasets: [{
-                    label: 'My First Dataset',
-                    data: res.data.chartValue,
-                    hoverOffset: 4
+                labels: res.data.date_array,
+                datasets: [
+                {
+                    label: 'Canceled',
+                    data: res.data.cancel,
+                    borderWidth: 1,
+                    backgroundColor:"#FB8B24"
+                  },{
+                    label: 'Success',
+                    data: res.data.success,
+                    borderWidth: 1,
+                    backgroundColor:"#3081D0"
                   }]
               },
+
               options: {
-                  plugins: {
-                      legend: {
-                          position: 'right',
-                      }
+                scales: {
+                  y: {
+                    beginAtZero: true
                   }
+                }
               }
-          });
+            });
+            $("#barChartTableId").empty();
+            res.data.tableResponse.map(mapItem => {
+                $("#barChartTableId").append(`
+                <tr>
+                    <td>${mapItem.trade}</td>
+                    <td>${mapItem.cancel}</td>
+                    <td>${mapItem.success}</td>
+                </tr>
+                `)
+            })
+        })
+    }
+    barChartCreator();
+    const submitBarGraphFilter = () => {
+        barChart.destroy();
+        barChartCreator();
+    }
+    // --------------------------------------------
 
-          $("#piechartTableId").empty();
-          res.data.tableResult.map(item => {
-              $("#piechartTableId").append(`
-                  <tr>
-                      <th>${item.coin_name}</th>
-                      <th>${item.buy}</th>
-                      <th>${item.sell}</th>
-                      <th>${item.total}</th>
-                  </tr>
-              `)
-          })
-      })
-  }
 
-  pieChartCreateHandler();
+    //pie chart creation -------------------------------
+    var pieChart;
+    const yesterdayDate = new Date(Date.now() - 864e5)
+    $("#pieChartFromDate").val(dayjs(yesterdayDate).format("YYYY-MM-DD"));
+    $("#pieChartToDate").val(dayjs().format("YYYY-MM-DD"));
+    const pieChartCreateHandler = () => {
+        let currentCoin = [];
+        $("#mcxPieChartId").is(":checked") ? currentCoin.push("MCX") : currentCoin = currentCoin.filter(item => item !== "MCX");
+        $("#nsePieChartId").is(":checked") ?  currentCoin.push("NSE") : currentCoin = currentCoin.filter(item => item !== "NSE");
+        $("#miniPieChartId").is(":checked") ? currentCoin.push("MINI") : currentCoin = currentCoin.filter(item => item !== "MINI");
+        axios.post(`{% url "pie-chart-api" %}`, {
+            fromDate: $("#pieChartFromDate").val(),
+            toDate: $("#pieChartToDate").val(),
+            user_id: $("#pieChartUserListId").val(),
+            type:  $("#pieTypeFilterId").val(),
+            limit:  $("#limitPieChartId").val(),
+            currentCoin
+        }, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            pieChart = new Chart($("#secondChart"), {
+                type: 'pie',
+                data: {
+                    labels: res.data.labels,
+                    datasets: [{
+                      label: 'My First Dataset',
+                      data: res.data.chartValue,
+                      hoverOffset: 4
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
 
+<<<<<<< HEAD
+            $("#piechartTableId").empty();
+            res.data.tableResult.map(item => {
+                $("#piechartTableId").append(`
+                    <tr>
+                        <th>${item.coin_name}</th>
+                        <th>${item.buy}</th>
+                        <th>${item.sell}</th>
+                        <th>${item.total}</th>
+                    </tr>
+                `)
+            })
+        })
+    }
+=======
   $("#submitPieChartFilterBtn").click(() => {
       pieChart && pieChart.destroy();
       pieChartCreateHandler();
   })
   // --------------------------------------------
 </script>
+>>>>>>> b002bac53a33ae5667f479b8857f1d9bd7498f29
 
-{% endblock content %}
+    pieChartCreateHandler();
+
+    $("#submitPieChartFilterBtn").click(() => {
+        pieChart && pieChart.destroy();
+        pieChartCreateHandler();
+    })
+    // --------------------------------------------
+  </script>
+
+  {% endblock content %}
+</div>

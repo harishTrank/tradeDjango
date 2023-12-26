@@ -186,10 +186,10 @@ class AccountSummaryModal(CommonTimePicker):
     particular = models.CharField("Particular", max_length=200)
     quantity = models.PositiveIntegerField("Quantity", default=0)
     buy_sell_type = models.CharField("Buy Sell Type", max_length=200)
-    price = models.CharField("Price", max_length=200,default=0)
-    average = models.CharField("Average", max_length=200,default=0)
+    price = models.FloatField("Price", default=0)
+    average = models.FloatField("Average", default=0)
     summary_flg = models.CharField("Type", max_length=200,choices=SUMMARYFLAG, blank=True, null=True)
-    amount = models.CharField("Amount", max_length=200 ,default=0)
+    amount = models.FloatField("Amount", default=0)
     closing = models.IntegerField("closing", default=0)
     open_qty = models.IntegerField("Opening", default=0)
     
@@ -214,6 +214,17 @@ class AdminCoinWithCaseModal(CommonTimePicker):
 
     def __str__(self):     
         return self.master_coins.user_name + " " + self.ex_change + " " + self.identifier
+    
+class UserCreditModal(CommonTimePicker):
+    user_credit = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="user_credit")
+    opening = models.FloatField(default=0)
+    credit = models.FloatField(default=0)
+    debit = models.FloatField(default=0)
+    closing = models.FloatField(default=0)
+    transection = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="transection")
+
+    def __str__(self):
+        return f"{self.user_credit.user_name} {self.closing}"
 
 # class LoginHistory(models.Model):
 #     user = models.ForeignKey(MyUser, on_delete=models.CASCADE

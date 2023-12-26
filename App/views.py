@@ -1,20 +1,16 @@
-from django.shortcuts import render
-from django.contrib.auth import login
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .models import *
 from .serializers import *
 from client_app.models import *
 from master_app.models import *
 from rest_framework.exceptions import APIException
-from rest_framework.generics import get_object_or_404
 from django.http import Http404
 from django.contrib.auth.hashers import make_password
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
 from django.db.models import Sum, F, Value, IntegerField, Case, When, Avg, Q
 from django.http import JsonResponse
 from django.db.models.functions import Coalesce
@@ -239,7 +235,7 @@ class MaketWatchScreenApi(APIView):
                 'responsemessage': 'No trade coin ID provided to delete'
             })
 
-def accountSummaryService(data, user, pandL):
+def accountSummaryService(data, user, pandL, summary_flag, admin=""):
     if (pandL != 0):
         result = (
             user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False, identifer=data["identifer"])
@@ -257,9 +253,7 @@ def accountSummaryService(data, user, pandL):
             ).exclude(total_quantity=0)
         )
         if (result and len(list(result)) > 0):
-            create_summary = AccountSummaryModal(user_summary=user, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=f"{data['price']}", average= f"{list(result)[0]['avg_sell_price']}" if data["action"] == 'BUY' else f"{list(result)[0]['avg_buy_price']}", summary_flg="Profit/Loss", amount=pandL, closing=user.balance)
-            create_summary.save()
-            
+            AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
             
 class BuySellSellApi(APIView):
     permission_classes = [IsAuthenticated]
@@ -281,7 +275,7 @@ class BuySellSellApi(APIView):
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
             currentProfitLoss = total_quantity * quantity * lot_size
             user.balance += currentProfitLoss
-            accountSummaryService(request.data, user, currentProfitLoss)
+            accountSummaryService(request.data, user, currentProfitLoss, "Profit/Loss")
             quantity -= total_quantity
             
         total_cost = lot_size * quantity * request.data.get('price')
@@ -292,7 +286,7 @@ class BuySellSellApi(APIView):
                 currentProfitLoss = ( totalCount[0]["avg_price"] -  request.data.get('price') ) * quantity * lot_size
                 
             user.balance += currentProfitLoss
-            accountSummaryService(request.data, user, currentProfitLoss)
+            accountSummaryService(request.data, user, currentProfitLoss, "Profit/Loss")
         
         elif action == 'BUY' and user.balance >= total_cost and not is_cancel:  
             user.balance -= total_cost
@@ -334,6 +328,25 @@ class BuySellSellApi(APIView):
             message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
         )
         buy_sell_instance.save()
+        if total_cost > 100000:
+            if request.data.get('ex_change') == "MINI":
+                brk_value = user.mini_brk
+            elif request.data.get('ex_change') == "MCX":
+                brk_value = user.mcx_brk
+            else:
+                brk_value = user.nse_brk
+            admin_brk = total_cost/100000 * brk_value
+            if (admin_brk != 0):
+                accountSummaryService(request.data, user, -(abs(admin_brk)), "Brokerage")
+                user.balance -= admin_brk
+                user.save()
+                if (user.user_type == "Master"):
+                    current_admin = user.master_user.admin_user.user
+                elif (user.user_type == "Client"):
+                    current_admin = user.client.admin_create_client.user
+                current_admin.balance += admin_brk
+                current_admin.save()
+                accountSummaryService(request.data, user, abs(admin_brk), "Brokerage", current_admin)
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
@@ -606,6 +619,19 @@ class ScriptQuantityAPI(APIView):
             print("eeee", e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
+
+class SettlementReportApi(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            total_profit = request.user.user_summary.all().values()
+                            
+            print("total_profit", total_profit)
+            return Response({"success": True, "message": "Data getting successfuly."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print("error from settlement",e)
+            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+
 # web api ----------------------------------
 
 
@@ -777,7 +803,6 @@ from django.utils import timezone
 
 class TableChartAPi(APIView):
     def post(self, request):
-        params = request.data
         user = MyUser.objects.get(id=request.data["user_id"])
         currentCoins = request.data["currentCoin"]
         date_array , cancelArray, successArray = [] , [] , [] 
@@ -789,7 +814,6 @@ class TableChartAPi(APIView):
                 date_array.append(current_date)
                 cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=True, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
                 cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
-                
                 success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=False, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
                 successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
                 current_date += timedelta(days=1)
