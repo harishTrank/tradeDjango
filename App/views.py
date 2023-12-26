@@ -660,9 +660,6 @@ class SettlementReportApi(APIView):
             return Response({"success": False, "message": "From and to date is required."}, status=status.HTTP_404_NOT_FOUND)
 
 # web api ----------------------------------
-
-
-
 class WebScriptQuantityAPI(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
