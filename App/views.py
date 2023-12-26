@@ -624,13 +624,40 @@ class SettlementReportApi(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
-            total_profit = request.user.user_summary.all().values()
-                            
-            print("total_profit", total_profit)
-            return Response({"success": True, "message": "Data getting successfuly."}, status=status.HTTP_200_OK)
+            from_date = request.query_params.get('from_date')
+            to_date = request.query_params.get('to_date')
+            if from_date and to_date:
+                from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+                to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+                total_profit = (
+                    AccountSummaryModal.objects
+                    .filter(amount__gt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+                    .values('summary_flg')
+                    .annotate(total_amount=Sum('amount'))
+                )
+                total_loss = (
+                    AccountSummaryModal.objects
+                    .filter(amount__lt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+                    .values('summary_flg')
+                    .annotate(total_amount=Sum('amount'))
+                )
+            else:
+                total_profit = (
+                    AccountSummaryModal.objects
+                    .filter(amount__gt=0)
+                    .values('summary_flg')
+                    .annotate(total_amount=Sum('amount'))
+                )
+                total_loss = (
+                    AccountSummaryModal.objects
+                    .filter(amount__lt=0)
+                    .values('summary_flg')
+                    .annotate(total_amount=Sum('amount'))
+                )
+            return Response({"success": True, "message": "Data getting successfuly.", "total_profit": total_profit, "total_loss": total_loss}, status=status.HTTP_200_OK)
         except Exception as e:
             print("error from settlement",e)
-            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"success": False, "message": "From and to date is required."}, status=status.HTTP_404_NOT_FOUND)
 
 # web api ----------------------------------
 
