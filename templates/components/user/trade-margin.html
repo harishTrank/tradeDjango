@@ -78,14 +78,24 @@
             <th><input id="tradeCheckBoxId" type="checkbox" /></th>
             <th>Exchange</th>
             <th>Script</th>
-            <th>Expiry Date</th>
+            {% comment %} <th>Expiry Date</th> {% endcomment %}
             <th>Trade Margin</th>
-            <th>Description</th>
+            {% comment %} <th>Description</th> {% endcomment %}
             <th>Updated Date</th>
           </tr>
 
           <tbody id="tradeMarginId">
-
+            {% for i in trade_margin %}
+            <tr>
+              <td><input type="checkbox" /></td>
+                <td>{{i.exchange}}</td>
+                <td>{{i.script}}</td>
+                <td>{{i.trade_margin}}</td>
+                {% comment %} <td>{{i.disc}}</td> {% endcomment %}
+                <td>{{i.created_at}}</td>
+              </tr>
+              {% endfor %}
+            
           </tbody>
          
         </table>
@@ -93,94 +103,5 @@
     </div>
   </div>
 </div>
-<script>
 
-  $('.closeBtn').click(function () {
-    $(".trades-side").hide();
-    $(".trades-body").css("width", "96%");
-});
-
-$('#tradeMarginFilterId').click(function () {
-  $(".trades-side").show();
-  $(".trades-body").css("width", "67%");
-});
-
-
-  $("#tradeCheckBoxId").click(function(){
-    $('input:checkbox').not(this).prop('checked', this.checked);
-});
-
-  const extractDate = (text) => {
-    const parts = text.split('_');
-    if (parts.length >= 3) {
-      const months = {
-        'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MAY', 'JUN': 'JUN',
-        'JUL': 'JUL', 'AUG': 'AUG', 'SEP': 'SEP', 'OCT': 'OCT', 'NOV': 'NOV', 'DEC': 'DEC'
-      };
-  
-      const day = parts[2].substring(0, 2);
-      const monthAbbreviation = parts[2].substring(2, 5);
-      const year = parts[2].substring(5);
-  
-      const month = months[monthAbbreviation];
-      if (!month) return '-'; // Invalid month abbreviation
-  
-      const formattedDate = `${day}-${month}-${year}`;
-      return formattedDate;
-    }
-    return '-';
-  };
-
-  const miniList = [
-  /ZINCMINI/,
-  /SILVERM/,
-  /NATGASMINI/,
-  /LEADMINI/,
-  /GOLDM/,
-  /COPPERM/,
-  /ALUMINIUM/,
-  /CRUDEOILM/,
-]
-
-
-  const apiCallTradeMargin = (exchange = "") => {
-    if (exchange !== "") {
-        $('#updateBtnId').prop('disabled', false);
-    }
-    $.ajax({
-      type: "GET",
-      url: `${BASE_URL}/api/tradeCoin?coinType=${exchange}`,
-      success: function (data) {
-        console.log(data); 
-        $("#tradeMarginId").empty();
-        data.response.map(item => {
-            const currentExchange = miniList.find(itemFind => item.InstrumentIdentifier.match(itemFind)) ? "MINI" : item.Exchange
-            const expiryDate = extractDate(item.InstrumentIdentifier); // Extract date
-
-          $("#tradeMarginId").append(`
-            <tr>
-            <td><input type="checkbox" /></td>
-              <td>${currentExchange}</td>
-              <td>${item.InstrumentIdentifier}</td>
-              <td>${expiryDate}</td>
-              <td>1000</td>
-              <td>${item.Exchange !== "NSE" ? item.InstrumentIdentifier.replaceAll("_", " ").slice(0, -1) : item.InstrumentIdentifier}</td>
-              <td></td>
-            </tr>
-          `);
-        });
-      },
-      error: function (xhr, status, error) {
-        console.error('Error:', error);
-      }
-    });
-  }
-
-  $("#applyFilterId").click(() => {
-    apiCallTradeMargin($("#tradeMarginExchangeId").val())
-  })
-
-  apiCallTradeMargin();
-
-</script>
 {% endblock newtab %}
