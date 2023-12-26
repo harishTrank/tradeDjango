@@ -658,6 +658,15 @@ class SettlementReportApi(APIView):
         except Exception as e:
             print("error from settlement",e)
             return Response({"success": False, "message": "From and to date is required."}, status=status.HTTP_404_NOT_FOUND)
+        
+class PositionTopHeader(APIView):
+    def get(self, request):
+        try:
+            
+            return Response({"success": True, "message": "Data getting successfully."}, status=status.HTTP_202_ACCEPTED)
+        except Exception as e:
+            print("error from position top", e)
+            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 # web api ----------------------------------
 class WebScriptQuantityAPI(APIView):
