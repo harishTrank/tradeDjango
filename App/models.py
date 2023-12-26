@@ -207,10 +207,11 @@ class AdminCoinWithCaseModal(CommonTimePicker):
     ex_change = models.CharField("ExChange", max_length=200)
     identifier = models.CharField("Identifier", max_length=200)
     breakup_qty = models.FloatField("Break Up Quantity", default=0)
-    max_qty = models.FloatField("Break Up Quantity", default=0)
-    breakup_lot = models.FloatField("Break Up Quantity", default=0)
-    max_lot = models.FloatField("Break Up Quantity", default=0)
-
+    max_qty = models.FloatField("Max Quantity", default=0)
+    breakup_lot = models.FloatField("Breakup Lot", default=0)
+    max_lot = models.FloatField("Max Lot", default=0)
+    group = models.CharField("Group ",max_length=200, blank=True, null=True) 
+    lot_size = models.FloatField("Lot Size", default=0)
 
 
     def __str__(self):     

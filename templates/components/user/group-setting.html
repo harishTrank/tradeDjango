@@ -1,5 +1,6 @@
 {% include "components/new-tab/user-header.html" %}
 {% load static %}{% block newtab %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
 <div class="tab-content" id="groupsetting">
     <div class="trade-btm">
@@ -23,15 +24,24 @@
                 
             </tr>
             <tr>
+                {% for i in group %}
                 <td><input type="checkbox"></td>
-                <td>MCX 1 lot</td>
-                <td>07/16/2023 18:38:35</td>
-                <td><img src="images/favicon-16x16.png" alt=""></td>
+                <td</td>
+                <td>{{i.created_at}}</td>
+                <td></  td>
+                <td><span onClick="groupSettingClick()" style="padding: 1px;" class="material-symbols-outlined">
+                    density_small
+                    </span><img src="images/favicon-16x16.png" alt=""></td>
+                {% endfor %}
             </tr>
         </table>
     </div>
 </div>
 
-
+<script>
+    const groupSettingClick = id => {
+        window.open(`script-quantity-setting`, 'NewWindow', 'width=8000,height=400');
+    }
+</script>
 
 {% endblock newtab %}

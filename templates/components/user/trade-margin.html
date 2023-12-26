@@ -23,10 +23,13 @@
           </div>
         </div>
       </div>
+      <form method="get">
+        {% csrf_token %}
       <div class="trade-btm">
         <div class="flex space-bw">
           <label for="">Exchange:</label>
-          <select name="tradeMarginExchangeId" id="tradeMarginExchangeId" class="form_control flex">
+          <select name="exchange" id="tradeMarginExchangeId" class="form_control flex">
+            <option value="">All exchange</option>
             <option value="MCX">MCX</option>
             <option value="NSE">NSE</option>
             <option value="MINI">MINI</option>
@@ -34,7 +37,7 @@
         </div>
         <div class="flex space-bw">
           <label for="">Margin Type:</label>
-          <select name="" id="" class="form_control">
+          <select name="margin_type" id="" class="form_control">
             <option value="">Percentage</option>
             <option value="">Amount</option>
           </select>
@@ -42,22 +45,22 @@
 
         <div class="flex space-bw">
           <label for="">Price</label>
-          <input type="number" class="form_control" />
+          <input type="number" name="price" class="form_control" />
         </div>
         <div style="display: flex">
-          <input
+          <button
             type="submit"
             value="Apply"
             class="form-btn mr"
             style="border: 1px solid white"
-            id="applyFilterId"
-          />
-          <input
+            id="applyFilterId">Apply
+          </button>
+          <button
             type="submit"
             value="Update"
             class="cancel-btn"
-            style="border: 1px solid white"
-          />
+            style="border: 1px solid white">Update
+          </button>
         </div>
         <button
           style="
@@ -70,6 +73,7 @@
           Update to All Users
         </button>
       </div>
+    </form>
     </div>
     <div class="trades-body user-table">
       <div class="pos-relate">

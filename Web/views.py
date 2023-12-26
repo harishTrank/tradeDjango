@@ -531,8 +531,13 @@ class UserScriptMaster(View):
 
 class GropuSettingView(View):
     def get(self, request):
-        return render(request, "components/user/group-setting.html")
+        group = AdminCoinWithCaseModal.objects.all()
+        return render(request, "components/user/group-setting.html",{"group":group})
     
+class ScriptQuantitySetting(View):
+    def get(self, request):
+        group = AdminCoinWithCaseModal.objects.all()
+        return render(request, "components/user/script-quantity-setting.html",{"group":group})
     
 class QuantitySettingView(View):
     def get(self, request, id):
@@ -549,10 +554,16 @@ class BrkView(View):
     
 class TradeMargin(View):
     def get(self, request):
-        data = request.GET
-        print("-------------",data)
-        trade_margin = TradeMarginModel.objects.all()
-        return render(request, "components/user/trade-margin.html",{"trade_margin":trade_margin})
+        exchange = request.GET.get('exchange')
+        trade_margin = request.GET.get('price')
+        trade = TradeMarginModel.objects.all()
+        
+        if exchange:
+            trade = trade.filter(exchange=exchange)
+        if trade_margin:
+            trade = trade.filter(trade_margin=trade_margin)
+            
+        return render(request, "components/user/trade-margin.html",{"trade_margin":trade})
     
 
 class CreditView(View):
