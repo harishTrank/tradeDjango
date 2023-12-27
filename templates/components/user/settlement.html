@@ -25,13 +25,13 @@
       <div class="trade-btm">
         <div class="flex space-bw">
           <label for="">From:</label>
-          <input type="date" class="form_control" />
+          <input type="date" class="form_control" id="fromDateInput"/>
         </div>
         <div class="flex space-bw">
           <label for="">To:</label>
-          <input type="date" class="form_control" />
+          <input type="date" class="form_control" id="toDateInput"/>
         </div>
-        <div class="mb-10">
+        {% comment %} <div class="mb-10">
           <label for="">Opening?:</label>
           <div class="flex">
             <div class="flex mr">
@@ -55,7 +55,7 @@
               <p style="font-size: 14px">With</p>
             </div>
           </div>
-        </div>
+        </div> {% endcomment %}
 
         <div style="display: flex">
           <input
@@ -63,12 +63,14 @@
             value="View"
             class="form-btn mr"
             style="border: 1px solid white"
+            id="viewBtn"
           />
           <input
             type="submit"
             value="Clear"
             class="cancel-btn"
             style="border: 1px solid white"
+            id="clearBtn"
           />
         </div>
       </div>
@@ -87,10 +89,10 @@
               <th>Total</th>
             </tr>
             <tr>
-              <td>Username</td>
-              <td>P/L</td>
-              <td>Brk</td>
               <td>Total</td>
+              <td id="profitKey">P/L</td>
+              <td>0</td>
+              <td id="profitTotal">Total</td>
             </tr>
           </table>
         </div>
@@ -106,10 +108,10 @@
               <th>Total</th>
             </tr>
             <tr>
-              <td>Username</td>
-              <td>P/L</td>
-              <td>Brk</td>
               <td>Total</td>
+              <td id="lossKey"></td>
+              <td id="brkLoss"></td>
+              <td id="lossTotal"></td>
             </tr>
           </table>
         </div>
@@ -120,14 +122,36 @@
 
 
 <script>
-    
-  axios.get(`{% url "settlement-api" %}?id={{user_id}}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-  .then(res => {
-      console.log("res ==", res);
+  const creditApiCaller = (from_date = '', to_date = '') => {
+    axios.get(`{% url "settlement-api" %}?id={{user_id}}&from_date=${from_date}&to_date=${to_date}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+    .then(res => {
+      console.log(res.data.total_loss)
+      $("#profitKey").html(res.data.total_profit?.[0]?.total_amount);
+      $("#profitTotal").html(res.data.total_profit?.[0]?.total_amount);
+      res.data.total_loss.forEach(item => {
+        item.summary_flg === "Brokerage"
+        ? $("#lossKey").html(item.total_amount)
+        : $("#brkLoss").html(item.total_amount)
+      })
+      $("#lossTotal").html(res.data.total_loss?.[0]?.total_amount + res.data.total_loss?.[1]?.total_amount);
+    })
+    .catch(err => {
+        console.log("err", err);
+    });
+  } 
+  creditApiCaller();
+
+  $("#clearBtn").click(() => {
+    creditApiCaller();
   })
-  .catch(err => {
-      console.log("err", err);
-  });
+
+  $("#viewBtn").click(() => {
+    if ($("#fromDateInput").val() == "" || $("#toDateInput").val() == "") {
+      console.log("error")
+    } else {
+      creditApiCaller(dayjs($("#fromDateInput").val()).format("YYYY-MM-DD"), dayjs($("#toDateInput").val()).format("YYYY-MM-DD"));
+    }
+  })
 </script>
 
 {% endblock newtab %}
