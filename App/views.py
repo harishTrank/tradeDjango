@@ -629,17 +629,16 @@ class SearchUserAPI(APIView):
     def get(self, request):
         if request.user.user_type == "Master":
             total_parent_master = MastrModel.objects.filter(master_link=request.user.master_user).values_list('id', flat=True)
-            print(total_parent_master,"======-=-=-=-=-")
             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
             master_models = MastrModel.objects.filter(id__in=all_masters)
             serializer = MasterSerializer(master_models, many=True)
-        # elif request.user.user_type == "Admin":
-        #     admin_models = AdminModel.objects.get(user=request.user)
-        #     serializer = AdminSerializer(admin_models)
+        elif request.user.user_type == "Admin":
+            admin_models = AdminModel.objects.get(user=request.user)
+            serializer = AdminSerializer(admin_models)
             
-        # elif request.user.user_type == "SuperAdmin":
-        #     admin_models = AdminModel.objects.all()
-        #     serializer = AdminSerializer(admin_models, many=True)
+        elif request.user.user_type == "SuperAdmin":
+            admin_models = AdminModel.objects.all()
+            serializer = AdminSerializer(admin_models, many=True)
         return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
 

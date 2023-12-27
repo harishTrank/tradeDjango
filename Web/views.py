@@ -39,8 +39,9 @@ class LoginView(View):
                 login(request, user)
                 if not user.status:
                     messages.error(request, "This user is deactivate.")
-                elif user.role != role:
+                if user.role != role:
                     messages.error(request, "Invalid user role.")
+                    return redirect("Admin:login")
                 else:
                     return redirect("Admin:dashboard")
             else:
@@ -536,9 +537,8 @@ class GropuSettingView(View):
     
 class ScriptQuantitySetting(View):
     def get(self, request):
-        group_settings = GroupSettingsModel.objects.get(id=1)  # Fetching a specific GroupSettingsModel instance by its ID
-        related_scripts = group_settings.group_user.all()  # Access related ScriptModel instances via the 'group_user' relationship
-        print("Related Scripts:", related_scripts)
+        group_settings = GroupSettingsModel.objects.get(id=1)  
+        related_scripts = group_settings.group_user.all() 
         return render(request, "components/user/script-quantity-setting.html",{"script":related_scripts})
     
 class QuantitySettingView(View):
@@ -633,8 +633,52 @@ class RejectionLogView(View):
         if symbol:
             rejection = rejection.filter(coin_name=symbol,is_cancel=True)
             
-        return render(request, "components/user/rejection-log.html",{"rejection":rejection,"exchange_obj":exchange_obj,"response":response})
+        return render(request, "components/user/rejection-log.html",{"rejection":rejection,"exchange_obj":exchange_obj,"response":response, "id":id})
     
+
+
+class RejectionDownloadCSVView(View):
+    def get(self, request, id):
+        user = request.GET.get("user_id")
+        print("------------",user)
+        return redirect("Admin:user-list")
+        # if request.user.user_type == "Master":
+        #     user_clients = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+        # elif request.user.user_type == "Admin":
+        #     master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
+        #     client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
+        #     user_clients = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
+        # elif request.user.user_type == "SuperAdmin":
+        #     user_clients = MyUser.objects.exclude(id=request.user.id)
+
+        # response = HttpResponse(content_type='text/csv')
+        # response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+        # writer = csv.writer(response)
+        # writer.writerow([
+        #     'Username', 'Name', 'Type', 'Parent', 'Credit', 'Balance', 'Bet', 'Close Only', 'Margin Sq', 'Status', 'Created Date', 'Last Login'])
+
+        # for client in user_clients:
+        #     writer.writerow([
+        #         client.user_name,
+        #         client.full_name,
+        #         client.user_type,
+        #         client.user_name,
+        #         client.credit,
+        #         client.balance,
+        #         client.bet,
+        #         client.close_only,
+        #         client.margin_sq,
+        #         client.status,
+        #         client.created_at,
+        #         client.last_login])
+
+        # return respons
+
+
+
+
+
 class ShareDetailsView(View):
     def get(self, request):
         return render(request, "components/user/share-deatils.html")
@@ -679,7 +723,6 @@ class MarketWatchView(View):
     def get(self, request):
         user = request.user
         trade_coin_id = user.market_user.filter(trade_coin_id__isnull=False).values_list('trade_coin_id', flat=True)
-        print("===>",trade_coin_id)
         coin_type = user.user.filter(exchange=True).values_list("symbol_name", flat=True)
         return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id))), "coin_type":coin_type})
     
@@ -698,7 +741,6 @@ class TradesView(View):
         if request.user.user_type == "SuperAdmin":
             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer") 
             filter_data = response.order_by("buy_sell_user__user_name").distinct("buy_sell_user__user_name")
-            print("=======================",filter_data)
 
         elif request.user.user_type == "Admin":
             user_keys = [request.user.id]
@@ -732,7 +774,7 @@ class TradesView(View):
         user_coin_names = BuyAndSellModel.objects.filter(
             buy_sell_user__id__in=user_keys
         ).values_list('coin_name', flat=True).distinct()
-        print("=============---------------",list({'buy_sell_user__user_name' }))
+      
         return render(request, "view/trades.html",{"response": response,"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' })})
     
     
@@ -912,7 +954,27 @@ class SettlementView(View):
     
 class AccountSummary(View):
     def get(self, request):
-        return render(request, "report/account-summary.html")
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        p_and_l = request.GET.get('p_and_l')
+        brk = request.GET.get('brk')
+        credit = request.GET.get('credit')
+        user = request.user
+        account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
+        if from_date:
+            if to_date:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                account_summary = account_summary.filter(created_at__gte=from_date,created_at__lte=to_date)
+        
+        if p_and_l == 'on' and brk == 'on':   
+            account_summary = account_summary.filter(Q(summary_flg__icontains='Profit/Loss') | Q(summary_flg__icontains='Brokerage'))
+       
+        elif p_and_l == 'on':
+            account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
+        elif brk == 'on':
+            account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
+
+        return render(request, "report/account-summary.html",{"account_summary":account_summary})
     
     
 class BillGenerate(View):
@@ -943,4 +1005,6 @@ class UserScriptPositionTrackPl(View):
     
 class ScriptQuantity(View):
     def get(self, request):
-        return render(request, "report/script-quantity.html")
+        group_settings = GroupSettingsModel.objects.get(id=1)  
+        related_scripts = group_settings.group_user.all() 
+        return render(request, "report/script-quantity.html",{"related_scripts":related_scripts})
