@@ -569,8 +569,20 @@ class TradeMargin(View):
     
 
 class CreditView(View):
-    def get(self, request):
-        return render(request, "components/user/")
+    def get(self, request,id):
+        user = MyUser.objects.get(id=id)
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        coin_name = request.GET.get('coin_name')
+        
+        account_summary = user.user_credit.all().values('id','opening', 'credit', 'debit', 'closing', 'transection__user_name', "created_at", 'message')
+        if from_date and to_date:
+            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+            account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+        if coin_name:
+            account_summary = account_summary.filter(particular__icontains=coin_name)
+        return render(request, "components/user/credit.html",{"account_summary":account_summary})
     
 class TabAccountSummary(View):
     def get(self, request, id):

@@ -1,0 +1,135 @@
+{% include "components/new-tab/user-header.html" %} {% load static %}{% block newtab %}
+
+<div class="tab-content" id="credit">
+  <div class="flex">
+    <div class="trade-download">
+      <div style="transform: rotate(90deg); padding-left: 10px">
+        <p>Filter</p>
+      </div>
+      <span>
+        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+      </span>
+    </div>
+    <div class="trades-side">
+      <div class="trade-top">
+        <div class="flex space-bw">
+          <div>
+            <p>Filter</p>
+          </div>
+          <div class="closeBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </div>
+        </div>
+      </div>
+      <div class="trade-btm">
+        <div class="flex space-bw">
+          <label for="">Credit Ref:</label>
+          <input type="number" class="form_control" />
+        </div>
+        <div class="flex space-bw">
+          <label for="">Operation:</label>
+          <select name="" id="" class="form_control flex">
+            <option value=""></option>
+          </select>
+        </div>
+        <div class="flex space-bw">
+          <label for="">Amount:</label>
+          <input type="text" class="form_control" />
+        </div>
+        <div class="flex space-bw">
+          <label for="">Comment:</label>
+          <input type="text" class="form_control" />
+        </div>
+        <div class="mb-10 flex" style="gap: 10px">
+          <label for="">Trans:</label>
+          <div class="flex">
+            <div class="flex mr">
+              <input
+                type="radio"
+                name=""
+                id=""
+                class="unset mb-0"
+                style="margin-right: 5px"
+              />
+              <p style="font-size: 14px">Cred</p>
+            </div>
+            <div class="flex">
+              <input
+                type="radio"
+                name=""
+                id=""
+                class="unset mb-0"
+                style="margin-right: 5px"
+              />
+              <p style="font-size: 14px">Debi</p>
+            </div>
+          </div>
+        </div>
+        <div style="justify-content: center; display: flex">
+          <button
+            style="
+              width: 50%;
+              color: white;
+              background-color: rgb(89, 89, 229);
+              border: 1px solid white;
+              padding: 4px;
+              justify-content: center;
+            "
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="trades-body user-table">
+        <form method get>
+            {% csrf_token %}
+            <div class="flex" style="gap: 2rem; margin-top: 5px">
+                <div>
+                <label for=""><b>From Date:</b></label> <input name="from_date" type="date" />
+                </div>
+                <div>
+                <label for=""><b>To Date:</b></label>
+                <input name="to_date" type="date" />
+                </div>
+                <div><button type="submit" class="delete-btn1">Search</button></div>
+            </div>
+        </form>
+
+      <table style="width: 100%; margin-top: 5px">
+        <tr>
+          <th>Date Time</th>
+          <th>Opening</th>
+          <th>Credit</th>
+          <th>Debit</th>
+          <th>Closing</th>
+          <th>Comment</th>
+          <th>Transac...</th>
+        </tr>
+        {% for i in account_summary %}
+        <tr>
+          <td>{{i.created_at}}</td>
+          <td>{{i.opening}}</td>
+          <td>{{i.credit}}</td>
+          <td>{{i.debit}}</td>
+          <td>{{i.closing}}</td>
+          <td>{{i.message}}</td>
+          <td>{{i.transection__user_name}}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+<style>
+  .delete-btn1 {
+    background: rgb(238, 163, 22);
+    padding: 5px 15px;
+    font-size: 14px;
+    border: none;
+    color: #fff;
+    width: 100%;
+  }
+</style>
+
+{% endblock newtab %}

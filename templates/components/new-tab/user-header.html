@@ -60,7 +60,7 @@
       <li data-id="brk"><a id="brkId" style=" text-decoration: none;color: #000;">Brk</a></li>
       {% endif %} 
       <li data-id="trademargin"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:trade-margin' %}">Trade Margin</a></li>
-      <li data-id="credit"><a style=" text-decoration: none;color: #000;" href="#credit">Credit</a></li>
+      <li data-id="credit"><a style=" text-decoration: none;color: #000;" id="creditId">Credit</a></li>
       <li data-id="accountsummary"><a style=" text-decoration: none;color: #000;" id="accountSummaryID">Account Summary</a></li>
       <li data-id="settlement"><a style=" text-decoration: none;color: #000;" id="settlementID">Settlement</a></li>
       <li data-id="rejectionlog"><a style=" text-decoration: none;color: #000;" id="rejectionLogId">Rejection Log</a></li>
@@ -93,6 +93,7 @@
             $("#brkId").attr('href', `${window.origin}/brk/${id}`);
             $("#userInfoId").attr('href', `${window.origin}/user-info/${id}`);
             $("#settlementID").attr('href', `${window.origin}/tab-settlement/${id}`);
+            $("#creditId").attr('href', `${window.origin}/credit/${id}`);
         }
     });
     
