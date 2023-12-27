@@ -68,7 +68,6 @@
                     <th>Type</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Brk</th>
                     <th>Order Time</th>
                     <th>Ip Address</th>
                     <th>Device id</th>
@@ -79,10 +78,9 @@
                 <tr>
                     <td>{{i.buy_sell_user__user_name}}</td>
                     <td>{{i.coin_name}}</td>
-                    <td>{{i.action}}</td>
-                    <td>{{i.quantity}}</td>
+                    <td {% if i.quantity > 0 %}style="color: blue;"{% else %}style="color: red;"{% endif %}>{{ i.action }}</td>
+                    <td {% if i.quantity > 0 %}style="color: blue;"{% else %}style="color: red;"{% endif %}>{{ i.quantity |stringformat:"+d"|slice:"1:"}}</td>
                     <td>{{i.price}}</td>
-                    <td>BRK</td>
                     <td>{{i.created_at}}</td>
                     <td>{{i.ip_address}}</td>
                     <td>Device id</td>

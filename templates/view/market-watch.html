@@ -32,8 +32,9 @@
             <div class="mr">
                 <select onChange={selectCoinType()} class="form-group symbolKey">
                     <option>Select</option>
-                    <option>MCX</option>
-                    <option>NFO</option>
+                    {% for i in coin_type %}
+                    <option>{{i}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div>

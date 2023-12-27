@@ -611,8 +611,8 @@ class TabAccountSummary(View):
     
 class TabSettlement(View):
     def get(self, request ,id):
-        
-        return render(request, "components/user/settlement.html",{"user_id":id})
+        user = MyUser.objects.get(id=id)
+        return render(request, "components/user/settlement.html",{"user_id":id,"user":user})
     
 class RejectionLogView(View):
     def get(self, request, id):
@@ -680,7 +680,8 @@ class MarketWatchView(View):
         user = request.user
         trade_coin_id = user.market_user.filter(trade_coin_id__isnull=False).values_list('trade_coin_id', flat=True)
         print("===>",trade_coin_id)
-        return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id)))})
+        coin_type = user.user.filter(exchange=True).values_list("symbol_name", flat=True)
+        return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id))), "coin_type":coin_type})
     
 
 class TradesView(View):
@@ -747,7 +748,7 @@ class OrdersView(View):
         order_list = BuyAndSellModel.objects.all()
         
         if request.user.user_type == "SuperAdmin":
-            order_list = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            order_list = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address","order_method")
             user = BuyAndSellModel.objects.exclude(buy_sell_user=user).values_list("buy_sell_user__user_name", flat=True)
         return render(request, "view/order.html", {"order_list":order_list})
     
@@ -798,7 +799,9 @@ class ProfitAndLoss(View):
     
 class M2MProfitAndLoss(View):
     def get(self, request):
-        return render(request, "view/M2Mprofit-loss.html")
+        user = request.user.id
+        
+        return render(request, "view/M2Mprofit-loss.html",{"user_id":user})
     
 
 class IntradayHistory(View):

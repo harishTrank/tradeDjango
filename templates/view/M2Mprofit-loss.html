@@ -46,16 +46,31 @@
                     <th>PL Share(%)</th>
                     <th>PL Share Amount</th>
                 </tr>
-                <tr>
-                    <td>User</td>
-                    <td>User Type</td>
-                    <td>Profit / Loss</td>
-                    <td>PL Share(%)</td>
-                    <td>PL Share Amount</td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td>User</td>
+                        <td>User Type</td>
+                        <td>Profit / Loss</td>
+                        <td>PL Share(%)</td>
+                        <td>PL Share Amount</td>
+                    </tr>
+                </table>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+    const creditApiCaller = (from_date = '', to_date = '') => {
+        axios.get(`{% url "position-header-api" %}?id={{user_id}}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            console.log("res===",res)
+          })
+        .catch(err => {
+            console.log("err", err);
+        });
+      } 
+      creditApiCaller();
+</script>
 
 {% endblock content %}

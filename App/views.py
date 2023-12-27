@@ -721,6 +721,7 @@ class PositionTopHeader(APIView):
             print("error from position top", e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
+
 # web api ----------------------------------
 class WebScriptQuantityAPI(APIView):
     permission_classes = [IsAuthenticated]

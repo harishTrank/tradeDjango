@@ -89,7 +89,7 @@
               <th>Total</th>
             </tr>
             <tr>
-              <td>Total</td>
+              <td>{{user.user_name}}</td>
               <td id="profitKey">P/L</td>
               <td>0</td>
               <td id="profitTotal">Total</td>
@@ -108,7 +108,7 @@
               <th>Total</th>
             </tr>
             <tr>
-              <td>Total</td>
+              <td>{{user.user_name}}</td>
               <td id="lossKey"></td>
               <td id="brkLoss"></td>
               <td id="lossTotal"></td>
@@ -120,20 +120,25 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
 
 <script>
   const creditApiCaller = (from_date = '', to_date = '') => {
     axios.get(`{% url "settlement-api" %}?id={{user_id}}&from_date=${from_date}&to_date=${to_date}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
     .then(res => {
-      console.log(res.data.total_loss)
-      $("#profitKey").html(res.data.total_profit?.[0]?.total_amount);
-      $("#profitTotal").html(res.data.total_profit?.[0]?.total_amount);
-      res.data.total_loss.forEach(item => {
-        item.summary_flg === "Brokerage"
-        ? $("#lossKey").html(item.total_amount)
-        : $("#brkLoss").html(item.total_amount)
+      $("#profitKey").html("0")
+      $("#profitTotal").html("0")
+      $("#lossKey").html("0")
+      $("#brkLoss").html("0")
+      $("#lossTotal").html("0")
+      $("#profitKey").html(res.data.total_profit?.[0]?.total_amount || 0);
+      $("#profitTotal").html(res.data.total_profit?.[0]?.total_amount || 0);
+      res?.data?.total_loss?.forEach(item => {
+        item?.summary_flg === "Brokerage"
+        ? $("#lossKey").html(item?.total_amount || 0)
+        : $("#brkLoss").html(item?.total_amount || 0)
       })
-      $("#lossTotal").html(res.data.total_loss?.[0]?.total_amount + res.data.total_loss?.[1]?.total_amount);
+      $("#lossTotal").html(res?.data?.total_loss?.reduce((a,b) => a?.total_amount+b?.total_amount) || 0);
     })
     .catch(err => {
         console.log("err", err);
