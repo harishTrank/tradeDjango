@@ -22,8 +22,11 @@ class LoginApi(APIView):
     def post(self, request):
         try:
             current_user = MyUser.objects.filter(user_name__iexact=request.data["user_name"]).first()
-            if not current_user or not current_user.check_password(request.data["password"]):
+            print("current_user.status", current_user.status, current_user)
+            if not current_user or not current_user.check_password(request.data["password"]) or request.data["user_type"] != current_user.role:
                 return Response({"success": False, "message": "Invalid credentials."}, status=status.HTTP_404_NOT_FOUND)
+            elif not current_user.status:
+                return Response({"success": False, "message": "This user has been disabled."}, status=status.HTTP_404_NOT_FOUND)
             else:
                 refresh = RefreshToken.for_user(current_user)
                 token = {
@@ -120,12 +123,12 @@ class AddUserAPIView(APIView):
             
             if request.data.get("add_master"):
                 admin_belongs = current_master.admin_user
-                create_user = MyUser.objects.create(user_type="Master", **request.data, password=make_password(password))
+                create_user = MyUser.objects.create(user_type="Master", **request.data, password=make_password(password), role=request.user.role)
                 current_master = MyUser.objects.get(id=request.user.id).master_user
                 MastrModel.objects.create(master_user=create_user, admin_user=admin_belongs, master_link=current_master)
                 UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New master opening credit refrenece.")
             else:
-                create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password))
+                create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password), role=request.user.role)
                 ClientModel.objects.create(client=create_user, master_user_link=current_master)
                 UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New client opening credit refrenece.")
             try: 
@@ -174,7 +177,10 @@ class UserProfileAPIView(APIView):
             "data":{**serializer.data, "exchange": exchange},
             "tradeCoinData":tradeCoinData ,
         }
-        return Response(data_to_send, status=status.HTTP_200_OK)
+        if (not user.status):
+            return Response({"message": "This user has been disabled.", "success": False}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(data_to_send, status=status.HTTP_200_OK)
 
 
 class MaketWatchScreenApi(APIView):

@@ -30,13 +30,17 @@ class LoginView(View):
     def post(self, request):
         user_name = request.POST.get("user_name")
         password = request.POST.get("password")
+        role = request.POST.get("selectServer")
+        print(user_name, password, role)
         user = authenticate(user_name=user_name, password=password)
         
         if user is not None:
             if user.user_type in ["SuperAdmin", "Admin", "Master", "Client"]:
                 login(request, user)
-                if user.user_type == "SuperAdmin":
-                    return redirect("Admin:dashboard")
+                if not user.status:
+                    messages.error(request, "This user is deactivate.")
+                elif user.role != role:
+                    messages.error(request, "Invalid user role.")
                 else:
                     return redirect("Admin:dashboard")
             else:
@@ -50,21 +54,14 @@ class LogoutView(View):
         logout(request)
         return redirect("Admin:login")
     
-
-
-
-    
-    
     
 class Dashboard(View):
     def get(self, request):
         if request.user.is_authenticated:
             user = request.user
             exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
-            print("exchange_obj", exchange_obj)
             return render(request, "dashboard/dashboard.html",{"symbols":exchange_obj})
         return redirect("Admin:login")
-        
     
   
 class AddUserView(View):
@@ -123,14 +120,14 @@ class AddUserView(View):
 
         if request.user.user_type == "SuperAdmin":
             if (not request.POST.get("accountUser") == 'on'):
-                create_user = MyUser.objects.create(user_type="Admin", **user_data)
+                create_user = MyUser.objects.create(user_type="Admin", **user_data, role=request.user.role)
                 AdminModel.objects.create(user=create_user)
                 messages.success(request, f"Admin create successfully.")
             elif request.POST.get("add_master") == 'on':
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
                 selected_admin.user.balance -=int(request.POST.get("credit"))
                 selected_admin.user.save()
-                create_user = MyUser.objects.create(user_type="Master", **user_data)
+                create_user = MyUser.objects.create(user_type="Master", **user_data, role=request.user.role)
                 try:
                     self_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     MastrModel.objects.create(master_user=create_user, admin_user=selected_admin,master_link=self_master)
@@ -139,19 +136,22 @@ class AddUserView(View):
                     messages.success(request, f"Master create successfully.")
                 except:
                     MastrModel.objects.create(master_user=create_user, admin_user=selected_admin)
+                    UserCreditModal.objects.create(user_credit=selected_admin.user, opening=selected_admin.user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=request.user.balance, transection=create_user, message="New master opening credit refrenece.")
                     messages.success(request, f"Master create successfully.")
             else:
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
-                create_user = MyUser.objects.create(user_type="Client", **user_data)
+                create_user = MyUser.objects.create(user_type="Client", **user_data, role=request.user.role)
                 try:
                     selected_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin,master_user_link=selected_master)
                     selected_master.master_user.balance -=int(request.POST.get("credit"))
+                    UserCreditModal.objects.create(user_credit=selected_master.master_user, opening=selected_master.master_user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=selected_master.master_user.balance, transection=create_user, message="New client opening credit refrenece.")
                     selected_master.master_user.save()
                     messages.success(request, f"Client create successfully.")   
                 except:
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
                     selected_admin.user.balance -=int(request.POST.get("credit"))
+                    UserCreditModal.objects.create(user_credit=selected_admin.user, opening=selected_admin.user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=selected_admin.user.balance, transection=create_user, message="New client opening credit refrenece.")
                     selected_admin.user.save()
                     messages.success(request, f"Client create successfully.")   
                     
