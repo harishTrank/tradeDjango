@@ -261,7 +261,7 @@ def accountSummaryService(data, user, pandL, summary_flag, admin=""):
             ).exclude(total_quantity=0)
         )
         if (result and len(list(result)) > 0):
-            AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
+            AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_sell_price'] if data["action"] == 'BUY' else list(result)[0]['avg_buy_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
             
 class BuySellSellApi(APIView):
     permission_classes = [IsAuthenticated]
