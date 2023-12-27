@@ -62,4 +62,9 @@ urlpatterns = [
     path("user-script-position-track",UserScriptPositionTrack.as_view(),name="user-script-position-track"),
     path("user-script-position-trac-pl",UserScriptPositionTrackPl.as_view(),name="user-script-position-trac-pl"),
     path("script-quantity",ScriptQuantity.as_view(),name="script-quantity"),
+    
+#----------------------csv download ---------------------#
+
+    path('rejection-csv/<str:id>/', RejectionDownloadCSVView.as_view(), name='Admin:rejection-csv'),
+
 ]

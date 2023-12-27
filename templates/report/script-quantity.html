@@ -22,27 +22,16 @@
                 <th>Breakup Lot</th>
                 <th>Last Updated</th>
             </tr>
+            {% for i in related_scripts %}
             <tr>
-                <td>ALUMINI</td>
-                <td>1000</td>
-                <td>5</td>
-                <td>5</td>
-                <td>7/16/2023 4:11 PM</td>
+                <td>{{i.script}}</td>
+                <td>{{i.lot_size}}</td>
+                <td>{{i.lot_max}}</td>
+                <td>{{i.breakup_lot}}</td>
+                <td>{{i.created_at}}</td>
             </tr>
-            <tr>
-                <td>COPPER</td>
-                <td>5000</td>
-                <td>5</td>
-                <td>5</td>
-                <td>7/16/2023 4:11 PM</td>
-            </tr>
-            <tr>
-                <td>COTTON</td>
-                <td>2500</td>
-                <td>5</td>
-                <td>5</td>
-                <td>7/16/2023 4:11 PM</td>
-            </tr>
+            {% endfor %}
+          
         </table>
     </div>
 </div>

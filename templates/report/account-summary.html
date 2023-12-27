@@ -22,41 +22,44 @@
                     </div>
                 </div>
             </div>
-            <div class="trade-btm">
-                <div>
-                    <label for="">From:</label>
-                    <input type="date" name="" id="">
-                </div>
-                <div>
-                    <label for="">To:</label>
-                    <input type="date" name="" id="">
-                </div>
-                <div>
-                    <label for="">Username:</label>
-                    <select name="" id="">
-                        <option value="">DEM999</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <div class="mr flex">
-                        <p style="font-size: 14px; margin-right: 5px;">P/L</p>
-                        <input type="checkbox" name="" id="" class="unset mb-0">
+            <form method="get">
+                {% csrf_token %}
+                <div class="trade-btm">
+                    <div>
+                        <label for="">From:</label>
+                        <input type="date" name="from_date" id="">
                     </div>
-                    <div class="mr flex">
-                        <p style="font-size: 14px; margin-right: 5px;">Brk</p>
-                        <input type="checkbox" name="" id="" class="unset mb-0">
+                    <div>
+                        <label for="">To:</label>
+                        <input type="date" name="to_date" id="">
                     </div>
-                    <div class="mr flex">
-                        <p style="font-size: 14px; margin-right: 5px;">Credit</p>
-                        <input type="checkbox" name="" id="" class="unset mb-0">
+                    <div>
+                        <label for="">Username:</label>
+                        <select name="" id="">
+                            <option value="">{{request.user.user_name}}</option>
+                        </select>
+                    </div>
+                    <div class="flex">
+                        <div class="mr flex">
+                            <p style="font-size: 14px; margin-right: 5px;">P/L</p>
+                            <input type="checkbox" name="p_and_l" id="" class="unset mb-0">
+                        </div>
+                        <div class="mr flex">
+                            <p style="font-size: 14px; margin-right: 5px;">Brk</p>
+                            <input type="checkbox" name="brk" id="" class="unset mb-0">
+                        </div>
+                        <div class="mr flex">
+                            <p style="font-size: 14px; margin-right: 5px;">Credit</p>
+                            <input type="checkbox" name="credit" id="" class="unset mb-0">
+                        </div>
+                    </div>
+                    <div>
+                        <label for=""></label>
+                        <button type="submit" value="View" class="form-btn">View</button>
+                        <a style="color: #fff !important; padding: 2px;" href="{% url 'Admin:account-summary' %}" class="cancel-btn">Clear</a>
                     </div>
                 </div>
-                <div>
-                    <label for=""></label>
-                    <input type="submit" value="View" class="form-btn">
-                    <input type="submit" value="Clear" class="cancel-btn">
-                </div>
-            </div>
+            </form>
         </div>
         <div class="trades-body user-table">
             <button class="delete-btn">Delete</button>
@@ -74,19 +77,21 @@
                     <th>Closing</th>
                     <th>Open Qty</th>
                 </tr>
+                {% for i in account_summary %}
                 <tr>
-                    <td>Date</td>
-                    <td>Username</td>
-                    <td>Particular</td>
-                    <td>Qty</td>
-                    <td>Buy/Sell</td>
-                    <td>Price</td>
-                    <td>Average Price</td>
-                    <td>Type</td>
-                    <td>Amount</td>
-                    <td>Closing</td>
-                    <td>Open Qty</td>
+                    <td>{{i.created_at}}</td>
+                    <td>{{i.user_summary__user_name}}</td>
+                    <td>{{i.particular}}</td>
+                    <td>{{i.quantity}}</td>
+                    <td>{{i.buy_sell_type}}</td>
+                    <td>{{i.price}}</td>
+                    <td>{{i.average}}</td>
+                    <td>{{i.summary_flg}}</td>
+                    <td>{{i.amount}}</td>
+                    <td>{{i.closing}}</td>
+                    <td>{{i.open_qty}}</td>
                 </tr>
+                {% endfor %}
             </table>
         </div>
     </div>
