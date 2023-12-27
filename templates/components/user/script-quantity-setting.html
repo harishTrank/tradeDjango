@@ -1,0 +1,37 @@
+{% extends "index.html" %} {% block content %}
+
+
+
+<div class="tab-content" id="user-list">
+    <div class="flex">
+       
+        <div class="user-table new-table">
+            <table style="width: 100%;">
+                
+                <tr>
+                    <th>Script</th>
+                    <th>Lot Size</th>
+                    <th>Qty Max</th>
+                    <th>Lot Max</th>   
+                    <th>Breakup Qty</th>
+                    <th>Breakup Lot</th>
+                </tr>
+               
+           {% for i in group %}
+                <tr>
+                    <td>{{i.ex_change}}</td>
+                    <td>{{i.ex_change}}</td>
+                    <td>{{i.ex_change}}</td>
+                    <td>{{i.ex_change}}</td>
+                    <td>{{i.ex_change}}</td>
+                    <td>{{i.ex_change}}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock content %}
