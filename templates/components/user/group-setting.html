@@ -11,36 +11,42 @@
                 <option value="">NSE</option>
                 <option value="">MINI</option>
             </select>
-            <input type="submit" value="Upd ate" class="form-btn mr" style="border: 1px solid white;">
+            <input type="submit" value="Update" class="form-btn mr" style="border: 1px solid white;">
         </div>
     </div>
-    <div class="user-table col-100" style="width: 46%;">
-        <table style="width: 100%;">
-            <tr>
-                <th></th>
-                <th>Group</th>
-                <th>Last Updated</th>
-                <th>View</th>
-                
-            </tr>
-            <tr>
+    <div class="user-table col-100" style="width: 100%;">
+        <table style="width: 40%;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Group</th>
+                    <th>Last Updated</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody>
                 {% for i in group %}
-                <td><input type="checkbox"></td>
-                <td</td>
-                <td>{{i.created_at}}</td>
-                <td></  td>
-                <td><span onClick="groupSettingClick()" style="padding: 1px;" class="material-symbols-outlined">
-                    density_small
-                    </span><img src="images/favicon-16x16.png" alt=""></td>
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>{{ i.group }}</td>
+                    <td>{{ i.created_at }}</td>
+                    <td style="cursor: pointer;">
+                        <span onClick="groupSettingClick()" style="padding: 1px;" class="material-symbols-outlined">
+                            density_small
+                        </span>
+                        <img src="images/favicon-16x16.png" alt="">
+                    </td>
+                    
+                </tr>
                 {% endfor %}
-            </tr>
+            </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const groupSettingClick = id => {
-        window.open(`script-quantity-setting`, 'NewWindow', 'width=8000,height=400');
+    const groupSettingClick = () => {
+        window.open('script-quantity-setting', 'NewWindow', 'width=1000,height=600');
     }
 </script>
 

@@ -1,13 +1,7 @@
-{% extends "index.html" %} {% block content %}
-
-
-
-<div class="tab-content" id="user-list">
+<div class="script-quantity-setting" id="script-quantity">
     <div class="flex">
-       
-        <div class="user-table new-table">
+        <div class="script-table new-table">
             <table style="width: 100%;">
-                
                 <tr>
                     <th>Script</th>
                     <th>Lot Size</th>
@@ -17,14 +11,14 @@
                     <th>Breakup Lot</th>
                 </tr>
                
-           {% for i in group %}
+           {% for i in script %}
                 <tr>
-                    <td>{{i.ex_change}}</td>
-                    <td>{{i.ex_change}}</td>
-                    <td>{{i.ex_change}}</td>
-                    <td>{{i.ex_change}}</td>
-                    <td>{{i.ex_change}}</td>
-                    <td>{{i.ex_change}}</td>
+                    <td>{{i.script}}</td>
+                    <td>{{i.lot_size}}</td>
+                    <td>{{i.qty_max}}</td>
+                    <td>{{i.lot_max}}</td>
+                    <td>{{i.breakup_qty}}</td>
+                    <td>{{i.breakup_lot}}</td>
                 </tr>
             {% endfor %}
             </table>
@@ -32,6 +26,23 @@
     </div>
 </div>
 
+<style>
+.script-table th {
+    background-color: #8edfff;
+    text-align: left;
+}
+
+.script-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
 
 
-{% endblock content %}
+.script-quantity-setting {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+</style>
+
+

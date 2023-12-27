@@ -1,0 +1,62 @@
+{% include "components/new-tab/user-header.html" %}
+{% load static %}{% block newtab %}
+
+<div style="padding: 25px;" class="user-info" id="userInfoId">
+    <table>
+        <tr>
+            <td>Bet :</td>
+            <td>
+                <label class="switch">
+                    <input onClick="callTogglebtn('bet')" type="checkbox" {% if user.bet %} checked {% endif %}>
+                    <span class="slider round"></span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>Close Only :</td>
+            <td>
+                <label class="switch">
+                    <input onClick="callTogglebtn('close_only')" type="checkbox" {% if user.close_only %} checked {% endif %}>
+                    <span class="slider round"></span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>Margin Square off :</td>
+            <td>
+                <label class="switch">
+                    <input onClick="callTogglebtn('margin_sq')" type="checkbox" {% if user.margin_sq %} checked {% endif %}>
+                    <span class="slider round"></span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>Status :</td>
+            <td>
+                <label class="switch">
+                    <input onClick="callTogglebtn('status')" type="checkbox" {% if user.status %} checked {% endif %}>
+                    <span class="slider round"></span>
+                </label>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<script>
+    const callTogglebtn = (key) => {
+        $.ajax({
+            type:'POST',
+            url:'{% url "permission-toggle" %}',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            data: {
+                id: "{{user.id}}",
+                key
+            }
+        })
+    }
+</script>
+
+
+
+{% endblock newtab %}

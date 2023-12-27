@@ -93,8 +93,10 @@
                     <td>{{i.summary_flg}}</td>
                     {% if i.amount > 0 %}
                     <td style="color: blue;">{{i.amount|floatformat:2}}</td>
-                    {% endif %}
+                    {% else %}
                     <td style="color: red;">{{i.amount|floatformat:2}}</td>
+                    {% endif %}
+
                 </tr>
                 {% endfor %}
          </table>

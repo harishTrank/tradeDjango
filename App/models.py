@@ -198,10 +198,27 @@ class AccountSummaryModal(CommonTimePicker):
      
     class Meta:
         ordering = ('-created_at',)   
+     
         
+class GroupSettingsModel(CommonTimePicker):
+    group = models.CharField("Group", max_length=200, null=True, blank=True)
     
+    def __str__(self):
+        return self.group    
+
+class ScriptModel(CommonTimePicker):
+    group_user = models.ForeignKey(GroupSettingsModel, on_delete=models.CASCADE, related_name="group_user")
+    script = models.CharField("Script", max_length=200, null=True, blank=True)
+    lot_size = models.IntegerField("Lot Size",default=0)
+    qty_max = models.IntegerField("Qty Max",default=0)
+    lot_max = models.IntegerField("Lot Max",default=0)
+    breakup_qty = models.IntegerField("Breakup Qty",default=0)
+    breakup_lot = models.IntegerField("Break Lot",default=0)
     
-    
+    def __str__(self) -> str:
+        return self.script
+
+
 class AdminCoinWithCaseModal(CommonTimePicker):
     master_coins = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="admin_coins")
     ex_change = models.CharField("ExChange", max_length=200)
@@ -210,12 +227,14 @@ class AdminCoinWithCaseModal(CommonTimePicker):
     max_qty = models.FloatField("Max Quantity", default=0)
     breakup_lot = models.FloatField("Breakup Lot", default=0)
     max_lot = models.FloatField("Max Lot", default=0)
-    group = models.CharField("Group ",max_length=200, blank=True, null=True) 
     lot_size = models.FloatField("Lot Size", default=0)
 
 
     def __str__(self):     
         return self.master_coins.user_name + " " + self.ex_change + " " + self.identifier
+    
+
+    
     
 class UserCreditModal(CommonTimePicker):
     user_credit = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="user_credit")
@@ -239,11 +258,7 @@ class TradeMarginModel(CommonTimePicker):
         return str(self.exchange) + " "+ str(self.script)
     
 
-class GroupSettingsModel(CommonTimePicker):
-    group = models.CharField("Group", max_length=200, null=True, blank=True)
-    
-    def __str__(self):
-        return self.group
+
 
 
 

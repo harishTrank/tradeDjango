@@ -531,13 +531,15 @@ class UserScriptMaster(View):
 
 class GropuSettingView(View):
     def get(self, request):
-        group = AdminCoinWithCaseModal.objects.all()
+        group = GroupSettingsModel.objects.all()
         return render(request, "components/user/group-setting.html",{"group":group})
     
 class ScriptQuantitySetting(View):
     def get(self, request):
-        group = AdminCoinWithCaseModal.objects.all()
-        return render(request, "components/user/script-quantity-setting.html",{"group":group})
+        group_settings = GroupSettingsModel.objects.get(id=1)  # Fetching a specific GroupSettingsModel instance by its ID
+        related_scripts = group_settings.group_user.all()  # Access related ScriptModel instances via the 'group_user' relationship
+        print("Related Scripts:", related_scripts)
+        return render(request, "components/user/script-quantity-setting.html",{"script":related_scripts})
     
 class QuantitySettingView(View):
     def get(self, request, id):
@@ -626,8 +628,9 @@ class ShareDetailsView(View):
     
     
 class UserInfoView(View):
-    def get(self , request):
-        return render(request, "components/user/")
+    def get(self , request, id):
+        user = MyUser.objects.get(id=id)
+        return render(request, "components/user/user-info.html",{"user":user})
     
 #==================================================#
 class ChangePasswordView(View):

@@ -37,7 +37,7 @@ urlpatterns = [
     path("tab-settlement",TabSettlement.as_view(),name="tab-settlement"),
     path("rejection-log/<str:id>",RejectionLogView.as_view(),name="rejection-log"),
     path("share-deatils",ShareDetailsView.as_view(),name="share-deatils"),
-    path("user-info",UserInfoView.as_view(),name="user-info"),
+    path("user-info/<str:id>",UserInfoView.as_view(),name="user-info"),
     
     
     path("market-watch",MarketWatchView.as_view(),name="market-watch"),
