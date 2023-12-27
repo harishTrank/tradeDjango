@@ -45,10 +45,10 @@
                     <th>Total</th>
                 </tr>
                 <tr>
-                    <td>Username</td>
-                    <td>Realised P&L</td>
-                    <td>M2M P&L</td>
-                    <td>Total</td>
+                    <td>{{request.user.user_name}}</td>
+                    <td id="releasePLId"></td>
+                    <td id="m2mPLId"></td>
+                    <td id="totalId"></td>
                 </tr>
             </table>
         </div>
@@ -65,6 +65,59 @@
         $(".trades-side").show();
         $(".trades-body").css("width", "79%");
     });
+
+    const profitLossHandler = (from_date = '', to_date = '') => {
+        axios.get(`{% url "position-header-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            $("#releasePLId").html(res.data.release_p_and_l)
+          })
+      } 
+
+      const updateTotalPrice = (apiResponse, socketResponse) => {
+        const result = apiResponse.data?.response
+          .map((item) => {
+            const findSocketVal = socketResponse.find(
+              (findObject) =>
+                findObject?.InstrumentIdentifier === item?.identifer
+            );
+            return (
+              item?.total_quantity > 0
+                ? (findSocketVal?.BuyPrice - item?.avg_buy_price) *
+                  item?.total_quantity *
+                  findSocketVal?.QuotationLot
+                : (item?.avg_sell_price - findSocketVal?.SellPrice) *
+                  Math.abs(item?.total_quantity) *
+                  findSocketVal?.QuotationLot
+            ).toFixed(2);
+          })
+          .reduce((partialSum, a) => Number(partialSum) + Number(a), 0);
+        return isNaN(result) ? 0.0 : result
+      };
+
+
+    const socket = io(BASE_URL);  
+
+    
+    socket.on("connect", () => {
+        console.log("Connected to the Socket.io server");
+        axios.get(`{% url "position" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            axios.get(`{% url "position-header-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+            .then(res2 => {
+                $("#releasePLId").html(res2.data.release_p_and_l);
+                socket.emit("filterDataGet", {"identifier": res.data.response.map(item => item.identifer) });
+                socket.on("filterDataSend", (data) => {
+                    $("#m2mPLId").html(updateTotalPrice(res, data)?.toFixed(2));
+                    $("#totalId").html((Number(updateTotalPrice(res, data)) + Number(res2.data.release_p_and_l)).toFixed(2));
+                })
+            })
+        })
+    });
+    socket.on("disconnect", () => {
+        console.log("Disconnected from the Socket.io server");
+    });
+
+      profitLossHandler();
 </script>
 
 {% endblock content %}

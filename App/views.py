@@ -709,7 +709,6 @@ class PositionTopHeader(APIView):
             release_p_and_l = (
                 AccountSummaryModal.objects
                 .filter(user_summary=request.user, summary_flg='Profit/Loss')
-                .exclude(created_at__date=timezone.now().date())
                 .aggregate(total_amount=Sum('amount'))
             )
             margin_used_value = 0

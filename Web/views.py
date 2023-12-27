@@ -796,7 +796,6 @@ class ProfitAndLoss(View):
         return render(request, "view/profit-loss.html")
     
     
-    
 class M2MProfitAndLoss(View):
     def get(self, request):
         user = request.user.id
