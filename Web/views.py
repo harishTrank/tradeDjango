@@ -598,8 +598,9 @@ class TabAccountSummary(View):
         return render(request, "components/user/account-summary.html",{"account_summary":account_summary})
     
 class TabSettlement(View):
-    def get(self, request):
-        return render(request, "components/user/settlement.html")
+    def get(self, request ,id):
+        
+        return render(request, "components/user/settlement.html",{"user_id":id})
     
 class RejectionLogView(View):
     def get(self, request, id):

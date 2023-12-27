@@ -121,7 +121,7 @@
 
 <script>
     
-  axios.get(`{% url "settlement-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+  axios.get(`{% url "settlement-api" %}?id={{user_id}}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
   .then(res => {
       console.log("res ==", res);
   })

@@ -658,6 +658,9 @@ class SettlementReportApi(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
+            user = request.user
+            if request.query_params.get('id'):
+                user = MyUser.objects.get(id=request.query_params.get('id'))
             from_date = request.query_params.get('from_date')
             to_date = request.query_params.get('to_date')
             if from_date and to_date:
@@ -665,26 +668,26 @@ class SettlementReportApi(APIView):
                 to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
                 total_profit = (
                     AccountSummaryModal.objects
-                    .filter(user_summary= request.user.id, amount__gt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj, summary_flg="Profit/Loss")
+                    .filter(user_summary= user.id, amount__gt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj, summary_flg="Profit/Loss")
                     .values('summary_flg')
                     .annotate(total_amount=Sum('amount'))
                 )
                 total_loss = (
                     AccountSummaryModal.objects
-                    .filter(user_summary= request.user.id, amount__lt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+                    .filter(user_summary= user.id, amount__lt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj)
                     .values('summary_flg')
                     .annotate(total_amount=Sum('amount'))
                 )
             else:
                 total_profit = (
                     AccountSummaryModal.objects
-                    .filter(user_summary= request.user.id, amount__gt=0, summary_flg="Profit/Loss")
+                    .filter(user_summary= user.id, amount__gt=0, summary_flg="Profit/Loss")
                     .values('summary_flg')
                     .annotate(total_amount=Sum('amount'))
                 )
                 total_loss = (
                     AccountSummaryModal.objects
-                    .filter(user_summary= request.user.id, amount__lt=0)
+                    .filter(user_summary= user.id, amount__lt=0)
                     .values('summary_flg')
                     .annotate(total_amount=Sum('amount'))
                 )
