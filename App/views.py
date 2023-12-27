@@ -123,9 +123,11 @@ class AddUserAPIView(APIView):
                 create_user = MyUser.objects.create(user_type="Master", **request.data, password=make_password(password))
                 current_master = MyUser.objects.get(id=request.user.id).master_user
                 MastrModel.objects.create(master_user=create_user, admin_user=admin_belongs, master_link=current_master)
+                UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New master opening credit refrenece.")
             else:
                 create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password))
                 ClientModel.objects.create(client=create_user, master_user_link=current_master)
+                UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New client opening credit refrenece.")
             try: 
                 exchangeList = []
                 for exchange_item in createUs:
@@ -273,7 +275,8 @@ class BuySellSellApi(APIView):
         except:
             total_quantity = 0
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
-            currentProfitLoss = total_quantity * quantity * lot_size
+            current_coin = TradeMarginModel.objects.filter(exchange=request.data.get('ex_change'), script__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get("identifer").split("_")[1]).first()
+            currentProfitLoss = total_quantity * quantity * lot_size - current_coin.trade_margin * quantity
             user.balance += currentProfitLoss
             accountSummaryService(request.data, user, currentProfitLoss, "Profit/Loss")
             quantity -= total_quantity
@@ -386,6 +389,31 @@ class AccountSummaryApi(APIView):
         response.data['current_page'] = paginator.page.number  
         response.data['total'] = paginator.page.paginator.num_pages
         return response
+
+class AccountSummaryCreditAPI(APIView):
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        coin_name = request.query_params.get('coin_name')
+        
+        account_summary = user.user_credit.all().values('id','opening', 'credit', 'debit', 'closing', 'transection__user_name', "created_at", 'message')
+        if from_date and to_date:
+            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+            account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+        if coin_name:
+            account_summary = account_summary.filter(particular__icontains=coin_name)
+        
+        paginator = self.pagination_class()
+        paginated_trade = paginator.paginate_queryset(account_summary, request)
+        response = paginator.get_paginated_response(paginated_trade)
+        response.data['current_page'] = paginator.page.number  
+        response.data['total'] = paginator.page.paginator.num_pages
+        return response    
+
 
 class PositionManager(APIView):
     permission_classes = [IsAuthenticated]

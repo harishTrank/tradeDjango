@@ -32,5 +32,6 @@ urlpatterns = [
     path("script-quantity-api/", ScriptQuantityAPI.as_view(), name="script-quantity-api"),
     path("settlement-api/", SettlementReportApi.as_view(), name="settlement-api"),
     path("web-script-quantity-api/", WebScriptQuantityAPI.as_view(), name="web-script-quantity-api"),
-    path("position-header-api/", PositionTopHeader.as_view(), name="position-header-api")
+    path("position-header-api/", PositionTopHeader.as_view(), name="position-header-api"),
+    path("account-summary-credit-api/", AccountSummaryCreditAPI.as_view(), name="account-summary-credit-api")
 ]
