@@ -665,7 +665,7 @@ class SettlementReportApi(APIView):
                 to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
                 total_profit = (
                     AccountSummaryModal.objects
-                    .filter(user_summary= request.user.id, amount__gt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+                    .filter(user_summary= request.user.id, amount__gt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj, summary_flg="Profit/Loss")
                     .values('summary_flg')
                     .annotate(total_amount=Sum('amount'))
                 )
@@ -678,7 +678,7 @@ class SettlementReportApi(APIView):
             else:
                 total_profit = (
                     AccountSummaryModal.objects
-                    .filter(user_summary= request.user.id, amount__gt=0)
+                    .filter(user_summary= request.user.id, amount__gt=0, summary_flg="Profit/Loss")
                     .values('summary_flg')
                     .annotate(total_amount=Sum('amount'))
                 )
