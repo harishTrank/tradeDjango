@@ -242,6 +242,7 @@ class UserCreditModal(CommonTimePicker):
     credit = models.FloatField(default=0)
     debit = models.FloatField(default=0)
     closing = models.FloatField(default=0)
+    message = models.CharField("Message", max_length=200, null=True, blank=True, default="")
     transection = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="transection")
 
     def __str__(self):

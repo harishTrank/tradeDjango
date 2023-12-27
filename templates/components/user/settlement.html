@@ -117,4 +117,17 @@
     </div>
   </div>
 </div>
+
+
+<script>
+    
+  axios.get(`{% url "settlement-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+  .then(res => {
+      console.log("res ==", res);
+  })
+  .catch(err => {
+      console.log("err", err);
+  });
+</script>
+
 {% endblock newtab %}

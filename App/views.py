@@ -22,8 +22,11 @@ class LoginApi(APIView):
     def post(self, request):
         try:
             current_user = MyUser.objects.filter(user_name__iexact=request.data["user_name"]).first()
-            if not current_user or not current_user.check_password(request.data["password"]):
+            print("current_user.status", current_user.status, current_user)
+            if not current_user or not current_user.check_password(request.data["password"]) or request.data["user_type"] != current_user.role:
                 return Response({"success": False, "message": "Invalid credentials."}, status=status.HTTP_404_NOT_FOUND)
+            elif not current_user.status:
+                return Response({"success": False, "message": "This user has been disabled."}, status=status.HTTP_404_NOT_FOUND)
             else:
                 refresh = RefreshToken.for_user(current_user)
                 token = {
@@ -120,12 +123,14 @@ class AddUserAPIView(APIView):
             
             if request.data.get("add_master"):
                 admin_belongs = current_master.admin_user
-                create_user = MyUser.objects.create(user_type="Master", **request.data, password=make_password(password))
+                create_user = MyUser.objects.create(user_type="Master", **request.data, password=make_password(password), role=request.user.role)
                 current_master = MyUser.objects.get(id=request.user.id).master_user
                 MastrModel.objects.create(master_user=create_user, admin_user=admin_belongs, master_link=current_master)
+                UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New master opening credit refrenece.")
             else:
-                create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password))
+                create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password), role=request.user.role)
                 ClientModel.objects.create(client=create_user, master_user_link=current_master)
+                UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New client opening credit refrenece.")
             try: 
                 exchangeList = []
                 for exchange_item in createUs:
@@ -172,7 +177,10 @@ class UserProfileAPIView(APIView):
             "data":{**serializer.data, "exchange": exchange},
             "tradeCoinData":tradeCoinData ,
         }
-        return Response(data_to_send, status=status.HTTP_200_OK)
+        if (not user.status):
+            return Response({"message": "This user has been disabled.", "success": False}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(data_to_send, status=status.HTTP_200_OK)
 
 
 class MaketWatchScreenApi(APIView):
@@ -273,7 +281,8 @@ class BuySellSellApi(APIView):
         except:
             total_quantity = 0
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
-            currentProfitLoss = total_quantity * quantity * lot_size
+            current_coin = TradeMarginModel.objects.filter(exchange=request.data.get('ex_change'), script__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get("identifer").split("_")[1]).first()
+            currentProfitLoss = total_quantity * quantity * lot_size - current_coin.trade_margin * quantity
             user.balance += currentProfitLoss
             accountSummaryService(request.data, user, currentProfitLoss, "Profit/Loss")
             quantity -= total_quantity
@@ -386,6 +395,31 @@ class AccountSummaryApi(APIView):
         response.data['current_page'] = paginator.page.number  
         response.data['total'] = paginator.page.paginator.num_pages
         return response
+
+class AccountSummaryCreditAPI(APIView):
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        coin_name = request.query_params.get('coin_name')
+        
+        account_summary = user.user_credit.all().values('id','opening', 'credit', 'debit', 'closing', 'transection__user_name', "created_at", 'message')
+        if from_date and to_date:
+            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+            account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+        if coin_name:
+            account_summary = account_summary.filter(particular__icontains=coin_name)
+        
+        paginator = self.pagination_class()
+        paginated_trade = paginator.paginate_queryset(account_summary, request)
+        response = paginator.get_paginated_response(paginated_trade)
+        response.data['current_page'] = paginator.page.number  
+        response.data['total'] = paginator.page.paginator.num_pages
+        return response    
+
 
 class PositionManager(APIView):
     permission_classes = [IsAuthenticated]
@@ -624,18 +658,67 @@ class SettlementReportApi(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
-            total_profit = request.user.user_summary.all().values()
-                            
-            print("total_profit", total_profit)
-            return Response({"success": True, "message": "Data getting successfuly."}, status=status.HTTP_200_OK)
+            from_date = request.query_params.get('from_date')
+            to_date = request.query_params.get('to_date')
+            if from_date and to_date:
+                from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+                to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+                total_profit = (
+                    AccountSummaryModal.objects
+                    .filter(user_summary= request.user.id, amount__gt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+                    .values('summary_flg')
+                    .annotate(total_amount=Sum('amount'))
+                )
+                total_loss = (
+                    AccountSummaryModal.objects
+                    .filter(user_summary= request.user.id, amount__lt=0, created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+                    .values('summary_flg')
+                    .annotate(total_amount=Sum('amount'))
+                )
+            else:
+                total_profit = (
+                    AccountSummaryModal.objects
+                    .filter(user_summary= request.user.id, amount__gt=0)
+                    .values('summary_flg')
+                    .annotate(total_amount=Sum('amount'))
+                )
+                total_loss = (
+                    AccountSummaryModal.objects
+                    .filter(user_summary= request.user.id, amount__lt=0)
+                    .values('summary_flg')
+                    .annotate(total_amount=Sum('amount'))
+                )
+            return Response({"success": True, "message": "Data getting successfuly.", "total_profit": total_profit, "total_loss": total_loss}, status=status.HTTP_200_OK)
         except Exception as e:
             print("error from settlement",e)
+            return Response({"success": False, "message": "From and to date is required."}, status=status.HTTP_404_NOT_FOUND)
+        
+class PositionTopHeader(APIView):
+    def get(self, request):
+        try:
+            margin_user = (
+                request.user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
+                .values('identifer','coin_name', 'ex_change')
+                .annotate(
+                    total_quantity=Sum('quantity'),
+                ).exclude(total_quantity=0)
+            )
+            release_p_and_l = (
+                AccountSummaryModal.objects
+                .filter(user_summary=request.user, summary_flg='Profit/Loss')
+                .exclude(created_at__date=timezone.now().date())
+                .aggregate(total_amount=Sum('amount'))
+            )
+            margin_used_value = 0
+            for obj in margin_user:
+                current_coin = TradeMarginModel.objects.filter(exchange=obj['ex_change'], script__icontains=obj['identifer'] if obj['ex_change'] == "NSE" else obj["identifer"].split("_")[1]).first()
+                margin_used_value += abs(obj["total_quantity"]) * current_coin.trade_margin
+            return Response({"success": True, "message": "Data getting successfully.", "credit": request.user.credit, "balance": request.user.balance, "release_p_and_l": release_p_and_l['total_amount'] if release_p_and_l['total_amount'] else 0, "margin_used_value": margin_used_value}, status=status.HTTP_202_ACCEPTED)
+        except Exception as e:
+            print("error from position top", e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 # web api ----------------------------------
-
-
-
 class WebScriptQuantityAPI(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):

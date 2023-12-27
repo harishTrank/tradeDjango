@@ -254,9 +254,10 @@
     // please dont touch harish ====>
     //piyush bhai kuch nahi aata tuje cutiya salla  ====>
     const particularUserView = id => {
-        window.open(`user-deatils-by-id/${id}`, 'NewWindow', 'width=1200,height=600');
+        var left = (screen.width/2)-(1200/2);
+        var top = (screen.height/2)-(600/2);
+        window.open(`user-deatils-by-id/${id}`, 'NewWindow', `width=1200,height=600,left=${left},top=${top}`);
         localStorage.setItem("currentUserID", id);
-        
     }
     
     {% comment %} const userCells = document.querySelectorAll('.user-cell');
