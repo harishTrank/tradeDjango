@@ -947,7 +947,8 @@ class TradeAccount(View):
 
 class SettlementView(View):
     def get(self, request):
-        return render(request, "report/settlement.html")
+        user = request.user.id
+        return render(request, "report/settlement.html", {"user_id":user})
     
     
     

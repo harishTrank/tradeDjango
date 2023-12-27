@@ -65,6 +65,6 @@ urlpatterns = [
     
 #----------------------csv download ---------------------#
 
-    path('rejection-csv/<str:id>/', RejectionDownloadCSVView.as_view(), name='Admin:rejection-csv'),
+    path('rejection-csv/<str:id>/', RejectionDownloadCSVView.as_view(), name='Admin:rejection-csv')
 
 ]
