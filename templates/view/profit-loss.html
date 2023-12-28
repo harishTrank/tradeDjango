@@ -25,8 +25,7 @@
                 <div>
                     <label for="">Username:</label>
                     <select name="" id="">
-                        <option value="">All Users</option>
-                        <option value="">DEMO008</option>
+                        <option value="{{request.user.user_name}}">{{request.user.user_name}}</option>
                     </select>
                 </div>
                 <div>
@@ -104,11 +103,14 @@
         .then(res => {
             axios.get(`{% url "position-header-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
             .then(res2 => {
-                $("#releasePLId").html(res2.data.release_p_and_l);
+                $("#releasePLId").html(res2.data.release_p_and_l.toFixed(2)).css("color", res2.data.release_p_and_l > 0 ? "blue" : "red");
+
                 socket.emit("filterDataGet", {"identifier": res.data.response.map(item => item.identifer) });
                 socket.on("filterDataSend", (data) => {
-                    $("#m2mPLId").html(updateTotalPrice(res, data)?.toFixed(2));
-                    $("#totalId").html((Number(updateTotalPrice(res, data)) + Number(res2.data.release_p_and_l)).toFixed(2));
+                    const totalPrice = updateTotalPrice(res, data);
+                    $("#m2mPLId").html(totalPrice?.toFixed(2)).css("color", totalPrice > 0 ? "blue" : "red");
+                    $("#totalId").html((Number(totalPrice) + Number(res2.data.release_p_and_l)).toFixed(2)).css("color", (Number(totalPrice) + Number(res2.data.release_p_and_l)) > 0 ? "blue" : "red");
+
                 })
             })
         })

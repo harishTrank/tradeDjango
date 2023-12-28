@@ -9,6 +9,7 @@
             <span>
                 <a href="{% url 'Admin:positions' %}"><i class="fa-solid fa-file-csv"></i></a>
             </span>
+            
         </div>
         <div class="trades-side">
             <div class="trade-top">
@@ -75,11 +76,12 @@
                     {% if i.total_quantity > 0 %}
                         <td style="color: blue" >BUY</td>
                         <td style="color: blue">{{i.total_quantity |stringformat:"+d"|slice:"1:"}}</td>
+                        <td>{{ i.avg_buy_price|floatformat:"2" }}</td>
                     {% else %}
                         <td style="color: red" >SELL</td>
                         <td style="color: red">{{i.total_quantity |stringformat:"+d"|slice:"1:"}}</td>
+                        <td>{{ i.avg_sell_price|floatformat:"2" }}</td>
                     {% endif %}
-                    <td>{{ i.avg_price|floatformat:"2" }}</td>
                     <td id="cmp{{i.identifer}}"></td>
                     <td id="{{i.identifer}}"></td>
                 </tr>
@@ -104,6 +106,7 @@
 
 <script>
     const identifer = JSON.parse("{{identifer|safe}}".replaceAll(`'`, `"`));
+    console.log("====identifer",identifer)
     const current_user_result = JSON.parse("{{response|safe}}".replaceAll(`'`, `"`));
     const baseNodeURL = BASE_URL
     const socket = io(baseNodeURL); 
@@ -121,6 +124,7 @@
     
 
     const updateTotalPrice = (socketResponse) => {
+        
         return current_user_result
           .map(item => {
             const findSocketVal = socketResponse.find(findObject =>
@@ -160,7 +164,7 @@
         })
 
         const totalProfitLoss = updateTotalPrice(data);
-        //console.log("totalProfitLoss", totalProfitLoss)
+        console.log("totalProfitLoss",  updateTotalPrice(data))
     });
     socket.on("disconnect", () => {
         console.log("Disconnected from the Socket.io server");

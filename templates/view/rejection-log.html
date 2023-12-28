@@ -5,11 +5,13 @@
     <div class="flex">
         <div class="trade-download">
             <div style="transform: rotate(90deg);padding-left: 10px;">
-                <p>Filter</p>
+                <p id="rejectionFilterId">Filter</p>
             </div>
             <span>
-                <a href=""><i class="fa-solid fa-file-csv"></i></a>
-            </span>
+                <a href="{% url 'Admin:rejection-log' %}?from_date={{ from_date }}&to_date={{ to_date }}&exchange={{ exchange }}&symbol={{ symbol }}&download_csv=true" class="download-csv-link">
+                  <i class="fa-solid fa-file-csv"></i>
+                </a>
+              </span>
         </div>
         <div class="trades-side">
             <div class="trade-top">
@@ -112,5 +114,17 @@
         </div>
     </div>
 </div>
+
+<script>
+  $('.closeBtn').click(function () {
+      $(".trades-side").hide();
+      $(".trades-body").css("width", "95%");
+  });
+  
+  $('#rejectionFilterId').click(function () {
+      $(".trades-side").show();
+      $(".trades-body").css("width", "79%");
+  });
+</script>
 
 {% endblock content %}
