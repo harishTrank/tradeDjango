@@ -7,7 +7,7 @@
                 <p id="positionFilterId">Filter</p>
             </div>
             <span>
-                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                <a href="{% url 'Admin:positions' %}"><i class="fa-solid fa-file-csv"></i></a>
             </span>
         </div>
         <div class="trades-side">
@@ -26,7 +26,9 @@
             <div class="trade-btm">
                 <div>
                     <label for="">Username:</label>
-                    <input name="user_name" type="text">
+                    <select name="user_name" id="">
+                        <option value="{{request.user.user_name}}">{{request.user.user_name}}</option>
+                    </select>
                 </div>
                 <div>
                     <label for="">Exchange:</label>

@@ -41,7 +41,13 @@ INSTALLED_APPS = [
     'admin_app',
     'Web',
     'rest_framework',
+    'django_apscheduler',
 ]
+
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a" 
+
+SCHEDULER_DEFAULT = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

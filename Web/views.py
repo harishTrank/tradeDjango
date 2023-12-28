@@ -12,6 +12,7 @@ import csv
 from django.http import HttpResponse
 from datetime import datetime, timedelta
 import requests
+from django.db.models import Avg, F, Subquery, OuterRef
 NODEIP = '52.66.205.199'
 
 class LoginView(View):
@@ -789,14 +790,75 @@ class OrdersView(View):
         symbol = request.GET.get('symbol')
         order_list = BuyAndSellModel.objects.all()
         
-        if request.user.user_type == "SuperAdmin":
-            order_list = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address","order_method")
-            user = BuyAndSellModel.objects.exclude(buy_sell_user=user).values_list("buy_sell_user__user_name", flat=True)
-        return render(request, "view/order.html", {"order_list":order_list})
+        # if request.user.user_type == "SuperAdmin":
+        exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
+        response = user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
+        order_list = BuyAndSellModel.objects.filter(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address","order_method")
+        
+        if from_date:
+            if to_date:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                order_list = order_list.filter(created_at__gte=from_date,created_at__lte=to_date)
+        if exchange:
+            order_list = order_list.filter(ex_change=exchange)
+
+        if symbol:
+            order_list = order_list.filter(coin_name=symbol)
+        order_list = order_list
+        
+        if 'download_csv' in request.GET:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="orders.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow([
+                'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Order Time', 'Ip Address', 'Device id', 'Reference Price', 'Order Method'])
+            for order in order_list:
+                writer.writerow([
+                    order['buy_sell_user__user_name'],
+                    order["coin_name"],
+                    order["action"],
+                    order["quantity"],
+                    order["price"],
+                    order["created_at"],
+                    order["ip_address"],
+                    order["order_method"]
+                ])
+            return response
+        return render(request, "view/order.html", {"order_list":order_list,"exchange_obj":exchange_obj,"response":response})
     
     
     
-from django.db.models import Avg, F, Subquery, OuterRef
+
+# class OrderDownloadCSVView(View):
+#     def get(self, request):
+#         user = request.user
+#         order_list = BuyAndSellModel.objects.filter(buy_sell_user=user).values(
+#             "id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change",
+#             "created_at", "is_pending", "identifer", "message", "ip_address", "order_method"
+#         )
+
+#         response = HttpResponse(content_type='text/csv')
+#         response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+#         writer = csv.writer(response)
+#         writer.writerow([
+#             'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Order Time', 'Ip Address', 'Device id', 'Reference Price', 'Order Method'])
+#         for order in order_list:
+#             writer.writerow([
+#                 order['buy_sell_user__user_name'],
+#                 order["coin_name"],
+#                 order["action"],
+#                 order["quantity"],
+#                 order["price"],
+#                 order["created_at"],
+#                 order["ip_address"],
+#                 order["order_method"]])
+#         return response
+    
+    
+    
+
 
 class PositionsView(View):
     def get(self, request):
@@ -822,6 +884,26 @@ class PositionsView(View):
         if user_name:
             results = results.filter(buy_sell_user__user_name=user_name)
             
+        if 'download_csv' in request.GET:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="orders.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow([
+                'Exchange', 'Symbol', 'Position', 'Quantity', 'Average Rate', 'CMP', 'Profit / Loss'])
+            for result in results:
+                writer.writerow([
+                    result['buy_sell_user__user_name'],
+                    result["coin_name"],
+                    result["action"],
+                    result["quantity"],
+                    result["price"],
+                    result["created_at"],
+                    result["ip_address"],
+                    result["order_method"]
+                ])
+            return response
+            
         user_coin_names = list(set(list(user.buy_sell_user.filter(
             buy_sell_user__id__in=[request.user.id] 
         ).values_list('coin_name', flat=True).distinct())))
@@ -829,7 +911,7 @@ class PositionsView(View):
         identifer = list(set(list(user.buy_sell_user.filter(
             buy_sell_user__id__in=[request.user.id] 
         ).values_list('identifer', flat=True).distinct())))
-        print(user_coin_names)
+
         return render(request, "view/positions.html",{"response": list(results),"user_coin_names": user_coin_names, "identifer": identifer})
     
     

@@ -6,9 +6,9 @@
             <div style="transform: rotate(90deg);padding-left: 10px;">
                 <p id="orderFilterId">Filter</p>
             </div>
-            <span>
-                <a href=""><i class="fa-solid fa-file-csv"></i></a>
-            </span>
+            <a href="{% url 'Admin:orders' %}?from_date={{ from_date }}&to_date={{ to_date }}&exchange={{ exchange }}&symbol={{ symbol }}&download_csv=true" class="download-csv-link">
+                <i class="fa-solid fa-file-csv"></i>
+            </a>
         </div>
         <div class="trades-side">
 
@@ -22,43 +22,54 @@
                     </div>
                 </div>
             </div>
-            <div class="trade-btm">
-                <div>
-                    <label for="">From:</label>
-                    <input type="date">
+            <form method="get">
+                {% csrf_token %}
+                <div class="trade-btm">
+                    <div>
+                        <label for="">From:</label>
+                        <input name="from_date" type="date">
+                    </div>
+                    <div>
+                        <label for="">To:</label>
+                        <input name="to_date" type="date">
+                    </div>
+                    <div>
+                        <label for="">Username:</label>
+                        <select name="" id="">
+                            <option value="{{request.user.user_name}}">{{request.user.user_name}}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="">Exchange:</label>
+                        <select name="exchange" id="" class="form_control">
+                          <option value="">All Exchange</option>
+                          {% for symbol in exchange_obj %}
+                            {% if symbol.symbol_name == "NSE" and symbol.exchange %}
+                              <option value="NSE">NSE</option>
+                            {% elif symbol.symbol_name == "MCX" and symbol.exchange %}
+                              <option value="MCX">MCX</option>
+                            {% elif symbol.symbol_name == "MINI" and symbol.exchange %}
+                              <option value="MINI">MINI</option>
+                            {% endif %}
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="">Symbols:</label>
+                        <select name="symbol" id="" class="form_control">
+                            <option value="">All Symbols</option>
+                            {% for i in response %}
+                              <option value="{{i.coin_name}}">{{i.coin_name}}</option>
+                            {% endfor %}
+                          </select>
+                    </div>
+                    <div>
+                        <label for=""></label>
+                        <button type="submit" value="View" class="form-btn">View</button>
+                        <a style="color:#fff ! important; padding:2px" href="{% url 'Admin:orders' %}" value="Clear" class="cancel-btn">Clear</a>
+                    </div>
                 </div>
-                <div>
-                    <label for="">To:</label>
-                    <input type="date">
-                </div>
-                <div>
-                    <label for="">Username:</label>
-                    <input type="text">
-                </div>
-                <div>
-                    <label for="">Exchange:</label>
-                    <select name="" id="">
-                        <option value="">All Exchanges</option>
-                        <option value="">All Exchanges</option>
-                        <option value="">All Exchanges</option>
-                        <option value="">All Exchanges</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="">Symbols:</label>
-                    <select name="" id="">
-                        <option value="">All Symbols</option>
-                        <option value="">All Symbols</option>
-                        <option value="">All Symbols</option>
-                        <option value="">All Symbols</option>
-                    </select>
-                </div>
-                <div>
-                    <label for=""></label>
-                    <input type="submit" value="View" class="form-btn">
-                    <input type="submit" value="Clear" class="cancel-btn">
-                </div>
-            </div>
+            </form>
         </div>
         <div class="trades-body user-table">
             <table style="width: 100%;">
