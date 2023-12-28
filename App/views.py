@@ -271,7 +271,7 @@ def accountSummaryService(data, user, pandL, summary_flag, admin=""):
                 AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
             
 class BuySellSellApi(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def post(self, request):
         if (request.data.get("type") == "WEB"):
             user = MyUser.objects.get(id=request.data.get("userId"))
@@ -577,8 +577,6 @@ class UserListApiView(APIView):
         own_user = request.query_params.get("own_user")
         select_user = request.query_params.get("select_user")
         select_status = request.query_params.get("select_status")
-        print("----",select_status)
-        print("dfdfdfdf",request.user.user_type)
         if request.user.user_type == "Client":
             users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","full_name","role","credit","balance")
             return JsonResponse(list(users), safe=False)
@@ -590,7 +588,6 @@ class UserListApiView(APIView):
                 users = MyUser.objects.filter(id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
             elif select_status == "Active":
                 users = MyUser.objects.filter(status=True if select_status else False,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-                print("==========",users)
             elif select_status == "InActive":
                 users = MyUser.objects.filter(status=False,id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
             else:
