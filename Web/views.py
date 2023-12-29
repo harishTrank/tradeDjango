@@ -33,20 +33,23 @@ class LoginView(View):
         password = request.POST.get("password")
         role = request.POST.get("selectServer")
         print(user_name, password, role)
-        user = authenticate(user_name=user_name, password=password)
+        user = authenticate(username=user_name, password=password)
+        if user.role != role:
+            messages.error(request, "Invalid user role.")
+            return redirect("Admin:login")
         
         if user is not None:
             if user.user_type in ["SuperAdmin", "Admin", "Master", "Client"]:
                 login(request, user)
                 if not user.status:
-                    messages.error(request, "This user is deactivate.")
-                if user.role != role:
-                    messages.error(request, "Invalid user role.")
-                    return redirect("Admin:login")
+                    messages.error(request, "This user is deactivated.")
+                    print("User is deactivated")
                 else:
                     return redirect("Admin:dashboard")
             else:
                 messages.error(request, "Invalid user type")
+                return redirect("Admin:login")
+        messages.error(request, "Invalid username or password")
         return redirect("Admin:login")
 
 
@@ -92,7 +95,7 @@ class AddUserView(View):
             "mini": True if request.POST.get("mini") and request.POST.get("mini").lower() == 'on' else False,
             "change_password": True if request.POST.get("change_password") and request.POST.get("change_password").lower() == 'on' else False,
             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
-            "auto_square_off": True if request.POST.get("auto_square") and request.POST.get("auto_square").lower() == 'on' else False,
+            "margin_sq": True if request.POST.get("auto_square") and request.POST.get("auto_square").lower() == 'on' else False,
         }
         exchanges = [
             {
@@ -297,7 +300,6 @@ class EditUserView(View):
     def post(self, request, id):
         user = MyUser.objects.get(id=id)
             
-        
         user_data = {
             "full_name": request.POST.get("full_name"),
             "user_name": request.POST.get("user_name"),
@@ -312,7 +314,7 @@ class EditUserView(View):
             "mini": True if request.POST.get("mini") and request.POST.get("mini").lower() == 'on' else False,
             "change_password": True if request.POST.get("change_password") and request.POST.get("change_password").lower() == 'on' else False,
             "add_master": True if request.POST.get("add_master") and request.POST.get("add_master").lower() == 'on' else False,
-            "auto_square_off": True if request.POST.get("auto_square") and request.POST.get("auto_square").lower() == 'on' else False,
+            "margin_sq": True if request.POST.get("auto_square") and request.POST.get("auto_square").lower() == 'on' else False,
         }
         if request.POST.get("password") != "":
             user_data["password"]= make_password(request.POST.get("password"))
@@ -355,11 +357,10 @@ class EditUserView(View):
             exchange.symbols = exchange_data['symbols']
             exchange.turnover = exchange_data['turnover']
             exchange.save()
-            
+        messages.success(request , f"'{user_name}' edit successfully")
         return redirect("Admin:list-user")
    
 
-        
         
         
 class ListUserView(View):

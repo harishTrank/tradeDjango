@@ -100,7 +100,7 @@
             <div style="margin-right: 7px" class="mr">
               <label>User: </label>
               <select name="" id="pieChartUserListId" class="form-group">
-                <option v style="margin-right: 7px" alue="{{request.user.id}}">
+                <option v style="margin-right: 7px" value="{{request.user.id}}">
                   Own
                 </option>
               </select>
@@ -302,6 +302,7 @@
             currentCoin
         }, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
         .then(res => {
+          console.log("--------res",res)
             pieChart = new Chart($("#secondChart"), {
                 type: 'pie',
                 data: {

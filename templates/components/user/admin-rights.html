@@ -14,7 +14,10 @@
         <div class="create-profile-inside-admin">
           <div class="top-body flex align-center space-bw align-center">
             <div class="flex admin-right">
+              {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
               <p>Admin Rights</p>
+              {% endif %}
+              <p>Master Rights</p>
             </div>
             <div>
               <i class="fa-solid fa-x adminRightClose"></i>
