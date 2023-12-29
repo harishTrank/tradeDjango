@@ -7,6 +7,20 @@
     <title>Login Page</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 
+    <!-- CDN for toast message -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css"
+    />
+
+
     <style>
       .col-30 {
         width: 29%;
@@ -90,7 +104,18 @@
   </head>
 
   <body>
+    
     <div class="login-modal">
+    {% if messages %} {% for message in messages %}
+    {% if message.tags == "alert-success" %}
+    <p id="idd1" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-danger" %}
+    <p id="idd2" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-warning" %}
+    <p id="idd3" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-info" %}
+    <p id="idd4" hidden>{{ message }}</p>
+    {% endif %} {% endfor %} {% endif %} 
       <div class="login-area">
         <div class="">
         <form method="post">
@@ -109,11 +134,11 @@
             </div>
             <div>
               <label for="">Username</label>
-              <input name="user_name" type="text" />
+              <input required name="user_name" type="text" />
             </div>
             <div>
               <label for="">Password</label>
-              <input name="password" type="password" />
+              <input required name="password" type="password" />
             </div>
             <div>
               <button type="submit" class="submit-btn">Submit</button>
@@ -123,5 +148,62 @@
         </div>
       </div>
     </div>
+    <script
+    src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+    integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
   </body>
+  <script>
+
+    var toastMixin = Swal.mixin({
+      toast: true,
+      title: "General Title",
+      animation: false,
+      position: "top-right",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+      },
+    });
+    var x = $("#idd1").text();
+    if (x !== "") {
+      toastMixin.fire({
+        animation: true,
+        title: x,
+        icon: "success",
+      });
+    }
+    var x = $("#idd2").text();
+    if (x !== "") {
+      toastMixin.fire({
+        animation: true,
+        title: x,
+        icon: "error",
+      });
+    }
+
+    var x = $("#idd3").text();
+    if (x !== "") {
+      toastMixin.fire({
+        animation: true,
+        title: x,
+        icon: "warning",
+      });
+    }
+
+    var x = $("#idd4").text();
+    if (x !== "") {
+      toastMixin.fire({
+        animation: true,
+        title: x,
+        icon: "info",
+      });
+    }
+
+  </script>
 </html>
