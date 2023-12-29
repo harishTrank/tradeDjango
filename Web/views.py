@@ -12,6 +12,7 @@ import csv
 from django.http import HttpResponse
 from datetime import datetime, timedelta
 import requests
+from django.db.models import Avg, F, Subquery, OuterRef
 NODEIP = '52.66.205.199'
 
 class LoginView(View):
@@ -39,8 +40,9 @@ class LoginView(View):
                 login(request, user)
                 if not user.status:
                     messages.error(request, "This user is deactivate.")
-                elif user.role != role:
+                if user.role != role:
                     messages.error(request, "Invalid user role.")
+                    return redirect("Admin:login")
                 else:
                     return redirect("Admin:dashboard")
             else:
@@ -536,9 +538,8 @@ class GropuSettingView(View):
     
 class ScriptQuantitySetting(View):
     def get(self, request):
-        group_settings = GroupSettingsModel.objects.get(id=1)  # Fetching a specific GroupSettingsModel instance by its ID
-        related_scripts = group_settings.group_user.all()  # Access related ScriptModel instances via the 'group_user' relationship
-        print("Related Scripts:", related_scripts)
+        group_settings = GroupSettingsModel.objects.get(id=1)  
+        related_scripts = group_settings.group_user.all() 
         return render(request, "components/user/script-quantity-setting.html",{"script":related_scripts})
     
 class QuantitySettingView(View):
@@ -633,8 +634,52 @@ class RejectionLogView(View):
         if symbol:
             rejection = rejection.filter(coin_name=symbol,is_cancel=True)
             
-        return render(request, "components/user/rejection-log.html",{"rejection":rejection,"exchange_obj":exchange_obj,"response":response})
+        return render(request, "components/user/rejection-log.html",{"rejection":rejection,"exchange_obj":exchange_obj,"response":response, "id":id})
     
+
+
+class RejectionDownloadCSVView(View):
+    def get(self, request, id):
+        user = request.GET.get("user_id")
+        print("------------",user)
+        return redirect("Admin:user-list")
+        # if request.user.user_type == "Master":
+        #     user_clients = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+        # elif request.user.user_type == "Admin":
+        #     master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
+        #     client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
+        #     user_clients = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
+        # elif request.user.user_type == "SuperAdmin":
+        #     user_clients = MyUser.objects.exclude(id=request.user.id)
+
+        # response = HttpResponse(content_type='text/csv')
+        # response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+        # writer = csv.writer(response)
+        # writer.writerow([
+        #     'Username', 'Name', 'Type', 'Parent', 'Credit', 'Balance', 'Bet', 'Close Only', 'Margin Sq', 'Status', 'Created Date', 'Last Login'])
+
+        # for client in user_clients:
+        #     writer.writerow([
+        #         client.user_name,
+        #         client.full_name,
+        #         client.user_type,
+        #         client.user_name,
+        #         client.credit,
+        #         client.balance,
+        #         client.bet,
+        #         client.close_only,
+        #         client.margin_sq,
+        #         client.status,
+        #         client.created_at,
+        #         client.last_login])
+
+        # return respons
+
+
+
+
+
 class ShareDetailsView(View):
     def get(self, request):
         return render(request, "components/user/share-deatils.html")
@@ -679,7 +724,6 @@ class MarketWatchView(View):
     def get(self, request):
         user = request.user
         trade_coin_id = user.market_user.filter(trade_coin_id__isnull=False).values_list('trade_coin_id', flat=True)
-        print("===>",trade_coin_id)
         coin_type = user.user.filter(exchange=True).values_list("symbol_name", flat=True)
         return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id))), "coin_type":coin_type})
     
@@ -696,21 +740,21 @@ class TradesView(View):
         is_pending = params.get("is_pending")
         user_name = params.get("user_name")
         if request.user.user_type == "SuperAdmin":
-            response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer") 
+            response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
             filter_data = response.order_by("buy_sell_user__user_name").distinct("buy_sell_user__user_name")
 
         elif request.user.user_type == "Admin":
             user_keys = [request.user.id]
             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
-            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer")
+            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
         elif request.user.user_type == "Client":
-            response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer") 
+            response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
         else:
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
-            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer")
+            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
         
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
@@ -727,10 +771,10 @@ class TradesView(View):
         if is_pending:
             is_pending_bool = is_pending.lower() == 'true'
             response = response.filter(is_pending=is_pending_bool)
-            
         user_coin_names = BuyAndSellModel.objects.filter(
             buy_sell_user__id__in=user_keys
         ).values_list('coin_name', flat=True).distinct()
+      
         return render(request, "view/trades.html",{"response": response,"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' })})
     
     
@@ -745,14 +789,75 @@ class OrdersView(View):
         symbol = request.GET.get('symbol')
         order_list = BuyAndSellModel.objects.all()
         
-        if request.user.user_type == "SuperAdmin":
-            order_list = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address","order_method")
-            user = BuyAndSellModel.objects.exclude(buy_sell_user=user).values_list("buy_sell_user__user_name", flat=True)
-        return render(request, "view/order.html", {"order_list":order_list})
+        # if request.user.user_type == "SuperAdmin":
+        exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
+        response = user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
+        order_list = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=False).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address","order_method")
+        print("-",len(order_list))
+        if from_date:
+            if to_date:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                order_list = order_list.filter(created_at__gte=from_date,created_at__lte=to_date, is_cancel=False)
+        if exchange:
+            order_list = order_list.filter(ex_change=exchange, is_cancel=False)
+
+        if symbol:
+            order_list = order_list.filter(coin_name=symbol, is_cancel=False)
+        order_list = order_list
+        if 'download_csv' in request.GET:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow([
+                'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Order Time', 'Ip Address', 'Device id', 'Reference Price', 'Order Method'])
+            for order in order_list:
+                writer.writerow([
+                    order['buy_sell_user__user_name'],
+                    order["coin_name"],
+                    order["action"],
+                    order["quantity"],
+                    order["price"],
+                    order["created_at"],
+                    order["ip_address"],
+                    order["order_method"]
+                ])
+            return response
+        return render(request, "view/order.html", {"order_list":order_list,"exchange_obj":exchange_obj,"response":response})
     
     
     
-from django.db.models import Avg, F, Subquery, OuterRef
+
+# class OrderDownloadCSVView(View):
+#     def get(self, request):
+#         user = request.user
+#         order_list = BuyAndSellModel.objects.filter(buy_sell_user=user).values(
+#             "id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change",
+#             "created_at", "is_pending", "identifer", "message", "ip_address", "order_method"
+#         )
+
+#         response = HttpResponse(content_type='text/csv')
+#         response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+#         writer = csv.writer(response)
+#         writer.writerow([
+#             'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Order Time', 'Ip Address', 'Device id', 'Reference Price', 'Order Method'])
+#         for order in order_list:
+#             writer.writerow([
+#                 order['buy_sell_user__user_name'],
+#                 order["coin_name"],
+#                 order["action"],
+#                 order["quantity"],
+#                 order["price"],
+#                 order["created_at"],
+#                 order["ip_address"],
+#                 order["order_method"]])
+#         return response
+    
+    
+    
+from django.db.models.functions import Coalesce
+from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
 
 class PositionsView(View):
     def get(self, request):
@@ -764,13 +869,20 @@ class PositionsView(View):
         user_name = params.get("user_name")
         
         results = (
-                user.buy_sell_user.all()
-                .filter(is_pending=False, trade_status=True)
+                user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name')
-                .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
-                .exclude(total_quantity=0)
+                .annotate(
+                    total_quantity=Sum('quantity'),
+                    avg_buy_price=Coalesce(
+                        Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    ),
+                    avg_sell_price=Coalesce(
+                        Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    )
+                ).exclude(total_quantity=0)
             )
-        
         if ex_change:
             results = results.filter(ex_change=ex_change)
         if coin_name:
@@ -782,10 +894,8 @@ class PositionsView(View):
             buy_sell_user__id__in=[request.user.id] 
         ).values_list('coin_name', flat=True).distinct())))
         
-        identifer = list(set(list(user.buy_sell_user.filter(
-            buy_sell_user__id__in=[request.user.id] 
-        ).values_list('identifer', flat=True).distinct())))
-        print(user_coin_names)
+        identifer = list(set(list(results.values_list('identifer', flat=True))))
+        
         return render(request, "view/positions.html",{"response": list(results),"user_coin_names": user_coin_names, "identifer": identifer})
     
     
@@ -814,7 +924,6 @@ class RejectionLogTab(View):
         exchange = request.GET.get('exchange')
         symbol = request.GET.get('symbol')
         response = BuyAndSellModel.objects.exclude(buy_sell_user=user).order_by('-coin_name').values('coin_name').distinct()
-        print("==",symbol)
         
         rejection = BuyAndSellModel.objects.filter(is_cancel=True)
         
@@ -830,7 +939,7 @@ class RejectionLogTab(View):
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
-            rejection = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            rejection = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys, is_cancel=True).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
             user = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
 
         elif request.user.user_type == "Client":
@@ -846,7 +955,26 @@ class RejectionLogTab(View):
         
         if symbol:
             rejection = rejection.filter(coin_name__icontains=symbol)
-       
+        if 'download_csv' in request.GET:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="rejection-log.csv"'
+            writer = csv.writer(response)
+            
+            writer.writerow([
+                'Date', 'Message', 'Username', 'Symbol', 'Type Quantity', 'Price','IP Address'])
+            for reject in rejection:
+                writer.writerow([
+                    reject['created_at'],
+                    reject['message'],
+                    reject['buy_sell_user__user_name'],
+                    reject['coin_name'],
+                    reject['action'],
+                    reject['quantity'],
+                    reject['price'],
+                    reject['ip_address']
+                ])
+            return response
+
         return render(request, "view/rejection-log.html",{"rejection":rejection, "response":response, "user":list(set(user))})
     
     
@@ -868,8 +996,10 @@ class LoginHistory(View):
             
         elif request.user.user_type == "Client":
             user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
-        if from_date and to_date:
-            user_obj = user_obj.filter(created_at__gte=from_date, created_at__lte=to_date)
+        if from_date:
+            if to_date:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                user_obj = user_obj.filter(created_at__gte=from_date,created_at__lte=to_date)
             
         if user_name:
             user_obj = user_obj.filter(user_history__user_name=user_name)
@@ -877,6 +1007,22 @@ class LoginHistory(View):
         user_obj = user_obj.filter(ip_address__icontains="")
         all_users = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("user_history__user_name").distinct()
         
+        if 'download_csv' in request.GET:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+            writer = csv.writer(response)
+            writer.writerow([
+                'Login Date', 'Logout Date', 'Username', 'User Type', 'IP Address', 'Device ID'])
+            for user in user_obj:
+                writer.writerow([
+                    user['created_at'],
+                    user['action'],
+                    user['user_history__user_name'],
+                    user['user_history__user_type'],
+                    user['ip_address'],
+                    user['method']
+                ])
+            return response
         return render(request, "view/login-history.html",{"login_data":user_obj, "all_users":all_users})
     
        
@@ -903,13 +1049,34 @@ class TradeAccount(View):
 
 class SettlementView(View):
     def get(self, request):
-        return render(request, "report/settlement.html")
+        user = request.user.id
+        return render(request, "report/settlement.html", {"user_id":user})
     
     
     
 class AccountSummary(View):
     def get(self, request):
-        return render(request, "report/account-summary.html")
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        p_and_l = request.GET.get('p_and_l')
+        brk = request.GET.get('brk')
+        credit = request.GET.get('credit')
+        user = request.user
+        account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
+        if from_date:
+            if to_date:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                account_summary = account_summary.filter(created_at__gte=from_date,created_at__lte=to_date)
+        
+        if p_and_l == 'on' and brk == 'on':   
+            account_summary = account_summary.filter(Q(summary_flg__icontains='Profit/Loss') | Q(summary_flg__icontains='Brokerage'))
+       
+        elif p_and_l == 'on':
+            account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
+        elif brk == 'on':
+            account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
+
+        return render(request, "report/account-summary.html",{"account_summary":account_summary})
     
     
 class BillGenerate(View):
@@ -940,4 +1107,6 @@ class UserScriptPositionTrackPl(View):
     
 class ScriptQuantity(View):
     def get(self, request):
-        return render(request, "report/script-quantity.html")
+        group_settings = GroupSettingsModel.objects.get(id=1)  
+        related_scripts = group_settings.group_user.all() 
+        return render(request, "report/script-quantity.html",{"related_scripts":related_scripts})

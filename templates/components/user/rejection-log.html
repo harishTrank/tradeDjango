@@ -9,7 +9,7 @@
         <p>Filter</p>
       </div>
       <span>
-        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+        {% comment %} <a href="{% url 'rejection-csv' id=id %}"><i class="fa-solid fa-file-csv"></i></a> {% endcomment %}
       </span>
     </div>
     <div class="trades-side">
@@ -116,6 +116,7 @@
 </div>
 
 <script>
+  console.log("==========",`{{id}}`)
   function clearRejection(){
     window.location.href= window.location.href?.split("?")?.[0]
 } 

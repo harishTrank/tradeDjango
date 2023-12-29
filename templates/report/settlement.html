@@ -1,50 +1,138 @@
 {% extends "index.html" %} {% block content %}
 
 
-  <div class="tab-content" id="scriptquantity">
-            <div class="trade-btm">
-                <div class="mb-10">
-                    <label for="">Exchange:</label>
-                    <select name="" id="" style="width: 250px;" class="form-control">
-                        <option value="">All</option>
-                        <option value="">MCX</option>
-                        <option value="">NSE</option>
-                        <option value="">MINI</option>
-                    </select>
-                </div>
-            </div>
-            <div class="user-table col-100">
-                <table style="width: 100%;">
-                    <tr>
-                        <th>SCRIPT</th>
-                        <th>Lot Size</th>
-                        <th>Lot Max</th>
-                        <th>Breakup Lot</th>
-                        <th>Last Updated</th>
-                    </tr>
-                    <tr>
-                        <td>ALUMINI</td>
-                        <td>1000</td>
-                        <td>5</td>
-                        <td>5</td>
-                        <td>7/16/2023 4:11 PM</td>
-                    </tr>
-                    <tr>
-                        <td>COPPER</td>
-                        <td>5000</td>
-                        <td>5</td>
-                        <td>5</td>
-                        <td>7/16/2023 4:11 PM</td>
-                    </tr>
-                    <tr>
-                        <td>COTTON</td>
-                        <td>2500</td>
-                        <td>5</td>
-                        <td>5</td>
-                        <td>7/16/2023 4:11 PM</td>
-                    </tr>
-                </table>
-            </div>
+<div class="tab-content" id="settlement">
+    <div class="flex">
+      <div class="trade-download">
+        <div style="transform: rotate(90deg); padding-left: 10px">
+          <p>Filter</p>
         </div>
+        <span>
+          <a href=""><i class="fa-solid fa-file-csv"></i></a>
+        </span>
+      </div>
+      <div class="trades-side">
+        <div class="trade-top">
+          <div class="flex space-bw">
+            <div>
+              <p>Filter</p>
+            </div>
+            <div class="closeBtn">
+              <i class="fa-solid fa-xmark"></i>
+            </div>
+          </div>
+        </div>
+        <div class="trade-btm">
+          <div class="flex space-bw">
+            <label for="">From:</label>
+            <input type="date" class="form_control" id="fromDateInput"/>
+          </div>
+          <div class="flex space-bw">
+            <label for="">To:</label>
+            <input type="date" class="form_control" id="toDateInput"/>
+          </div>
+          <div style="display: flex">
+            <input
+              type="submit"
+              value="View"
+              class="form-btn mr"
+              style="border: 1px solid white"
+              id="viewBtn"
+            />
+            <input
+              type="submit"
+              value="Clear"
+              class="cancel-btn"
+              style="border: 1px solid white"
+              id="clearBtn"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="trades-body user-table">
+        <div class="flex">
+          <div class="col-50">
+            <table style="width: 100%; border: 1px solid #000">
+              <div class="text-center">
+                <h3 class="green-color mb-0">Profit</h3>
+              </div>
+              <tr>
+                <th>Username</th>
+                <th>P/L</th>
+                <th>Brk</th>
+                <th>Total</th>
+              </tr>
+              <tr>
+                <td>{{user.user_name}}</td>
+                <td id="profitKey">P/L</td>
+                <td>0</td>
+                <td id="profitTotal">Total</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-50">
+            <table style="width: 100%; border: 1px solid #000">
+              <div class="text-center">
+                <h3 class="red-color mb-0">Loss</h3>
+              </div>
+              <tr>
+                <th>Username</th>
+                <th>P/L</th>
+                <th>Brk</th>
+                <th>Total</th>
+              </tr>
+              <tr>
+                <td>{{user.user_name}}</td>
+                <td id="lossKey"></td>
+                <td id="brkLoss"></td>
+                <td id="lossTotal"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
+  
+  <script>
+    const creditApiCaller = (from_date = '', to_date = '') => {
+      axios.get(`{% url "settlement-api" %}?id={{user_id}}&from_date=${from_date}&to_date=${to_date}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+      .then(res => {
+        $("#profitKey").html("0")
+        $("#profitTotal").html("0")
+        $("#lossKey").html("0")
+        $("#brkLoss").html("0")
+        $("#lossTotal").html("0")
+        $("#profitKey").html(res.data.total_profit?.[0]?.total_amount || 0);
+        $("#profitTotal").html(res.data.total_profit?.[0]?.total_amount || 0);
+        res?.data?.total_loss?.forEach(item => {
+          item?.summary_flg === "Brokerage"
+          ? $("#lossKey").html(item?.total_amount || 0)
+          : $("#brkLoss").html(item?.total_amount || 0)
+        })
+        $("#lossTotal").html(res?.data?.total_loss?.reduce((a,b) => a?.total_amount+b?.total_amount) || 0);
+      })
+      .catch(err => {
+          console.log("err", err);
+      });
+    } 
+    creditApiCaller();
+  
+    $("#clearBtn").click(() => {
+      creditApiCaller();
+    })
+  
+    $("#viewBtn").click(() => {
+      if ($("#fromDateInput").val() == "" || $("#toDateInput").val() == "") {
+        console.log("error")
+      } else {
+        creditApiCaller(dayjs($("#fromDateInput").val()).format("YYYY-MM-DD"), dayjs($("#toDateInput").val()).format("YYYY-MM-DD"));
+      }
+    })
+  </script>      
+
+
 
 {% endblock content %}

@@ -51,7 +51,7 @@
       <li class="open-file-menu" data-id="users" class="open-menu"><a id="userDetailsLink" style=" text-decoration: none; color: #000;" >Position</a></li>
       <li data-id="trades1"><a style=" text-decoration: none;color: #000;" id="tabTradeLink">Trades</a></li>
       <li data-id="scriptmaster" class="open-menu"><a style=" text-decoration: none; color: #000;" id="scriptMasterLink">Script Master</a></li>
-      {% if request.user.user_type != "Admin" %}
+      {% if request.user.user_type == "Admin" or "SuperAdmin" %}
       <li data-id="groupsetting" class="open-view-menu"><a style=" text-decoration: none;color: #000;" href="{% url 'Admin:group-setting' %}">Group Setting</a></li>
       {% endif %}
       

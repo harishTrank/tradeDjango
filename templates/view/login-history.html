@@ -7,9 +7,9 @@
             <div style="transform: rotate(90deg);padding-left: 10px; cursor: pointer;">
                 <p id="loginHistoryId">Filter</p>
             </div>
-            <span>
-                <a href=""><i class="fa-solid fa-file-csv"></i></a>
-            </span>
+            <a href="{% url 'Admin:login-history' %}?from_date={{ from_date }}&to_date={{ to_date }}&exchange={{ exchange }}&symbol={{ symbol }}&download_csv=true" class="download-csv-link">
+                <i class="fa-solid fa-file-csv"></i>
+            </a>
         </div>
         <div class="trades-side">
             <div class="trade-top">
@@ -37,7 +37,6 @@
                         <label for="">Username:</label>
 
                         <select name="user_name" id="">
-                            <option value="">Select</option>
                             {% for i in all_users %}
                             <option value="{{i.user_history__user_name}}">{{i.user_history__user_name}}</option>
                             {% endfor %}
@@ -50,7 +49,7 @@
                     <div>
                         <label for=""></label>
                         <button type="submit" value="View" class="form-btn">View</button>
-                        <a href="{% url 'Admin:login-history' %}" style="background-color:#646464; color:#fff;" type="" value="View" class="form-btn">Clear</a>
+                        <a href="{% url 'Admin:login-history' %}" style="background-color:#646464; color:#fff !important;" type="" value="View" class="form-btn">Clear</a>
                     </div>
                 </div>
             </form>
