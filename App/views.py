@@ -777,23 +777,21 @@ class MyUserPerissionToggle(APIView):
 
 class ChangePasswordWebAPI(APIView):
     def post(self, request):
-        if request.user.user_type == "Master" or request.user.user_type == "Client" and request.user.user_name == request.data["user_name"]:
-            user_name = request.data["user_name"]
-            new_password = request.data["new_password"]
-            confirm_password = request.data["confirm_password"]
-            try:
-                user = MyUser.objects.get(user_name=user_name)
-            except MyUser.DoesNotExist:
-                return Response({"success": False, "message": "User Doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
-            
-            if new_password == confirm_password:
-                user.set_password(new_password)
-                user.save()
-                update_session_auth_hash(request, user)
-                return Response({"success": True, "message": "Password change succesfully"}, status=status.HTTP_200_OK)
-            else:
-                return Response({"success": False, "message": "New passwords do not match!"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({"success": False, "message": "Invalid user name."}, status=status.HTTP_404_NOT_FOUND)
+        user_name = request.data["user_name"]
+        new_password = request.data["new_password"]
+        confirm_password = request.data["confirm_password"]
+        try:
+            user = MyUser.objects.get(user_name=user_name)
+        except MyUser.DoesNotExist:
+            return Response({"success": False, "message": "User Doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if new_password == confirm_password:
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)
+            return Response({"success": True, "message": "Password change succesfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"success": False, "message": "New passwords do not match!"}, status=status.HTTP_404_NOT_FOUND)
         
 
 class GetAllAdminApiView(APIView):
