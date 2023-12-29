@@ -82,6 +82,7 @@ class AddUserView(View):
         user_data = {
             "full_name": request.POST.get("full_name"),
             "user_name": request.POST.get("user_name"),
+            "role":"AREX",
             "phone_number": request.POST.get("phone_number"),
             "city": request.POST.get("city"),
             "credit": request.POST.get("credit") if request.POST.get("credit") else 0,
@@ -125,14 +126,14 @@ class AddUserView(View):
 
         if request.user.user_type == "SuperAdmin":
             if (not request.POST.get("accountUser") == 'on'):
-                create_user = MyUser.objects.create(user_type="Admin", **user_data, role=request.user.role)
+                create_user = MyUser.objects.create(user_type="Admin", **user_data)
                 AdminModel.objects.create(user=create_user)
                 messages.success(request, f"Admin create successfully.")
             elif request.POST.get("add_master") == 'on':
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
                 selected_admin.user.balance -=int(request.POST.get("credit"))
                 selected_admin.user.save()
-                create_user = MyUser.objects.create(user_type="Master", **user_data, role=request.user.role)
+                create_user = MyUser.objects.create(user_type="Master", **user_data)
                 try:
                     self_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     MastrModel.objects.create(master_user=create_user, admin_user=selected_admin,master_link=self_master)
@@ -145,7 +146,7 @@ class AddUserView(View):
                     messages.success(request, f"Master create successfully.")
             else:
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
-                create_user = MyUser.objects.create(user_type="Client", **user_data, role=request.user.role)
+                create_user = MyUser.objects.create(user_type="Client", **user_data)
                 try:
                     selected_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin,master_user_link=selected_master)

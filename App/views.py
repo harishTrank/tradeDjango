@@ -31,6 +31,8 @@ class LoginApi(APIView):
                 return Response({"success": False, "message": "Invalid credentials."}, status=status.HTTP_404_NOT_FOUND)
             elif not current_user.status:
                 return Response({"success": False, "message": "This user has been disabled."}, status=status.HTTP_404_NOT_FOUND)
+            elif current_user.user_type == "Admin" or current_user.user_type =="SuperAdmin":
+                return Response({"success": False, "message": "Invaild user."}, status=status.HTTP_404_NOT_FOUND)
             else:
                 refresh = RefreshToken.for_user(current_user)
                 token = {
@@ -633,10 +635,8 @@ class SearchUserAPI(APIView):
     def get(self, request):
         if request.user.user_type == "Master":
             total_parent_master = MastrModel.objects.filter(master_link=request.user.master_user).values_list('id', flat=True)
-            print("===========",total_parent_master)
             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
             master_models = MastrModel.objects.filter(id__in=all_masters)
-            print('-=-=-=-=-=-=-=-=-=-==-=-==-=-=-=',master_models)
             serializer = MasterSerializer(master_models, many=True)
         elif request.user.user_type == "Admin":
             admin_models = AdminModel.objects.get(user=request.user)
@@ -647,12 +647,7 @@ class SearchUserAPI(APIView):
             
         elif request.user.user_type == "SuperAdmin":
             super_admin_users = MyUser.objects.filter(user_type='SuperAdmin')
-
-            # Fetch associated AdminModel objects for each SuperAdmin
             super_admin_admin_models = AdminModel.objects.filter(user__in=super_admin_users)
-            print("-----------------",super_admin_admin_models)
-
-            # Serialize the related AdminModel objects
             serializer = AdminSerializer(super_admin_admin_models, many=True)
         return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
