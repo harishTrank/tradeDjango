@@ -88,23 +88,20 @@
       identifiers = "{{identifiers|safe}}";
       identifier = JSON.parse(identifiers.replaceAll(`'`, `"`))
       socket.emit("filterDataGet", {"identifier": identifier });
-
+      let previousResult = [];
         socket.on("filterDataSend", (data) => {
-
         const tableBody = document.getElementById('data-table-body');
-    
         tableBody.innerHTML = '';
-    
+
+
         data.forEach((item) => {
             const row = document.createElement('tr');
-            
-    
             row.innerHTML = `
                 <td>${item.Exchange}</td>
                 <td>${item.InstrumentIdentifier}</td>
                 <td>${item.BuyQty}</td>
-                <td>${item.BuyPrice}</td>
-                <td>${item.SellPrice}</td>
+                <td id="b${item.InstrumentIdentifier}">${item.BuyPrice?.toFixed(2)}</td>
+                <td id="s${item.InstrumentIdentifier}">${item.SellPrice?.toFixed(2)}</td>
                 <td>${item.SellQty}</td>
                 <td>${item.LastTradePrice}</td>
                 <td>${item.PriceChange}</td>
@@ -115,6 +112,24 @@
                 <td>${item.Close}</td>
             `;
             tableBody.appendChild(row);
+            if (item.BuyPrice && previousResult.find(findItem => findItem.identifier === item.InstrumentIdentifier)?.buyPrice !== item.BuyPrice) {
+                $(`#b${item.InstrumentIdentifier}`).css("background", item.buyColor);
+                setTimeout(() => $(`#b${item.InstrumentIdentifier}`).css("background", "transparent"), 500);
+            }
+
+            if (item.SellPrice && previousResult.find(findItem => findItem.identifier === item.InstrumentIdentifier)?.sellPrice !== item.SellPrice) {
+                $(`#s${item.InstrumentIdentifier}`).css("background", item.sellColor);
+                setTimeout(() => $(`#s${item.InstrumentIdentifier}`).css("background", "transparent"), 500);
+            }
+        
+            previousResult = [
+                ...previousResult.filter(filterItem => filterItem.identifier !== item.InstrumentIdentifier),
+                {
+                    identifier: item.InstrumentIdentifier,
+                    buyPrice: item.BuyPrice,
+                    sellPrice: item.SellPrice,
+                }
+            ]
         });
     });
     function showLoader() {
