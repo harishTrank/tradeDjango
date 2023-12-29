@@ -32,11 +32,13 @@ class LoginView(View):
         user_name = request.POST.get("user_name")
         password = request.POST.get("password")
         role = request.POST.get("selectServer")
-        print(user_name, password, role)
         user = authenticate(username=user_name, password=password)
-        if user.role != role:
-            messages.error(request, "Invalid user role.")
-            return redirect("Admin:login")
+        try:
+            if user.role != role:
+                messages.error(request, "Invalid user role.")
+                return redirect("Admin:login")
+        except:
+            pass
         
         if user is not None:
             if user.user_type in ["SuperAdmin", "Admin", "Master", "Client"]:
