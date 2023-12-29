@@ -640,14 +640,22 @@ class SearchUserAPI(APIView):
             serializer = MasterSerializer(master_models, many=True)
         elif request.user.user_type == "Admin":
             admin_models = AdminModel.objects.get(user=request.user)
-            all_masters = admin_models.admin_user.all()
-            master_ids = [admin_master.id for admin_master in all_masters]
-            admin_master_models = MastrModel.objects.filter(id__in=master_ids)
+            all_masters = admin_models.admin_user.all().values_list('id', flat=True)
+            admin_master_models = MastrModel.objects.filter(id__in=all_masters)
             serializer = MasterSerializer(admin_master_models, many=True)
             
         elif request.user.user_type == "SuperAdmin":
+<<<<<<< HEAD
             super_admin_users = MyUser.objects.filter(user_type='SuperAdmin')
             super_admin_admin_models = AdminModel.objects.filter(user__in=super_admin_users)
+=======
+            super_admin_users = MyUser.objects.filter(user_type='Admin', role=request.user.role)
+            print("super_admin_users", super_admin_users)
+            # Fetch associated AdminModel objects for each SuperAdmin
+            super_admin_admin_models = AdminModel.objects.filter(user__in=super_admin_users)
+
+            # Serialize the related AdminModel objects
+>>>>>>> 90ba5e8ba62680e4668fe0d810e7650a14de8c20
             serializer = AdminSerializer(super_admin_admin_models, many=True)
         return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -776,23 +784,21 @@ class MyUserPerissionToggle(APIView):
 
 class ChangePasswordWebAPI(APIView):
     def post(self, request):
-        if request.user.user_type == "Master" or request.user.user_type == "Client" and request.user.user_name == request.data["user_name"]:
-            user_name = request.data["user_name"]
-            new_password = request.data["new_password"]
-            confirm_password = request.data["confirm_password"]
-            try:
-                user = MyUser.objects.get(user_name=user_name)
-            except MyUser.DoesNotExist:
-                return Response({"success": False, "message": "User Doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
-            
-            if new_password == confirm_password:
-                user.set_password(new_password)
-                user.save()
-                update_session_auth_hash(request, user)
-                return Response({"success": True, "message": "Password change succesfully"}, status=status.HTTP_200_OK)
-            else:
-                return Response({"success": False, "message": "New passwords do not match!"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({"success": False, "message": "Invalid user name."}, status=status.HTTP_404_NOT_FOUND)
+        user_name = request.data["user_name"]
+        new_password = request.data["new_password"]
+        confirm_password = request.data["confirm_password"]
+        try:
+            user = MyUser.objects.get(user_name=user_name)
+        except MyUser.DoesNotExist:
+            return Response({"success": False, "message": "User Doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if new_password == confirm_password:
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)
+            return Response({"success": True, "message": "Password change succesfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"success": False, "message": "New passwords do not match!"}, status=status.HTTP_404_NOT_FOUND)
         
 
 class GetAllAdminApiView(APIView):
