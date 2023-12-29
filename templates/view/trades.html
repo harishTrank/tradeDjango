@@ -78,7 +78,6 @@
                     <th>Quantity</th>
                     <th>Price</th>
                     <th>Brk</th>
-                    <th>Deal</th>
                     <th>Order Time</th>
                     <th>Ip Address</th>
                     <th>Device id</th>
@@ -93,8 +92,9 @@
                     <td style="color: {% if i.action == 'SELL' %}red{% elif i.action == 'BUY' %}blue{% else %}inherit{% endif %};">{{i.action}}</td>
                     <td style="color: {% if i.action == 'SELL' %}red{% else %}blue{% endif %};">{% if i.quantity > 0 %} {{i.quantity}} {% else %} {{ i.quantity|stringformat:"+d"|slice:"1:" }} {% endif %}</td>
                     <td style="color: {% if i.action == 'SELL' %}red{% else %}blue{% endif %};">{{i.price}}</td>
-                    <td>Brk</td>
-                    <td>Deal</td>
+                    <td>
+                        0
+                    </td>
                     <td>{{i.created_at}}</td>
                     <td>{{i.ip_address}}</td>
                     <td>Device id</td>

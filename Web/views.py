@@ -698,7 +698,6 @@ class TradesView(View):
         if request.user.user_type == "SuperAdmin":
             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer") 
             filter_data = response.order_by("buy_sell_user__user_name").distinct("buy_sell_user__user_name")
-            print("=======================",filter_data)
 
         elif request.user.user_type == "Admin":
             user_keys = [request.user.id]
@@ -732,7 +731,6 @@ class TradesView(View):
         user_coin_names = BuyAndSellModel.objects.filter(
             buy_sell_user__id__in=user_keys
         ).values_list('coin_name', flat=True).distinct()
-        print("=============---------------",list({'buy_sell_user__user_name' }))
         return render(request, "view/trades.html",{"response": response,"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' })})
     
     
