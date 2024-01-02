@@ -927,13 +927,14 @@ class RejectionLogTab(View):
         response = BuyAndSellModel.objects.exclude(buy_sell_user=user).order_by('-coin_name').values('coin_name').distinct()
         
         rejection = BuyAndSellModel.objects.filter(is_cancel=True)
-        
         if request.user.user_type == "SuperAdmin":
-            rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            rejection = rejection.filter(is_cancel=True)
             user = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
 
         elif request.user.user_type == "Admin":
-            rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            rejection = rejection.filter(is_cancel=True)
             user = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
         
         elif request.user.user_type == "Master":

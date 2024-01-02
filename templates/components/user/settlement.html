@@ -4,8 +4,8 @@
 <div class="tab-content" id="settlement">
   <div class="flex">
     <div class="trade-download">
-      <div style="transform: rotate(90deg); padding-left: 10px">
-        <p>Filter</p>
+      <div style="transform: rotate(90deg); padding-left: 10px; cursor:pointer;">
+        <p id="settlementFilterId">Filter</p>
       </div>
       <span>
         <a href=""><i class="fa-solid fa-file-csv"></i></a>
@@ -97,22 +97,35 @@
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
 
 <script>
+
+  $('.closeBtn').click(function () {
+    $(".trades-side").hide();
+    $(".trades-body").css("width", "95%");
+  });
+
+  $('#settlementFilterId').click(function () {
+    $(".trades-side").show();
+    $(".trades-body").css("width", "67%");
+  });
+
+
   const creditApiCaller = (from_date = '', to_date = '') => {
     axios.get(`{% url "settlement-api" %}?id={{user_id}}&from_date=${from_date}&to_date=${to_date}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
     .then(res => {
-      $("#profitKey").html("0")
-      $("#profitTotal").html("0")
+      $("#profitKey").html((res.data.total_profit?.[0]?.total_amount || 0).toFixed(2));
+      $("#profitTotal").html((res.data.total_profit?.[0]?.total_amount || 0).toFixed(2));
       $("#lossKey").html("0")
       $("#brkLoss").html("0")
       $("#lossTotal").html("0")
-      $("#profitKey").html(res.data.total_profit?.[0]?.total_amount || 0);
-      $("#profitTotal").html(res.data.total_profit?.[0]?.total_amount || 0);
+      const profitTotal = (res.data.total_profit?.[0]?.total_amount || 0).toFixed(2);
+        $("#profitTotal").html(profitTotal);
       res?.data?.total_loss?.forEach(item => {
         item?.summary_flg === "Brokerage"
-        ? $("#lossKey").html(item?.total_amount || 0)
-        : $("#brkLoss").html(item?.total_amount || 0)
+        ? $("#lossKey").html((item?.total_amount || 0).toFixed(2))
+        : $("#brkLoss").html((item?.total_amount || 0).toFixed(2));
       })
-      $("#lossTotal").html(res?.data?.total_loss?.reduce((a,b) => a?.total_amount+b?.total_amount) || 0);
+       const totalLoss = (res?.data?.total_loss?.reduce((a, b) => a + (b?.total_amount || 0), 0) || 0).toFixed(2);
+        $("#lossTotal").html(totalLoss);
     })
     .catch(err => {
         console.log("err", err);
