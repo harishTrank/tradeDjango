@@ -83,12 +83,12 @@
 
     socket.on("connect", () => {
         console.log("Connected to the Socket.io server");
-      });
+        });
     
-      identifiers = "{{identifiers|safe}}";
-      identifier = JSON.parse(identifiers.replaceAll(`'`, `"`))
-      socket.emit("filterDataGet", {"identifier": identifier });
-      let previousResult = [];
+        identifiers = "{{identifiers|safe}}";
+        identifier = JSON.parse(identifiers.replaceAll(`'`, `"`))
+        socket.emit("filterDataGet", {"identifier": identifier });
+        let previousResult = [];
         socket.on("filterDataSend", (data) => {
         const tableBody = document.getElementById('data-table-body');
         tableBody.innerHTML = '';
@@ -132,12 +132,14 @@
             ]
         });
     });
-    function showLoader() {
-        document.getElementById('loader').style.display = 'none';
-    }
+    
     socket.on("disconnect", () => {
         console.log("Disconnected from the Socket.io server");
     });
+
+    function showLoader() {
+        document.getElementById('loader').style.display = 'none';
+    }
 
   {% comment %}  api to ftach all coin  {% endcomment %}
   let response;
