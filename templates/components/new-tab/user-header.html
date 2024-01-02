@@ -29,23 +29,17 @@
 
 
 <body>
-<style>
-  anchorTAG.{
-   
-  }
-</style>
-
 
   {% if messages %} {% for message in messages %}
     {% if message.tags == "alert-success" %}
-    <p id="idd1" hidden>{{ message }}</p>
+      <p id="idd1" hidden>{{ message }}</p>
     {% elif message.tags == "alert-danger" %}
-    <p id="idd2" hidden>{{ message }}</p>
+      <p id="idd2" hidden>{{ message }}</p>
     {% elif message.tags == "alert-warning" %}
-    <p id="idd3" hidden>{{ message }}</p>
+      <p id="idd3" hidden>{{ message }}</p>
     {% elif message.tags == "alert-info" %}
-    <p id="idd4" hidden>{{ message }}</p>
-    {% endif %} {% endfor %} {% endif %} 
+      <p id="idd4" hidden>{{ message }}</p>
+  {% endif %} {% endfor %} {% endif %} 
 
     <div class="tab-head">
       <li class="open-file-menu" data-id="users" class="open-menu"><a id="userDetailsLink" style=" text-decoration: none; color: #000;" >Position</a></li>
