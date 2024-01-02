@@ -35,12 +35,7 @@
           <input name="to_date" type="date" class="form_control" />
         </div>
 
-        {% comment %} <div class="flex space-bw">
-          <label for="">Username:</label>
-          <select name="user_name" id="" class="form_control flex">
-              <option value="">{{rejection.buy_sell_user__user_name}}</option>
-          </select>
-        </div> {% endcomment %}
+   
 
         <div class="flex space-bw">
           <label for="">Exchange:</label>
@@ -77,6 +72,7 @@
     </div>
     <div class="trades-body user-table">
       <div class="pos-relate">
+      {% if rejection %}
         <table style="width: 100%">
           <tr>
             <th>Date</th>
@@ -107,9 +103,12 @@
             </tr>
             {% endfor %}
           </tbody>
-
-
         </table>
+        {% else %}
+        <div style="display: flex;justify-content: center;margin-top: 14%;">
+          <p>No data found</p>
+        </div>
+    {% endif %}
       </div>
     </div>
   </div>

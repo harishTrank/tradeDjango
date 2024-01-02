@@ -56,7 +56,7 @@
                         <p style="font-size: 14px; margin-right: 5px;">Brk</p>
                     </div>
                     <div class="mr flex">
-                        <input type="checkbox" name="" id="creditId" class="unset mb-0">
+                        <input type="checkbox" onClick="creditClickHandler()" id="creditId" class="unset mb-0">
                         <p style="font-size: 14px; margin-right: 5px;">Credit</p>
                     </div>
                 </div>
@@ -67,8 +67,10 @@
             </div>
         </form>
     </div>    
+    
      <div class="trades-body user-table ">
          <div class="pos-relate">
+    {% if account_summary %}
          <table style="width: 100%;">
              <tr>
                  <th>Date</th>
@@ -100,25 +102,19 @@
                 </tr>
                 {% endfor %}
          </table>
+         {% else %}
+         <div style="display: flex;justify-content: center;margin-top: 14%;">
+           <p>No data found</p>
+         </div>
+     {% endif %}
      </div>
      </div>
     </div>
- </div>
+</div>
 
- <script>
-   
-    $(document).ready(function() {
-        $('#pandlID, #brkId').change(function() {
-          if ($(this).is(':checked')) {
-            $('#creditId').prop('checked', false);
-          }
-        });
-        $('#creditId').change(function() {
-          if ($(this).is(':checked')) {
-            $('#pandlID, #brkId').prop('checked', false);
-          }
-        });
-      });
-
- </script>
+<script>
+    const creditClickHandler = () => {
+        console.log("123456", $("#creditId").val())
+    }
+</script>
 {% endblock newtab %}

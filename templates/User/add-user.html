@@ -1,9 +1,9 @@
 {% extends "index.html" %} {% block content %}
-<form method="post">
+<form id="userForm" method="post">
   {% csrf_token %}
   <div class="tab-content" id="create-user">
     <div class="create-account">
-      <div>
+     <div>
         {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
           <div class="flex">
             <div class="mr"><input id="otherUserFlagId" name="accountUser" type="checkbox" />&nbsp Create Account for User</div>
@@ -34,11 +34,11 @@
           </div>
           <div class="col-25">
             <label for="">Password*</label>
-            <input type="password" name="password" class="form-group" required/>
+            <input id="password" type="password" name="password" class="form-group" required/>
           </div>
           <div class="col-25">
             <label for=""> Retype Password*</label>
-            <input type="password" name="retype_password" class="form-group" required/>
+            <input id="retype_password" type="password" name="retype_password" class="form-group" required/>
           </div>
           <div class="col-25">
             <label for="">Mobile Number</label>
@@ -153,7 +153,7 @@
           <button  type="submit"  class="save-btn" />Save</button>
         </div>
         <div class="col-49">
-          <button style="height: 37px;" value="Cancel" class="cancel-btn">Cancel<button/>
+          <button type="button" onclick="history.back()" style="height: 34px;" class="cancel-btn">Cancel<button/>
         </div>
       </div>
     </div>
@@ -273,6 +273,27 @@ input:checked+.slider:before {
 
 
 <script>
+
+  $(document).ready(function() {
+    $('#userForm').submit(function(e) {
+        var password = $('#password').val();
+        var retypePassword = $('#retype_password').val();
+
+        if (password.length !== 6) {
+            e.preventDefault();
+            $('#password').css('border', '1px solid red');
+            alert('Password must be 6 characters long');
+        } else if (password !== retypePassword) {
+            e.preventDefault();
+            $('#password, #retype_password').css('border', '1px solid red');
+            alert('Passwords do not match');
+        } else {
+            $('#password, #retype_password').css('border', ''); 
+        }
+    });
+});
+
+
 const checkAdmin = `{{request.user.user_name}}`;
 console.log("-=-=-=-=->",checkAdmin)
 

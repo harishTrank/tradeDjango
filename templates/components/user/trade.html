@@ -4,6 +4,7 @@
 <div class="tab-content" id="quantitysetting">
     
     <div class="user-table col-100">
+    {% if response %}
         <table style="width: 100%;">
             <tr>
                 <th>UserName</th>
@@ -40,6 +41,11 @@
                 </tr>
             {% endfor %}
         </table>
+        {% else %}
+        <div style="display: flex;justify-content: center;margin-top: 14%;">
+          <p>No data found</p>
+        </div>
+    {% endif %}
     </div>
 </div>
 

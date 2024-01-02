@@ -18,15 +18,17 @@
               <span class="slider round"></span>
             </label>
           </div>
-          <div class="flex mrg-tb pop-up-text spaceclass">
+          <div class="flex mrg-tb 
+          pop-up-text spaceclass">
             <p>Masters:</p>
             <input id="master_limit" type="text" placeholder="0" />
             <input
               readonly
               type="text"
               placeholder="Occupied 0 + Created 0 = 0"
+              id="masterOccId"
             />
-            <input readonly type="text" placeholder="0 Remaining" />
+            <input id="masterRemId" readonly type="text" placeholder="0 Remaining" />
           </div>
           <div class="flex mrg-tb pop-up-text clients spaceclass">
             <p>Clients:</p>
@@ -35,8 +37,9 @@
               readonly
               type="text"
               placeholder="Occupied 0 + Created 9 = 9"
+              id="clientOccId"
             />
-            <input readonly type="text" placeholder="1 Remaining" />
+            <input id="clientRemId" readonly type="text" placeholder="1 Remaining" />
           </div>
           <div class="save-cancel-btn flex space-bw mrg-tb">
             <div><a href="">Parent Limit Info</a></div>
@@ -182,10 +185,13 @@
 </style>
 
 <script>
+  
   $(".closeAccountLimit").click(() =>
     $("#accountLimitid").css("display", "none")
   );
   const accountLimitHandler = (event) => {
+    const selectedUserId = $("#current_selected_userId").val();
+    console.log("------sfsf-----",selectedUserId)
     if (
       $("#current_selected_userId").val() !== "" &&
       $("#master_limit").val() !== "" &&
@@ -224,4 +230,25 @@
       });
     }
   };
+
+
+  $("#accountLimitId").click(()=>{
+    axios.get(`{% url "account-limit" %}?user_id=${$("#current_selected_userId").val()}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+    .then(res => {
+      $("#limitId").prop("checked",res.data.limit)
+      $("#master_limit").val(res.data.master_limit);
+      $("#client_limit").val(res.data.client_obj);
+      $("#masterOccId").val(res.data.master_occupied);
+      $("#masterRemId").val(res.data.master_rem);
+      $("#clientOccId").val(res.data.client_occupied);
+      $("#clientRemId").val(res.data.client_rem);
+        console.log("res ==", res);
+
+    })
+    .catch(err => {
+        console.log("err", err);
+    });
+  })
+  {% comment %} account limit  {% endcomment %}
+
 </script>

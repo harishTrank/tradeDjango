@@ -987,5 +987,32 @@ class PieChartHandlerApi(APIView):
         except Exception as e:
             print(e, "eeeeee")
             return Response({"success": False, "message": "No record found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+
+
+class AccountLimitApi(APIView):
+    def get(self, request):
+        user = MyUser.objects.get(id=request.GET.get("user_id"))
+        user_limit = user.master_user
+        client = user.master_user.master_user_link.count()
+        master_created = MastrModel.objects.filter(master_link=user_limit).count()
+        limit_obj = user_limit.limit
+        master_limit = user_limit.master_limit
+        client_obj = user_limit.client_limit
+        
+        client_rem = client_obj - client
+        master_rem = master_limit -master_created
+        
+        return Response({
+            "status": True,
+            "limit": limit_obj,
+            "master_limit": master_limit,
+            "client_obj": client_obj,
+            "client_occupied": client,
+            "client_rem":client_rem,
+            "master_occupied":master_created,
+            "master_rem":master_rem
+        }, status=status.HTTP_200_OK)
 
 # ------------------------------------------------

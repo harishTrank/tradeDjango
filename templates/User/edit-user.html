@@ -139,7 +139,7 @@
           <button  type="submit"  class="save-btn" />Save</button>
         </div>
         <div class="col-49">
-          <button style="height: 37px;" value="Cancel" class="cancel-btn">Cancel<button/>
+          <button type="button" onclick="history.back()" style="height: 34px;" class="cancel-btn">Cancel</button>
         </div>
       </div>
     </div>
@@ -263,21 +263,25 @@ input:checked+.slider:before {
 <script>
 
 
-    $(document).ready(function() {
-        $('#userForm').submit(function(e) {
-            var password = $('#password').val();
-            var retypePassword = $('#retype_password').val();
-    
-            if (password !== retypePassword) {
-                e.preventDefault(); // Prevent form submission
-                $('#password, #retype_password').css('border', '1px solid red');
-                // You can also display this error message in a specific area on your page instead of an alert.
-                // Example: $('#error-message').text('Passwords do not match');
-            } else {
-                $('#password, #retype_password').css('border', ''); // Remove red border if passwords match
-            }
-        });
+  $(document).ready(function() {
+    $('#userForm').submit(function(e) {
+        var password = $('#password').val();
+        var retypePassword = $('#retype_password').val();
+
+        if (password.length !== 6) {
+            e.preventDefault();
+            $('#password').css('border', '1px solid red');
+            alert('Password must be 6 characters long');
+        } else if (password !== retypePassword) {
+          $('#userForm').submit(function(e){
+            $('#password, #retype_password').css('border', '1px solid red');
+            alert('Passwords do not match');
+          }
+        } else {
+            $('#password, #retype_password').css('border', ''); 
+        }
     });
+});
     
 
   $("#otherUserFlagId").change(() => $("#otherUserFlagId").prop("checked") &&   $("#selectedAdminId").prop("required", true) )

@@ -55,6 +55,7 @@
             </form>
         </div>
         <div class="trades-body user-table">
+            {% if login_data %}
             <table style="width: 100%;">
                 <tr>
                     <th>Login Date</th>
@@ -79,6 +80,11 @@
                 </tr>
                 {% endfor %}
             </table>
+            {% else %}
+            <div style="display: flex;justify-content: center;margin-top: 14%;">
+              <p>No data found</p>
+            </div>
+        {% endif %}
         </div>
     </div>
 </div>

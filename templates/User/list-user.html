@@ -116,6 +116,7 @@
         </div>
         <div class="user-table new-table">
             <h3>{{request.user.user_name}}</h3>
+            {% if client %}
             <table style="width: 100%;">
                 
                 <tr>
@@ -140,7 +141,7 @@
                     <ul class="action_dropdown" id="actionDropDown">
                         <li><a onClick="changePasswordOpen()">Change Password</a></li>
                         <li><a href="#">Share Details</a></li>
-                        <li><a onClick="accountLimit()">Account Limit</a></li>
+                        <li><a id="accountLimitId" onClick="accountLimit()">Account Limit</a></li>
                         {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
                             <li><a onClick="adminRights()">Admin Rights</a></li>
                         {% endif %}
@@ -212,6 +213,11 @@
                 </tr>
                 {% endfor %}
             </table>
+            {% else %}
+            <div style="display: flex;justify-content: center;margin-top: 14%;">
+              <p>No data found</p>
+            </div>
+        {% endif %}
         </div>
     </div>
 

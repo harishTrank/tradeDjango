@@ -370,13 +370,13 @@ class ListUserView(View):
     def get(self , request):
         user = request.user
         if request.user.user_type == "Master":
-            response_user = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True))).order_by("full_name")
+            response_user = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True))).order_by("user_name")
         elif request.user.user_type == "Admin":
             master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
             client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
             response_user = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
         elif request.user.user_type == "SuperAdmin":
-            response_user = MyUser.objects.exclude(id=request.user.id).order_by("full_name")
+            response_user = MyUser.objects.exclude(id=request.user.id).order_by("user_name")
         return render(request, "User/list-user.html",{"client":response_user})
     
 
