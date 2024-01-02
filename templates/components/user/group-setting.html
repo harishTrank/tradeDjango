@@ -6,7 +6,7 @@
     <div class="trade-btm">
         <div class="mb-10">
             <label for="">Exchange:</label>
-            <select name="" id="" style="width: 250px;" class="form-control">
+            <select name="" style="width: 250px;" class="form-control">
                 <option value="">MCX</option>
                 <option value="">NSE</option>
                 <option value="">MINI</option>
@@ -45,7 +45,11 @@
 </div>
 
 <script>
-    const groupSettingClick = () => window.open('script-quantity-setting', 'NewWindow', 'width=1000,height=600')
+    const groupSettingClick = () => {
+        var left = (screen.width/2)-(1000/2);
+        var top = (screen.height/2)-(500/2);
+        window.open(`script-quantity-setting`, 'NewWindow1', `width=1000,height=500,left=${left},top=${top}`);
+    }
 </script>
 
 {% endblock newtab %}
