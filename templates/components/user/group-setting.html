@@ -45,7 +45,11 @@
 </div>
 
 <script>
-    const groupSettingClick = () => window.open('script-quantity-setting', 'NewWindow', 'width=1000,height=600')
+    const groupSettingClick = () => {
+        var left = (screen.width/2)-(1000/2);
+        var top = (screen.height/2)-(500/2);
+        window.open(`script-quantity-setting`, 'NewWindow1', `width=1000,height=500,left=${left},top=${top}`);
+    }
 </script>
 
 {% endblock newtab %}
