@@ -24,8 +24,11 @@
             <div class="trade-btm">
                 <div>
                     <label for="">Username:</label>
-                    <select name="" id="">
-                        <option value="{{request.user.user_name}}">{{request.user.user_name}}</option>
+                    <select name="user_name">
+                        <option value="">All Users</option>
+                        {% for i in user_list  %}
+                            <option value="{{ i.user_name }}">{{ i.user_name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div>
