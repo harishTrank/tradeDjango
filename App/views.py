@@ -93,7 +93,6 @@ class ResetPasswordView(APIView):
 class AddUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
-        print("==============",request.data)
         limit = request.user.master_user.limit if request.user.user_type == "Master" else False
         master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
         client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
@@ -147,7 +146,7 @@ class AddUserAPIView(APIView):
 
                     ExchangeModel.objects.create(
                         user=create_user,
-                        symbol_name=exchange_item['symbol_name'],
+                        symbol_name=exchange_item['symbol_name'].upper(),
                         exchange=exchange_item['exchange'],
                         symbols=exchange_item['symbols'],
                         turnover=exchange_item['turnover']
