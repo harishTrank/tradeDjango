@@ -34,10 +34,10 @@
                     </div>
                     <div>
                         <label for="">Username:</label>
-                        <select name="user_name" id="">
+                        <select name="user_name">
                             <option value="">All Users</option>
                             {% for i in user_list  %}
-                                <option value="{{ i.id }}">{{ i.user_name }}</option>
+                                <option value="{{ i.user_name }}">{{ i.user_name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -47,7 +47,7 @@
                             <option value="">All Exchanges</option>
                             <option value="MCX">MCX</option>
                             <option value="NSE">NSE</option>
-                            <option value="NFO">NFO</option>
+                            <option value="MINI">MINI</option>
                         </select>
                     </div>
                     <div>
