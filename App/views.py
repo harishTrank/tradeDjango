@@ -284,6 +284,9 @@ class BuySellSellApi(APIView):
         quantity = request.data.get('quantity')
         lot_size = request.data.get("lot_size")
         is_cancel = request.data.get("is_cancel")
+
+        if request.user.user_type != "Client":
+            return Response({"success": False, "message": "Not Allowed For Trade"}, status=status.HTTP_404_NOT_FOUND)
         
         totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True,is_cancel=False).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
         try:
