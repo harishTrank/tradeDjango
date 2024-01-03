@@ -994,15 +994,17 @@ class LoginHistory(View):
         
         if request.user.user_type == "SuperAdmin" or request.user.user_type == "Admin":
             user_obj = LoginHistoryModel.objects.exclude(user_history=request.user).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
-            user_names = MyUser.objects.exclude(user_type="SuperAdmin").values("user_name")
+            user_names = MyUser.objects.exclude(id=request.user.id).filter(role=request.user.role)
             
         elif request.user.user_type == "Master":
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
             user_obj = LoginHistoryModel.objects.filter(user_history__id__in=user_keys).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
+            user_names = MyUser.objects.filter(id__in=user_keys)
             
         elif request.user.user_type == "Client":
+            user_names = []
             user_obj = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
         if from_date:
             if to_date:
@@ -1032,7 +1034,7 @@ class LoginHistory(View):
                     user['method']
                 ])
             return response
-        return render(request, "view/login-history.html",{"login_data":user_obj, "all_users":user_names})
+        return render(request, "view/login-history.html",{"login_data":user_obj, "user_names":user_names})
     
        
     
