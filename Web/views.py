@@ -990,6 +990,7 @@ class LoginHistory(View):
         
         if request.user.user_type == "SuperAdmin" or request.user.user_type == "Admin":
             user_obj = LoginHistoryModel.objects.exclude(user_history=request.user).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
+            
         elif request.user.user_type == "Master":
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
@@ -1007,7 +1008,9 @@ class LoginHistory(View):
             user_obj = user_obj.filter(user_history__user_name=user_name)
 
         user_obj = user_obj.filter(ip_address__icontains="")
-        all_users = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("user_history__user_name").distinct()
+        user_names = MyUser.objects.exclude(user_type="SuperAdmin").values("user_name")
+        print("========",user_names)
+        # all_users = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("user_history__user_name").distinct()
         
         if 'download_csv' in request.GET:
             response = HttpResponse(content_type='text/csv')
@@ -1025,7 +1028,7 @@ class LoginHistory(View):
                     user['method']
                 ])
             return response
-        return render(request, "view/login-history.html",{"login_data":user_obj, "all_users":all_users})
+        return render(request, "view/login-history.html",{"login_data":user_obj, "all_users":user_names})
     
        
     

@@ -38,14 +38,14 @@
 
                         <select name="user_name" id="">
                             {% for i in all_users %}
-                            <option value="{{i.user_history__user_name}}">{{i.user_history__user_name}}</option>
+                            <option value="{{i.user_name}}">{{i.user_name}}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div>
+                    {% comment %} <div>
                         <label for="">Search:</label>
                         <input type="text">
-                    </div>
+                    </div> {% endcomment %}
                     <div>
                         <label for=""></label>
                         <button type="submit" value="View" class="form-btn">View</button>
