@@ -191,11 +191,11 @@
   );
   const accountLimitHandler = (event) => {
     const selectedUserId = $("#current_selected_userId").val();
-    console.log("------sfsf-----",selectedUserId)
     if (
       $("#current_selected_userId").val() !== "" &&
       $("#master_limit").val() !== "" &&
       $("#client_limit").val() !== ""
+      
     ) {
       event.preventDefault();
       $.ajax({

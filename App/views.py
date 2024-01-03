@@ -1031,7 +1031,10 @@ class PieChartHandlerApi(APIView):
 class AccountLimitApi(APIView):
     def get(self, request):
         user = MyUser.objects.get(id=request.GET.get("user_id"))
-        user_limit = user.master_user
+        try:
+            user_limit = user.master_user
+        except:
+            return Response({"status":False, "message":"you dont have a right to set limit"},status=status.HTTP_400_BAD_REQUEST)
         client = user.master_user.master_user_link.count()
         master_created = MastrModel.objects.filter(master_link=user_limit).count()
         limit_obj = user_limit.limit

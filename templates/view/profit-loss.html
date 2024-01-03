@@ -24,16 +24,16 @@
             <div class="trade-btm">
                 <div>
                     <label for="">Username:</label>
-                    <select name="user_name" id="userNameId">
+                    <select name="user_name">
                         <option value="">All Users</option>
                         {% for i in user_list  %}
-                            <option value="{{ i.id }}">{{ i.user_name }}</option>
+                            <option value="{{ i.user_name }}">{{ i.user_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div>
                     <label for=""></label>
-                    <input type="submit" value="Apply" class="form-btn" id="applybtnId">
+                    <input type="submit" value="Apply" class="form-btn">
                     <input type="submit" value="Clear" class="cancel-btn">
                 </div>
             </div>
@@ -68,25 +68,12 @@
         $(".trades-body").css("width", "79%");
     });
 
-    $(document).ready(function() {
-        $('#userNameId').change(function() {
-            const selectedUserId = $(this).val(); // Get the selected user_id
-            profitLossHandler(selectedUserId); // Call the function with the selected user_id
-            console.log("================",selectedUserId)
-        });
-    });
-
-    const profitLossHandler = (userId) => {
-        const userIdToUse = userId || '';
-        axios.get(`{% url "position-header-api" %}?user_id=${userIdToUse}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-            .then(res => {
-                $("#releasePLId").html(res.data.release_p_and_l);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    }
-    
+    const profitLossHandler = (from_date = '', to_date = '') => {
+        axios.get(`{% url "position-header-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            $("#releasePLId").html(res.data.release_p_and_l)
+          })
+      } 
 
       const updateTotalPrice = (apiResponse, socketResponse) => {
         const result = apiResponse.data?.response
@@ -117,7 +104,7 @@
         console.log("Connected to the Socket.io server");
         axios.get(`{% url "position" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
         .then(res => {
-            axios.get(`{% url "position-header-api" %}?user_id=${userNameId}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+            axios.get(`{% url "position-header-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
             .then(res2 => {
                 $("#releasePLId").html(res2.data.release_p_and_l.toFixed(2)).css("color", res2.data.release_p_and_l > 0 ? "blue" : "red");
 
@@ -135,11 +122,6 @@
         console.log("Disconnected from the Socket.io server");
     });
       profitLossHandler();
-      
-      $("#applybtnId").click(() => {
-        profitLossHandler($("#userNameId").val())
-      })
-      
 </script>
 
 {% endblock content %}
