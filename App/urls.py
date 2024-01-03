@@ -34,5 +34,7 @@ urlpatterns = [
     path("web-script-quantity-api/", WebScriptQuantityAPI.as_view(), name="web-script-quantity-api"),
     path("position-header-api/", PositionTopHeader.as_view(), name="position-header-api"),
     path("account-summary-credit-api/", AccountSummaryCreditAPI.as_view(), name="account-summary-credit-api"),
+    path("master-child-api/", MasterChildApi.as_view(), name="master-child-api"),
+    
     path("account-limit/", AccountLimitApi.as_view(), name="account-limit")
 ]

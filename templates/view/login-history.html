@@ -37,7 +37,7 @@
                         <label for="">Username:</label>
 
                         <select name="user_name" id="">
-                            {% for i in all_users %}
+                            {% for i in user_names %}
                             <option value="{{i.user_name}}">{{i.user_name}}</option>
                             {% endfor %}
                         </select>

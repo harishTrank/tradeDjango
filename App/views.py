@@ -126,6 +126,7 @@ class AddUserAPIView(APIView):
             
             createUs = request.data.pop("exchange_data")
             password=request.data.pop("password")
+            request.data.pop("role")
             
             if request.data.get("add_master"):
                 admin_belongs = current_master.admin_user
@@ -145,7 +146,7 @@ class AddUserAPIView(APIView):
 
                     ExchangeModel.objects.create(
                         user=create_user,
-                        symbol_name=exchange_item['symbol_name'],
+                        symbol_name=exchange_item['symbol_name'].upper(),
                         exchange=exchange_item['exchange'],
                         symbols=exchange_item['symbols'],
                         turnover=exchange_item['turnover']
@@ -381,8 +382,16 @@ class AccountSummaryApi(APIView):
         coin_name = request.query_params.get('coin_name')
         p_and_l = request.query_params.get('p_and_l')
         brk = request.query_params.get('brk')
-        
-        account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
+        user_name = request.query_params.get('user_name')
+
+        if user.user_type == "Master":
+            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
+            user_ids = list(master_child) + list(client_child)
+            user_ids.append(request.user.user_name)
+            account_summary = AccountSummaryModal.objects.filter(user_summary__user_name__in=user_ids).values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
+        else:
+            account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
             to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -392,11 +401,13 @@ class AccountSummaryApi(APIView):
         
         if p_and_l == 'true' and brk == 'true':   
             account_summary = account_summary.filter(Q(summary_flg__icontains='Profit/Loss') | Q(summary_flg__icontains='Brokerage'))
-       
         elif p_and_l == 'true':
             account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
         elif brk == 'true':
             account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
+
+        if user_name:
+            account_summary = account_summary.filter(user_summary__user_name=user_name)
 
         paginator = self.pagination_class()
         paginated_trade = paginator.paginate_queryset(account_summary, request)
@@ -413,14 +424,25 @@ class AccountSummaryCreditAPI(APIView):
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
         coin_name = request.query_params.get('coin_name')
+        user_name = request.query_params.get('user_name')
         
-        account_summary = user.user_credit.all().values('id','opening', 'credit', 'debit', 'closing', 'transection__user_name', "created_at", 'message')
+        if user.user_type == "Master":
+            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
+            user_ids = list(master_child) + list(client_child)
+            user_ids.append(request.user.user_name)
+            account_summary = UserCreditModal.objects.filter(user_credit__user_name__in=user_ids).values('id','opening', 'credit', 'debit', 'closing', 'transection__user_name', "created_at", 'message')
+        else:
+            account_summary = user.user_credit.all().values('id','opening', 'credit', 'debit', 'closing', 'transection__user_name', "created_at", 'message')
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
             to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
             account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
         if coin_name:
             account_summary = account_summary.filter(particular__icontains=coin_name)
+
+        if user_name:
+            account_summary = account_summary.filter(user_credit__user_name=user_name)
         
         paginator = self.pagination_class()
         paginated_trade = paginator.paginate_queryset(account_summary, request)
@@ -428,6 +450,16 @@ class AccountSummaryCreditAPI(APIView):
         response.data['current_page'] = paginator.page.number  
         response.data['total'] = paginator.page.paginator.num_pages
         return response    
+    
+class MasterChildApi(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
+            return Response({"success": True, "message": "Data getting successfully.", "data": list(master_child) + list(client_child)}, status=status.HTTP_200_OK)
+        except:
+            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 
 class PositionManager(APIView):
