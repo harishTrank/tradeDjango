@@ -903,10 +903,8 @@ from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
 class PositionsView(View):
     def get(self, request):
         params = request.GET
-        user = request.user
         ex_change = params.get('ex_change')
         coin_name = params.get('coin_name')
-        is_pending = params.get("is_pending")
         user_name = params.get("user_name")
 
         response = (
