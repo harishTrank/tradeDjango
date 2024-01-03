@@ -777,9 +777,14 @@ class TradesView(View):
         if is_pending:
             is_pending_bool = is_pending.lower() == 'true'
             response = response.filter(is_pending=is_pending_bool)
-        user_coin_names = BuyAndSellModel.objects.filter(
-            buy_sell_user__id__in=user_keys
-        ).values_list('coin_name', flat=True).distinct()
+
+        if request.user.user_type == "SuperAdmin":
+            user_coin_names = BuyAndSellModel.objects.all().order_by('coin_name').values('coin_name').distinct()
+        else:
+            user_coin_names = BuyAndSellModel.objects.filter(
+                buy_sell_user__id__in=user_keys
+            ).order_by('coin_name').values('coin_name').distinct()
+            
         return render(request, "view/trades.html",{"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
     
     
