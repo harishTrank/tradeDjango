@@ -711,9 +711,11 @@ class SettlementReportApi(APIView):
         
 class PositionTopHeader(APIView):
     def get(self, request):
+        user = MyUser.objects.get(id=request.GET.get("user_id"))
+        print("-----------------",user)
         try:
             margin_user = (
-                request.user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
+                user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name', 'ex_change')
                 .annotate(
                     total_quantity=Sum('quantity'),
@@ -728,7 +730,7 @@ class PositionTopHeader(APIView):
             for obj in margin_user:
                 current_coin = TradeMarginModel.objects.filter(exchange=obj['ex_change'], script__icontains=obj['identifer'] if obj['ex_change'] == "NSE" else obj["identifer"].split("_")[1]).first()
                 margin_used_value += abs(obj["total_quantity"]) * current_coin.trade_margin
-            return Response({"success": True, "message": "Data getting successfully.", "credit": request.user.credit, "balance": request.user.balance, "release_p_and_l": release_p_and_l['total_amount'] if release_p_and_l['total_amount'] else 0, "margin_used_value": margin_used_value}, status=status.HTTP_202_ACCEPTED)
+            return Response({"success": True, "message": "Data getting successfully.", "credit": user.credit, "balance": user.balance, "release_p_and_l": release_p_and_l['total_amount'] if release_p_and_l['total_amount'] else 0, "margin_used_value": margin_used_value}, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             print("error from position top", e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
