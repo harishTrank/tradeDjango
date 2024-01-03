@@ -460,7 +460,9 @@ class MasterChildApi(APIView):
         try:
             master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
             client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
-            return Response({"success": True, "message": "Data getting successfully.", "data": list(master_child) + list(client_child)}, status=status.HTTP_200_OK)
+            user_names = list(master_child) + list(client_child)
+            user_names.append(request.user.user_name)
+            return Response({"success": True, "message": "Data getting successfully.", "data": user_names}, status=status.HTTP_200_OK)
         except:
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -528,6 +530,7 @@ class TradeHistoryApi(APIView):
         coin_name = request.query_params.get('coin_name')
         is_pending = request.query_params.get("is_pending")
         is_cancel = request.query_params.get("is_cancel")
+        user_name = request.query_params.get("user_name")
         
         if user.user_type == "Client":          
             exchange_data = request.user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
@@ -557,7 +560,8 @@ class TradeHistoryApi(APIView):
         elif user.user_type == "Master":
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
-            user_keys += list(child_clients)
+            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
+            user_keys += list(child_clients) + list(master_child)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer", "message")
             response = response.filter(is_cancel=False) if not is_cancel else response.filter(is_cancel=True)
             
@@ -575,6 +579,8 @@ class TradeHistoryApi(APIView):
                 is_pending_bool = is_pending.lower() == 'true'
                 response = response.filter(is_pending=is_pending_bool)
 
+            if user_name:
+                response = response.filter(buy_sell_user__user_name=user_name)
             
             paginator = self.pagination_class()
             paginated_trade = paginator.paginate_queryset(response, request)
@@ -708,8 +714,11 @@ class SettlementReportApi(APIView):
             user = request.user
             if request.query_params.get('id'):
                 user = MyUser.objects.get(id=request.query_params.get('id'))
+            if request.query_params.get('user_name'):
+                user = MyUser.objects.get(user_name=request.query_params.get('user_name'))
             from_date = request.query_params.get('from_date')
             to_date = request.query_params.get('to_date')
+            
             if from_date and to_date:
                 from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
                 to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
