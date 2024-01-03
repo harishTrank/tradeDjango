@@ -749,7 +749,67 @@ class TradesView(View):
         elif request.user.user_type == "Admin":
             user_keys = [request.user.id]
             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            relative_master = MastrModel.objects.filter(admin_user__user__id=request.user.id).values_list("master_user__id", flat=True)
+            user_keys += list(child_clients) + list(relative_master)
+            user_list = MyUser.objects.filter(id__in=user_keys)
+            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
+        elif request.user.user_type == "Client":
+            user_list = []
+            response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
+        else:
+            user_keys = [request.user.id]
+            child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
+            user_list = MyUser.objects.filter(id__in=user_keys)
+            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
+        
+        if from_date and to_date:
+            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+            response = response.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
+            
+        if ex_change:
+            response = response.filter(ex_change=ex_change)
+        if coin_name:
+            response = response.filter(coin_name__icontains=coin_name)
+        if user_name:
+            response = response.filter(buy_sell_user__user_name=user_name)
+            
+        if is_pending:
+            is_pending_bool = is_pending.lower() == 'true'
+            response = response.filter(is_pending=is_pending_bool)
+
+        if request.user.user_type == "SuperAdmin":
+            user_coin_names = BuyAndSellModel.objects.all().order_by('coin_name').values('coin_name').distinct()
+        else:
+            user_coin_names = BuyAndSellModel.objects.filter(
+                buy_sell_user__id__in=user_keys
+            ).order_by('coin_name').values('coin_name').distinct()
+
+        return render(request, "view/trades.html",{"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
+    
+    
+    
+    
+class OrdersView(View):
+    def get(self, request):
+        params = request.GET
+        user_keys = []
+        from_date = params.get('from_date')
+        to_date = params.get('to_date')
+        ex_change = params.get('ex_change')
+        coin_name = params.get('coin_name')
+        is_pending = params.get("is_pending")
+        user_name = params.get("user_name")
+        if request.user.user_type == "SuperAdmin":
+            response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
+            user_list = MyUser.objects.exclude(id=request.user.id).filter(role=request.user.role)
+
+        elif request.user.user_type == "Admin":
+            user_keys = [request.user.id]
+            child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            relative_master = MastrModel.objects.filter(admin_user__user__id=request.user.id).values_list("master_user__id", flat=True)
+            user_keys += list(child_clients) + list(relative_master)
             user_list = MyUser.objects.filter(id__in=user_keys)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
         elif request.user.user_type == "Client":
@@ -785,55 +845,27 @@ class TradesView(View):
                 buy_sell_user__id__in=user_keys
             ).order_by('coin_name').values('coin_name').distinct()
             
-        return render(request, "view/trades.html",{"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
-    
-    
-    
-    
-class OrdersView(View):
-    def get(self, request):
-        user = request.user
-        from_date = request.GET.get('from_date')
-        to_date = request.GET.get('to_date')
-        exchange = request.GET.get('exchange')
-        symbol = request.GET.get('symbol')
-        order_list = BuyAndSellModel.objects.all()
-        
-        # if request.user.user_type == "SuperAdmin":
-        exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
-        response = user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
-        order_list = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=False).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address","order_method")
-        print("-",len(order_list))
-        if from_date:
-            if to_date:
-                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
-                order_list = order_list.filter(created_at__gte=from_date,created_at__lte=to_date, is_cancel=False)
-        if exchange:
-            order_list = order_list.filter(ex_change=exchange, is_cancel=False)
 
-        if symbol:
-            order_list = order_list.filter(coin_name=symbol, is_cancel=False)
-        order_list = order_list
-        if 'download_csv' in request.GET:
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+        # if 'download_csv' in request.GET:
+        #     response = HttpResponse(content_type='text/csv')
+        #     response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
 
-            writer = csv.writer(response)
-            writer.writerow([
-                'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Order Time', 'Ip Address', 'Device id', 'Reference Price', 'Order Method'])
-            for order in order_list:
-                writer.writerow([
-                    order['buy_sell_user__user_name'],
-                    order["coin_name"],
-                    order["action"],
-                    order["quantity"],
-                    order["price"],
-                    order["created_at"],
-                    order["ip_address"],
-                    order["order_method"]
-                ])
-            return response
-        return render(request, "view/order.html", {"order_list":order_list,"exchange_obj":exchange_obj,"response":response})
+        #     writer = csv.writer(response)
+        #     writer.writerow([
+        #         'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Order Time', 'Ip Address', 'Device id', 'Reference Price', 'Order Method'])
+        #     for order in order_list:
+        #         writer.writerow([
+        #             order['buy_sell_user__user_name'],
+        #             order["coin_name"],
+        #             order["action"],
+        #             order["quantity"],
+        #             order["price"],
+        #             order["created_at"],
+        #             order["ip_address"],
+        #             order["order_method"]
+        #         ])
+        #     return response
+        return render(request, "view/order.html", {"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
     
     
     
@@ -877,41 +909,91 @@ class PositionsView(View):
         coin_name = params.get('coin_name')
         is_pending = params.get("is_pending")
         user_name = params.get("user_name")
+
+        response = (
+            BuyAndSellModel.objects.filter(trade_status=True, is_pending=False, is_cancel=False)
+            .values('identifer','coin_name', 'buy_sell_user__user_name')
+            .annotate(
+                total_quantity=Sum('quantity'),
+                avg_buy_price=Coalesce(
+                    Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                    Value(0.0)
+                ),
+                avg_sell_price=Coalesce(
+                    Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                    Value(0.0)
+                )
+            ).exclude(total_quantity=0)
+        )
+
+        if request.user.user_type == "SuperAdmin":
+            response = response.exclude(buy_sell_user__id=request.user.id)
+            user_list = MyUser.objects.exclude(id=request.user.id).filter(role=request.user.role)
+
+        elif request.user.user_type == "Admin":
+            user_keys = [request.user.id]
+            child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            relative_master = MastrModel.objects.filter(admin_user__user__id=request.user.id).values_list("master_user__id", flat=True)
+            user_keys += list(child_clients) + list(relative_master)
+            user_list = MyUser.objects.filter(id__in=user_keys)
+            response = response.filter(buy_sell_user__id__in=user_keys)
+        elif request.user.user_type == "Client":
+            user_list = []
+            response = response.filter(buy_sell_user__id=request.user)
+        else:
+            user_keys = [request.user.id]
+            child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            user_keys += list(child_clients)
+            user_list = MyUser.objects.filter(id__in=user_keys)
+            response = response.filter(buy_sell_user__id__in=user_keys)
         
-        results = (
-                user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                .values('identifer','coin_name')
-                .annotate(
-                    total_quantity=Sum('quantity'),
-                    avg_buy_price=Coalesce(
-                        Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
-                        Value(0.0)
-                    ),
-                    avg_sell_price=Coalesce(
-                        Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
-                        Value(0.0)
-                    )
-                ).exclude(total_quantity=0)
-            )
         if ex_change:
-            results = results.filter(ex_change=ex_change)
+            response = response.filter(ex_change=ex_change)
         if coin_name:
-            results = results.filter(coin_name__icontains=coin_name)
+            response = response.filter(coin_name__icontains=coin_name)
         if user_name:
-            results = results.filter(buy_sell_user__user_name=user_name)
+            response = response.filter(buy_sell_user__user_name=user_name)
             
-        user_coin_names = list(set(list(user.buy_sell_user.filter(
-            buy_sell_user__id__in=[request.user.id] 
-        ).values_list('coin_name', flat=True).distinct())))
+        # user_coin_names = list(set(list(user.buy_sell_user.filter(
+        #     buy_sell_user__id__in=[request.user.id] 
+        # ).values_list('coin_name', flat=True).distinct())))
         
-        identifer = list(set(list(results.values_list('identifer', flat=True))))
+        identifer = list(set(list(response.values_list('identifer', flat=True))))
+
+        if request.user.user_type == "SuperAdmin":
+            user_coin_names = BuyAndSellModel.objects.all().order_by('coin_name').values('coin_name').distinct()
+        else:
+            user_coin_names = BuyAndSellModel.objects.filter(
+                buy_sell_user__id__in=user_keys
+            ).order_by('coin_name').values('coin_name').distinct()
         
-        return render(request, "view/positions.html",{"response": list(results),"user_coin_names": user_coin_names, "identifer": identifer})
+        return render(request, "view/positions.html",{"response": list(response),"user_coin_names": user_coin_names, "identifer": identifer, "user_list": user_list})
     
     
 class ProfitAndLoss(View):
     def get(self, request):
-        return render(request, "view/profit-loss.html")
+        params = request.GET
+        user_name = params.get("user_name")
+        if request.user.user_type == "SuperAdmin":
+            user_list = MyUser.objects.exclude(id=request.user.id).filter(role=request.user.role)
+
+        elif request.user.user_type == "Admin":
+            user_keys = [request.user.id]
+            child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            relative_master = MastrModel.objects.filter(admin_user__user__id=request.user.id).values_list("master_user__id", flat=True)
+            user_keys += list(child_clients) + list(relative_master)
+            user_list = MyUser.objects.filter(id__in=user_keys)
+        elif request.user.user_type == "Client":
+            user_list = []
+        else:
+            user_keys = [request.user.id]
+            child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            user_keys += list(child_clients)
+            user_list = MyUser.objects.filter(id__in=user_keys)
+
+        if user_name:
+            response = response.filter(buy_sell_user__user_name=user_name)
+        return render(request, "view/profit-loss.html", {"user_list": user_list})
     
     
 class M2MProfitAndLoss(View):

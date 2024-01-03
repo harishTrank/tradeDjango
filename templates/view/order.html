@@ -35,13 +35,16 @@
                     </div>
                     <div>
                         <label for="">Username:</label>
-                        <select name="" id="">
-                            <option value="{{request.user.user_name}}">{{request.user.user_name}}</option>
+                        <select name="user_name">
+                            <option value="">All Users</option>
+                            {% for i in user_list  %}
+                                <option value="{{ i.user_name }}">{{ i.user_name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div>
                         <label for="">Exchange:</label>
-                        <select name="exchange" id="" class="form_control">
+                        {% comment %} <select name="exchange" class="form_control">
                           <option value="">All Exchange</option>
                           {% for symbol in exchange_obj %}
                             {% if symbol.symbol_name == "NSE" and symbol.exchange %}
@@ -52,16 +55,22 @@
                               <option value="MINI">MINI</option>
                             {% endif %}
                         {% endfor %}
+                        </select> {% endcomment %}
+                        <select name="ex_change">
+                            <option value="">All Exchanges</option>
+                            <option value="MCX">MCX</option>
+                            <option value="NSE">NSE</option>
+                            <option value="MINI">MINI</option>
                         </select>
                     </div>
                     <div>
                         <label for="">Symbols:</label>
-                        <select name="symbol" id="" class="form_control">
+                        <select name="coin_name" id="coin_name">
                             <option value="">All Symbols</option>
-                            {% for i in response %}
-                              <option value="{{i.coin_name}}">{{i.coin_name}}</option>
+                            {% for coin in user_coin_names %}
+                                <option value="{{ coin.coin_name }}">{{ coin.coin_name }}</option>
                             {% endfor %}
-                          </select>
+                        </select>
                     </div>
                     <div>
                         <label for=""></label>
@@ -72,7 +81,7 @@
             </form>
         </div>
         <div class="trades-body user-table">
-            {% if order_list %}
+            {% if response %}
             <table style="width: 100%;">
                 <tr>
                     <th>Username</th>
@@ -86,7 +95,7 @@
                     <th>Reference Price</th>
                     <th>Order Method</th>
                 </tr>
-                {% for i in order_list %}
+                {% for i in response %}
                 <tr>
                     <td>{{i.buy_sell_user__user_name}}</td>
                     <td>{{i.coin_name}}</td>

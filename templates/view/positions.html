@@ -26,9 +26,12 @@
                 {% csrf_token %}
             <div class="trade-btm">
                 <div>
-                    <label for="">Username:</label>
-                    <select name="user_name" id="">
-                        <option value="{{request.user.user_name}}">{{request.user.user_name}}</option>
+                    <label>Username:</label>
+                    <select name="user_name">
+                        <option value="">All Users</option>
+                        {% for i in user_list  %}
+                            <option value="{{ i.user_name }}">{{ i.user_name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div>
@@ -37,7 +40,7 @@
                         <option value="">All Exchanges</option>
                         <option value="MCX">MCX</option>
                         <option value="NSE">NSE</option>
-                        <option value="NFO">NFO</option>
+                        <option value="MINI">MINI</option>
                     </select>
                 </div>
                 <div>
@@ -45,7 +48,7 @@
                     <select name="coin_name" id="coin_name">
                         <option value="">All Symbols</option>
                         {% for coin in user_coin_names %}
-                            <option value="{{ coin }}">{{ coin }}</option>
+                            <option value="{{ coin.coin_name }}">{{ coin.coin_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -63,6 +66,7 @@
                 <tr>
                     <th>Exchange</th>
                     <th>Symbol</th>
+                    <th>User Name</th>
                     <th>Position</th>
                     <th>Quantity</th>
                     <th>Average Rate</th>
@@ -73,6 +77,7 @@
                 <tr>
                     <td id="ex{{i.identifer}}">{{i.ex_change}}</td>
                     <td>{{i.coin_name}}</td>
+                    <td>{{i.buy_sell_user__user_name}}</td>
 
                     {% if i.total_quantity > 0 %}
                         <td style="color: blue" >BUY</td>
