@@ -93,6 +93,7 @@ class ResetPasswordView(APIView):
 class AddUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
+        print("==============",request.data)
         limit = request.user.master_user.limit if request.user.user_type == "Master" else False
         master_limit = request.user.master_user.master_limit if request.user.user_type == "Master" else None
         client_limit = request.user.master_user.client_limit if request.user.user_type == "Master" else None
@@ -129,12 +130,12 @@ class AddUserAPIView(APIView):
             
             if request.data.get("add_master"):
                 admin_belongs = current_master.admin_user
-                create_user = MyUser.objects.create(user_type="Master", **request.data, password=make_password(password), role=request.user.role)
+                create_user = MyUser.objects.create(user_type="Master", **request.data, password=make_password(password), role="AREX")
                 current_master = MyUser.objects.get(id=request.user.id).master_user
                 MastrModel.objects.create(master_user=create_user, admin_user=admin_belongs, master_link=current_master)
                 UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New master opening credit refrenece.")
             else:
-                create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password), role=request.user.role)
+                create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password), role="AREX")
                 ClientModel.objects.create(client=create_user, master_user_link=current_master)
                 UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New client opening credit refrenece.")
             try: 
@@ -645,7 +646,7 @@ class SearchUserAPI(APIView):
             serializer = MasterSerializer(admin_master_models, many=True)
             
         elif request.user.user_type == "SuperAdmin":
-            super_admin_users = MyUser.objects.filter(user_type='Admin', role=request.user.role)
+            super_admin_users = MyUser.objects.filter(user_type='Admin', role="AREX")
             print("super_admin_users", super_admin_users)
             # Fetch associated AdminModel objects for each SuperAdmin
             super_admin_admin_models = AdminModel.objects.filter(user__in=super_admin_users)

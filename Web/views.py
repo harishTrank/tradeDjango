@@ -73,7 +73,6 @@ class Dashboard(View):
   
 class AddUserView(View):
     def get(self, request):
-
         return render(request, "User/add-user.html")
        
     def post(self, request):
@@ -932,6 +931,7 @@ class RejectionLogTab(View):
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
         exchange = request.GET.get('exchange')
+        user_name = request.GET.get('user_name')
         symbol = request.GET.get('symbol')
         response = BuyAndSellModel.objects.exclude(buy_sell_user=user).order_by('-coin_name').values('coin_name').distinct()
         
@@ -939,13 +939,16 @@ class RejectionLogTab(View):
         if request.user.user_type == "SuperAdmin":
             rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
             rejection = rejection.filter(is_cancel=True)
-            user = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
+            user = MyUser.objects.exclude(id=request.user.id).filter(role=request.user.role)
 
         elif request.user.user_type == "Admin":
-            rejection = BuyAndSellModel.objects.exclude(buy_sell_user=user).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
+            user_keys = [request.user.id]
+            child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            user_keys += list(child_clients)
+            
+            rejection = BuyAndSellModel.objects.exclude(buy_sell_user__id__in=user_keys).values("id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at", "is_pending", "identifer", "message","ip_address")
             rejection = rejection.filter(is_cancel=True)
-            user = BuyAndSellModel.objects.exclude(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
-        
+            user = MyUser.objects.filter(id__in=user_keys)
         elif request.user.user_type == "Master":
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
@@ -966,6 +969,9 @@ class RejectionLogTab(View):
         
         if symbol:
             rejection = rejection.filter(coin_name__icontains=symbol)
+        
+        if user_name:
+            rejection = rejection.filter(buy_sell_user__user_name=user_name)
         if 'download_csv' in request.GET:
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="rejection-log.csv"'

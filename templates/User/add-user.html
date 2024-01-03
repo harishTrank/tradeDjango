@@ -274,24 +274,27 @@ input:checked+.slider:before {
 
 <script>
 
-  $(document).ready(function() {
-    $('#userForm').submit(function(e) {
-        var password = $('#password').val();
-        var retypePassword = $('#retype_password').val();
-
-        if (password.length !== 6) {
-            e.preventDefault();
-            $('#password').css('border', '1px solid red');
-            alert('Password must be 6 characters long');
-        } else if (password !== retypePassword) {
-            e.preventDefault();
-            $('#password, #retype_password').css('border', '1px solid red');
-            alert('Passwords do not match');
-        } else {
-            $('#password, #retype_password').css('border', ''); 
-        }
+    document.getElementById('userForm').addEventListener('submit', function(event) {
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('retype_password').value;
+  
+      // Minimum password length check
+      if (password.length < 6 || confirmPassword.length < 6) {
+        event.preventDefault(); // Prevent form submission
+        alert('Password should be at least 6 characters long.');
+        return;
+      }
+  
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        event.preventDefault(); // Prevent form submission
+        alert('Password & Retype Password do not match.');
+        // Highlight the input fields with red border for visual indication
+        document.getElementById('password').style.border = '1px solid red';
+        document.getElementById('retype_password').style.border = '1px solid red';
+        return;
+      }
     });
-});
 
 
 const checkAdmin = `{{request.user.user_name}}`;
