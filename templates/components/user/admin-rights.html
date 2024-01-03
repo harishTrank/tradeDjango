@@ -15,10 +15,12 @@
           <div class="top-body flex align-center space-bw align-center">
             <div class="flex admin-right">
               {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
-              <p>Admin Rights</p>
+                  <p>Admin Rights</p>
+              {% elif request.user.user_type == "Master" %}
+                  <p>Master Rights</p>
               {% endif %}
-              <p>Master Rights</p>
-            </div>
+          </div>
+          
             <div>
               <i class="fa-solid fa-x adminRightClose"></i>
             </div>

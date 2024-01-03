@@ -5,8 +5,8 @@
 <div class="tab-content" id="rejectionlog">
   <div class="flex">
     <div class="trade-download">
-      <div style="transform: rotate(90deg); padding-left: 10px">
-        <p>Filter</p>
+      <div style="transform: rotate(90deg); padding-left: 10px; cursor:pointer;">
+        <p id="rejectionFilterId">Filter</p>
       </div>
       <span>
         {% comment %} <a href="{% url 'rejection-csv' id=id %}"><i class="fa-solid fa-file-csv"></i></a> {% endcomment %}
@@ -115,7 +115,20 @@
 </div>
 
 <script>
-  console.log("==========",`{{id}}`)
+  
+
+  $('.closeBtn').click(function () {
+    $(".trades-side").hide();
+    $(".trades-body").css("width", "95%");
+  });
+
+  $('#rejectionFilterId').click(function () {
+    $(".trades-side").show();
+    $(".trades-body").css("width", "67%");
+  });
+
+
+
   function clearRejection(){
     window.location.href= window.location.href?.split("?")?.[0]
 } 

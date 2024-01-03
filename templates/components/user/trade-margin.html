@@ -5,7 +5,7 @@
 <div class="tab-content" id="trademargin">
   <div class="flex">
     <div class="trade-download">
-      <div style="transform: rotate(90deg); padding-left: 10px">
+      <div style="transform: rotate(90deg); padding-left: 10px; cursor:pointer;">
         <p id="tradeMarginFilterId">Filter</p>
       </div>
       <span>
@@ -107,5 +107,18 @@
     </div>
   </div>
 </div>
+
+<script>
+  
+  $('.closeBtn').click(function () {
+    $(".trades-side").hide();
+    $(".trades-body").css("width", "95%");
+});
+
+$('#tradeMarginFilterId').click(function () {
+  $(".trades-side").show();
+  $(".trades-body").css("width", "66%");
+});
+</script>
 
 {% endblock newtab %}
