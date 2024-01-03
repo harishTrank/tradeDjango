@@ -744,24 +744,18 @@ class TradesView(View):
         user_name = params.get("user_name")
         if request.user.user_type == "SuperAdmin":
             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
-            user_list = MyUser.objects.exclude(id=request.user.id)
 
         elif request.user.user_type == "Admin":
             user_keys = [request.user.id]
             child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
-            user_list = MyUser.objects.filter(id__in=user_keys)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
-
         elif request.user.user_type == "Client":
-            user_list = []
             response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
-
         else:
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
-            user_list = MyUser.objects.filter(id__in=user_keys)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
         
         if from_date and to_date:
@@ -782,7 +776,7 @@ class TradesView(View):
         user_coin_names = BuyAndSellModel.objects.filter(
             buy_sell_user__id__in=user_keys
         ).values_list('coin_name', flat=True).distinct()
-        return render(request, "view/trades.html",{"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
+        return render(request, "view/trades.html",{"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' })})
     
     
     
@@ -996,6 +990,7 @@ class LoginHistory(View):
         
         if request.user.user_type == "SuperAdmin" or request.user.user_type == "Admin":
             user_obj = LoginHistoryModel.objects.exclude(user_history=request.user).values("ip_address", "method", "action", "user_history__user_name", "user_history__user_type", "user_history__id", "id","created_at")
+            user_names = MyUser.objects.exclude(user_type="SuperAdmin").values("user_name")
             
         elif request.user.user_type == "Master":
             user_keys = [request.user.id]
@@ -1014,7 +1009,6 @@ class LoginHistory(View):
             user_obj = user_obj.filter(user_history__user_name=user_name)
 
         user_obj = user_obj.filter(ip_address__icontains="")
-        user_names = MyUser.objects.exclude(user_type="SuperAdmin").values("user_name")
         print("========",user_names)
         # all_users = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("user_history__user_name").distinct()
         
