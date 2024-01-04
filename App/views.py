@@ -794,10 +794,10 @@ class SettlementReportApi(APIView):
         
 class PositionTopHeader(APIView):
     def get(self, request):
-        user = MyUser.objects.get(id=request.GET.get("user_id"))
-        print("-----------------",user)
         try:
             user = request.user
+            if(request.GET.get("user_id") and request.GET.get("user_id") != ""):
+                user = MyUser.objects.get(id=request.GET.get("user_id"))
             if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
                 user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
             margin_user = (
