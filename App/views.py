@@ -606,7 +606,14 @@ class TradeParticularViewApi(APIView):
 class CoinNameApi(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        response = request.user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
+        if request.user.user_type == "Master":
+            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
+            user_names = list(master_child) + list(client_child)
+            user_names.append(request.user.user_name)
+            response = BuyAndSellModel.objects.filter(buy_sell_user__user_name__in=user_names).order_by('-coin_name').values('coin_name').distinct()
+        else:
+            response = request.user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
         return Response({"response":response,"status":status.HTTP_200_OK},status=status.HTTP_200_OK) 
     
     
