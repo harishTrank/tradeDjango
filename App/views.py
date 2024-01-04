@@ -175,6 +175,8 @@ class UserProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
+        if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+            user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
         exchange = ExchangeModel.objects.filter(user=user.id).values_list('symbol_name', flat=True)
         serializer = GetMyUserSerializer(user)
         tradeCoinData = MarketWatchModel.objects.filter(market_user=request.user).values_list("trade_coin_id", flat=True) 
@@ -182,7 +184,8 @@ class UserProfileAPIView(APIView):
             "responsecode":status.HTTP_200_OK,
             "responsemessage":"data getting sucessfully",
             "data":{**serializer.data, "exchange": exchange},
-            "tradeCoinData":tradeCoinData ,
+            "tradeCoinData":tradeCoinData,
+            "ip_address": user.user_history.first().ip_address
         }
         if (not user.status):
             return Response({"message": "This user has been disabled.", "success": False}, status=status.HTTP_404_NOT_FOUND)
@@ -524,6 +527,11 @@ class TradeHistoryApi(APIView):
     pagination_class = PageNumberPagination
     def get(self, request):
         user = request.user
+        if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+            print('request.query_params.get("user_id")', request.query_params.get("user_id"))
+            user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
+            print("user", user)
+
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
         ex_change = request.query_params.get('ex_change')
@@ -533,7 +541,7 @@ class TradeHistoryApi(APIView):
         user_name = request.query_params.get("user_name")
         
         if user.user_type == "Client":          
-            exchange_data = request.user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
+            exchange_data = user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
             
             if from_date and to_date:
                 from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
@@ -558,9 +566,9 @@ class TradeHistoryApi(APIView):
             return response
         
         elif user.user_type == "Master":
-            user_keys = [request.user.id]
-            child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
-            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
+            user_keys = [user.id]
+            child_clients = user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__user_name', flat=True)
             user_keys += list(child_clients) + list(master_child)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer", "message")
             response = response.filter(is_cancel=False) if not is_cancel else response.filter(is_cancel=True)
@@ -606,14 +614,17 @@ class TradeParticularViewApi(APIView):
 class CoinNameApi(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        if request.user.user_type == "Master":
-            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
-            client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
+        user = request.user
+        if (request.query_params.get('user_id') and request.query_params.get('user_id') != ""):
+            user = MyUser.objects.filter(id=request.query_params.get('user_id')).first()
+        if user.user_type == "Master":
+            master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=user.master_user).values_list('client__user_name', flat=True)
             user_names = list(master_child) + list(client_child)
-            user_names.append(request.user.user_name)
+            user_names.append(user.user_name)
             response = BuyAndSellModel.objects.filter(buy_sell_user__user_name__in=user_names).order_by('-coin_name').values('coin_name').distinct()
         else:
-            response = request.user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
+            response = user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
         return Response({"response":response,"status":status.HTTP_200_OK},status=status.HTTP_200_OK) 
     
     
@@ -624,15 +635,17 @@ class UserListApiView(APIView):
     pagination_class = PageNumberPagination
     def get(self, request):
         user = request.user
+        if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+            user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
         own_user = request.query_params.get("own_user")
         select_user = request.query_params.get("select_user")
         select_status = request.query_params.get("select_status")
-        if request.user.user_type == "Client":
-            users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","full_name","role","credit","balance")
+        if user.user_type == "Client":
+            users = MyUser.objects.filter(id=user.id).values("id","user_name", "user_type","full_name","role","credit","balance")
             return JsonResponse(list(users), safe=False)
         else:
             if own_user == "OWN":
-                users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type", "full_name","role","credit","balance")
+                users = MyUser.objects.filter(id=user.id).values("id","user_name", "user_type", "full_name","role","credit","balance")
                 return JsonResponse({"results": list(users)}, safe=False)
             elif select_user == "MASTER":
                 users = MyUser.objects.filter(id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
