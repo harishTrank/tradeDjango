@@ -700,10 +700,12 @@ class ScriptQuantityAPI(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
-            response = list(AdminCoinWithCaseModal.objects.filter(master_coins=request.user,ex_change=request.GET.get('searchInput')).values())
+            user_id = request.user.id
+            if request.query_params.get("user_id") and request.query_params.get("user_id") != "":
+                user_id = request.query_params.get("user_id")
+            response = list(AdminCoinWithCaseModal.objects.filter(master_coins__id=user_id,ex_change=request.GET.get('searchInput')).values())
             return Response({"success": True, "response": response}, status=status.HTTP_200_OK)
-        except Exception as e:
-            print("eeee", e)
+        except:
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 
