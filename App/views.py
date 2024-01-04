@@ -494,6 +494,9 @@ class PositionManager(APIView):
                 user = MyUser.objects.get(id = request.GET.get("id"))
             else:
                 user = request.user
+            if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
+
             result = (
                 user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name')
@@ -521,7 +524,8 @@ class PositionCoinsManager(APIView):
     def get(self, request):
         try:
             user = request.user 
-            data = request.data  
+            if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
             results = (
                 user.buy_sell_user.all()
                 .filter(is_pending=False, trade_status=True,is_cancel=False)
@@ -791,8 +795,11 @@ class SettlementReportApi(APIView):
 class PositionTopHeader(APIView):
     def get(self, request):
         try:
+            user = request.user
+            if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
             margin_user = (
-                request.user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
+                user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name', 'ex_change')
                 .annotate(
                     total_quantity=Sum('quantity'),
@@ -800,14 +807,14 @@ class PositionTopHeader(APIView):
             )
             release_p_and_l = (
                 AccountSummaryModal.objects
-                .filter(user_summary=request.user, summary_flg='Profit/Loss')
+                .filter(user_summary=user, summary_flg='Profit/Loss')
                 .aggregate(total_amount=Sum('amount'))
             )
             margin_used_value = 0
             for obj in margin_user:
                 current_coin = TradeMarginModel.objects.filter(exchange=obj['ex_change'], script__icontains=obj['identifer'] if obj['ex_change'] == "NSE" else obj["identifer"].split("_")[1]).first()
                 margin_used_value += abs(obj["total_quantity"]) * current_coin.trade_margin
-            return Response({"success": True, "message": "Data getting successfully.", "credit": request.user.credit, "balance": request.user.balance, "release_p_and_l": release_p_and_l['total_amount'] if release_p_and_l['total_amount'] else 0, "margin_used_value": margin_used_value}, status=status.HTTP_202_ACCEPTED)
+            return Response({"success": True, "message": "Data getting successfully.", "credit": user.credit, "balance": user.balance, "release_p_and_l": release_p_and_l['total_amount'] if release_p_and_l['total_amount'] else 0, "margin_used_value": margin_used_value}, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             print("error from position top", e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
