@@ -8,7 +8,6 @@ import uuid
 class CommonTimePicker(models.Model):
     created_at = models.DateTimeField("Created At", auto_now_add=True)
     updated_at = models.DateTimeField("Updated At", auto_now_add=True)
-
     class Meta:
         abstract = True
         
@@ -41,6 +40,7 @@ class MyUserManager(BaseUserManager):
 
 class MyUser(AbstractBaseUser,CommonTimePicker):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    parent = models.CharField("Parent", max_length=255, blank=True, null=True)
     user_type = models.CharField("User Type", max_length=20, choices=USER_TYPE_CHOICES, blank=True, null=True)
     role = models.CharField("Role", max_length=20, choices=ROLE_CHOICES, blank=True, null=True)
     full_name = models.CharField("Full Name", max_length=255, blank=True, null=True)
@@ -66,6 +66,13 @@ class MyUser(AbstractBaseUser,CommonTimePicker):
     margin_sq = models.BooleanField("Margin Sq", default=False)
     status = models.BooleanField("Status", default=True)
     auto_square_off = models.BooleanField("Auto Square off", default=False)
+    
+    add_order = models.BooleanField("Add Order",default=False,blank=True,null=True)
+    delete_trade = models.BooleanField("Delete Trade",default=False)
+    execute_pending_order = models.BooleanField("Execute Pending Order",default=False)
+    by_manual = models.BooleanField("By Manual",default=False)
+    trade_right = models.BooleanField("Trade Right",default=False)
+    
     
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

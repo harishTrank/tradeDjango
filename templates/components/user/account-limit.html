@@ -239,13 +239,12 @@
   $("#accountLimitId").click(()=>{
     axios.get(`{% url "account-limit" %}?user_id=${$("#current_selected_userId").val()}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
     .then(res => {
-      $("#limitId").prop("checked",res.data.limit)
       $("#master_limit").val(res.data.master_limit);
-      $("#client_limit").val(res.data.client_obj);
+      $("#client_limit").val(res.data.client_limit);
       $("#masterOccId").val(res.data.master_occupied);
-      $("#masterRemId").val(res.data.master_rem);
+      $("#masterRemId").val(res.data.master_remaining);
       $("#clientOccId").val(res.data.client_occupied);
-      $("#clientRemId").val(res.data.client_rem);
+      $("#clientRemId").val(res.data.client_remaining);
         console.log("res ==", res);
 
     })
