@@ -915,10 +915,12 @@ class LimitUserCreation(APIView):
         user_id = request.GET.get("id")
         limit_data = request.data 
         try:
-            user = MyUser.objects.get(id=user_id)
-        except MyUser.DoesNotExist:
+            if user_id and user_id != "":
+                user = MyUser.objects.get(id=user_id)
+        except MyUser.DoesNotExist as e:
+            print("error error", e)
             return Response({"status": False, "message": "User does not exist."}, status=404)
-        master_user_data, created = MastrModel.objects.get_or_create(master_user=user)
+        master_user_data = user.master_user
         
         if 'limit' in limit_data:
             master_user_data.limit = limit_data['limit'] == "true" if True else False
@@ -1095,27 +1097,32 @@ class AccountLimitApi(APIView):
         except:
             return Response({"status":False, "message":"you dont have a right to set limit"},status=status.HTTP_400_BAD_REQUEST)
         
-        master_limit = user.master_user.master_limit
-        created_master = MastrModel.objects.filter(master_link=user.master_user)
-        master_created = 0
-        master_occupied = 0
-        for obj in created_master:
-            if (obj.master_user.user_history.first()):
-                master_created += 1
-            else:
-                master_occupied += 1
-        master_remaining = master_limit - (master_created + master_occupied)
+        if user.user_type == "Master":
+            master_limit = user.master_user.master_limit
+            created_master = MastrModel.objects.filter(master_link=user.master_user)
+            master_created = 0
+            master_occupied = 0
+            for obj in created_master:
+                if (obj.master_user.user_history.first()):
+                    master_created += 1
+                else:
+                    master_occupied += 1
+            master_remaining = master_limit - (master_created + master_occupied)
 
-        client_limit = user.master_user.client_limit
-        created_client = user.master_user.master_user_link.all()
-        client_created = 0
-        client_occupied = 0
-        for obj in created_client:
-            if (obj.client.user_history.first()):
-                client_created += 1
-            else:
-                client_occupied += 1
-        client_remaining = client_limit - (client_created + client_occupied)
+            client_limit = user.master_user.client_limit
+            created_client = user.master_user.master_user_link.all()
+            client_created = 0
+            client_occupied = 0
+            for obj in created_client:
+                if (obj.client.user_history.first()):
+                    client_created += 1
+                else:
+                    client_occupied += 1
+            client_remaining = client_limit - (client_created + client_occupied)
+        else:
+            return Response({
+                "status": True
+            })
         return Response({
             "status": True,
             "master_limit": master_limit,
@@ -1125,7 +1132,8 @@ class AccountLimitApi(APIView):
             "client_limit": client_limit,
             "client_created": client_created,
             "client_occupied": client_occupied,
-            "client_remaining": client_remaining
+            "client_remaining": client_remaining,
+            "user_name": user.user_name
         }, status=status.HTTP_200_OK)
 
 # ------------------------------------------------
