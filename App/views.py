@@ -66,6 +66,8 @@ class ResetPasswordView(APIView):
         if serializer.is_valid():
 
             user = request.user
+            if "user_id" in request.data and request.data["user_id"] != "":
+                user = MyUser.objects.filter(id=request.data["user_id"]).first()
             current_password = serializer.validated_data.get('current_password')
             new_password = serializer.validated_data.get('new_password')
 
