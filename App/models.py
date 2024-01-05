@@ -257,31 +257,3 @@ class TradeMarginModel(CommonTimePicker):
     
     def __str__(self):
         return str(self.exchange) + " "+ str(self.script)
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class LoginHistory(models.Model):
-#     user = models.ForeignKey(MyUser, on_delete=models.CASCADE
-#     login_time = models.DateTimeField("Login Time", auto_now_add=True)
-#     success = models.BooleanField("Login Success", default=False)
-#     ip_address = models.GenericIPAddressField("IP Address", blank=True, null=True)
-#     location = models.CharField("Location", max_length=255, blank=True, null=True)
-
-#     def __str__(self):
-#         return f"{self.user.user_name} - {'Success' if self.success else 'Failure'}"

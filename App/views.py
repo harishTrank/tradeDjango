@@ -175,19 +175,38 @@ class UserProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
+        if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+            user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
         exchange = ExchangeModel.objects.filter(user=user.id).values_list('symbol_name', flat=True)
         serializer = GetMyUserSerializer(user)
-        tradeCoinData = MarketWatchModel.objects.filter(market_user=request.user).values_list("trade_coin_id", flat=True) 
+        tradeCoinData = MarketWatchModel.objects.filter(market_user=user).values_list("trade_coin_id", flat=True) 
         data_to_send = {
             "responsecode":status.HTTP_200_OK,
             "responsemessage":"data getting sucessfully",
-            "data":{**serializer.data, "exchange": exchange},
-            "tradeCoinData":tradeCoinData ,
+            "data":{**serializer.data, "exchange": list(exchange)},
+            "tradeCoinData":list(tradeCoinData),
+            "ip_address": user.user_history.first().ip_address if user.user_history.first() else ""
         }
         if (not user.status):
             return Response({"message": "This user has been disabled.", "success": False}, status=status.HTTP_404_NOT_FOUND)
         else:
             return Response(data_to_send, status=status.HTTP_200_OK)
+
+class UserDetailsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+            user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
+        exchange = ExchangeModel.objects.filter(user=user.id).values_list('symbol_name', flat=True)
+        serializer = GetMyUserSerializer(user)
+        data_to_send = {
+            "responsecode":status.HTTP_200_OK,
+            "responsemessage":"data getting sucessfully",
+            "data":{**serializer.data, "exchange": list(exchange)},
+            "ip_address": user.user_history.first().ip_address if user.user_history.first() else ""
+        }
+        return Response(data_to_send, status=status.HTTP_200_OK)
 
 
 class MaketWatchScreenApi(APIView):
@@ -460,7 +479,9 @@ class MasterChildApi(APIView):
         try:
             master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
             client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
-            return Response({"success": True, "message": "Data getting successfully.", "data": list(master_child) + list(client_child)}, status=status.HTTP_200_OK)
+            user_names = list(master_child) + list(client_child)
+            user_names.append(request.user.user_name)
+            return Response({"success": True, "message": "Data getting successfully.", "data": user_names}, status=status.HTTP_200_OK)
         except:
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -473,6 +494,9 @@ class PositionManager(APIView):
                 user = MyUser.objects.get(id = request.GET.get("id"))
             else:
                 user = request.user
+            if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
+
             result = (
                 user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name')
@@ -500,7 +524,8 @@ class PositionCoinsManager(APIView):
     def get(self, request):
         try:
             user = request.user 
-            data = request.data  
+            if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
             results = (
                 user.buy_sell_user.all()
                 .filter(is_pending=False, trade_status=True,is_cancel=False)
@@ -522,15 +547,19 @@ class TradeHistoryApi(APIView):
     pagination_class = PageNumberPagination
     def get(self, request):
         user = request.user
+        if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+            user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
+
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
         ex_change = request.query_params.get('ex_change')
         coin_name = request.query_params.get('coin_name')
         is_pending = request.query_params.get("is_pending")
         is_cancel = request.query_params.get("is_cancel")
-        
+        user_name = request.query_params.get("user_name")
+        print("user.user_type", user.user_type)
         if user.user_type == "Client":          
-            exchange_data = request.user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
+            exchange_data = user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
             
             if from_date and to_date:
                 from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
@@ -555,9 +584,10 @@ class TradeHistoryApi(APIView):
             return response
         
         elif user.user_type == "Master":
-            user_keys = [request.user.id]
-            child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
-            user_keys += list(child_clients)
+            user_keys = [user.id]
+            child_clients = user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__user_name', flat=True)
+            user_keys += list(child_clients) + list(master_child)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer", "message")
             response = response.filter(is_cancel=False) if not is_cancel else response.filter(is_cancel=True)
             
@@ -575,6 +605,8 @@ class TradeHistoryApi(APIView):
                 is_pending_bool = is_pending.lower() == 'true'
                 response = response.filter(is_pending=is_pending_bool)
 
+            if user_name:
+                response = response.filter(buy_sell_user__user_name=user_name)
             
             paginator = self.pagination_class()
             paginated_trade = paginator.paginate_queryset(response, request)
@@ -600,7 +632,17 @@ class TradeParticularViewApi(APIView):
 class CoinNameApi(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        response = request.user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
+        user = request.user
+        if (request.query_params.get('user_id') and request.query_params.get('user_id') != ""):
+            user = MyUser.objects.filter(id=request.query_params.get('user_id')).first()
+        if user.user_type == "Master":
+            master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=user.master_user).values_list('client__user_name', flat=True)
+            user_names = list(master_child) + list(client_child)
+            user_names.append(user.user_name)
+            response = BuyAndSellModel.objects.filter(buy_sell_user__user_name__in=user_names).order_by('-coin_name').values('coin_name').distinct()
+        else:
+            response = user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
         return Response({"response":response,"status":status.HTTP_200_OK},status=status.HTTP_200_OK) 
     
     
@@ -611,15 +653,17 @@ class UserListApiView(APIView):
     pagination_class = PageNumberPagination
     def get(self, request):
         user = request.user
+        if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+            user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
         own_user = request.query_params.get("own_user")
         select_user = request.query_params.get("select_user")
         select_status = request.query_params.get("select_status")
-        if request.user.user_type == "Client":
-            users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type","full_name","role","credit","balance")
+        if user.user_type == "Client":
+            users = MyUser.objects.filter(id=user.id).values("id","user_name", "user_type","full_name","role","credit","balance")
             return JsonResponse(list(users), safe=False)
         else:
             if own_user == "OWN":
-                users = MyUser.objects.filter(id=request.user.id).values("id","user_name", "user_type", "full_name","role","credit","balance")
+                users = MyUser.objects.filter(id=user.id).values("id","user_name", "user_type", "full_name","role","credit","balance")
                 return JsonResponse({"results": list(users)}, safe=False)
             elif select_user == "MASTER":
                 users = MyUser.objects.filter(id__in=set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
@@ -694,10 +738,12 @@ class ScriptQuantityAPI(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
-            response = list(AdminCoinWithCaseModal.objects.filter(master_coins=request.user,ex_change=request.GET.get('searchInput')).values())
+            user_id = request.user.id
+            if request.query_params.get("user_id") and request.query_params.get("user_id") != "":
+                user_id = request.query_params.get("user_id")
+            response = list(AdminCoinWithCaseModal.objects.filter(master_coins__id=user_id,ex_change=request.GET.get('searchInput')).values())
             return Response({"success": True, "response": response}, status=status.HTTP_200_OK)
-        except Exception as e:
-            print("eeee", e)
+        except:
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -708,8 +754,11 @@ class SettlementReportApi(APIView):
             user = request.user
             if request.query_params.get('id'):
                 user = MyUser.objects.get(id=request.query_params.get('id'))
+            if request.query_params.get('user_name'):
+                user = MyUser.objects.get(user_name=request.query_params.get('user_name'))
             from_date = request.query_params.get('from_date')
             to_date = request.query_params.get('to_date')
+            
             if from_date and to_date:
                 from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
                 to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -745,9 +794,12 @@ class SettlementReportApi(APIView):
         
 class PositionTopHeader(APIView):
     def get(self, request):
-        user = MyUser.objects.get(id=request.GET.get("user_id"))
-        print("-----------------",user)
         try:
+            user = request.user
+            if(request.GET.get("user_id") and request.GET.get("user_id") != ""):
+                user = MyUser.objects.get(id=request.GET.get("user_id"))
+            if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
             margin_user = (
                 user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name', 'ex_change')
@@ -757,7 +809,7 @@ class PositionTopHeader(APIView):
             )
             release_p_and_l = (
                 AccountSummaryModal.objects
-                .filter(user_summary=request.user, summary_flg='Profit/Loss')
+                .filter(user_summary=user, summary_flg='Profit/Loss')
                 .aggregate(total_amount=Sum('amount'))
             )
             margin_used_value = 0
@@ -805,7 +857,10 @@ class MyUserPerissionToggle(APIView):
             key = request.data["key"]
             user_obj = MyUser.objects.get(id=request.data["id"])
             current_value = getattr(user_obj, key)
-            setattr(user_obj, key, not current_value)
+            if "value" in request.data:
+                setattr(user_obj, key, request.data["value"])
+            else:
+                setattr(user_obj, key, not current_value)
             user_obj.save()
             return Response({"success": True}, status=status.HTTP_200_OK)
         except:

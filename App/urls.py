@@ -36,5 +36,6 @@ urlpatterns = [
     path("account-summary-credit-api/", AccountSummaryCreditAPI.as_view(), name="account-summary-credit-api"),
     path("master-child-api/", MasterChildApi.as_view(), name="master-child-api"),
     
-    path("account-limit/", AccountLimitApi.as_view(), name="account-limit")
+    path("account-limit/", AccountLimitApi.as_view(), name="account-limit"),
+    path("user-details-api/", UserDetailsAPIView.as_view(), name="user-details-api")
 ]
