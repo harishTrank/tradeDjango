@@ -66,6 +66,8 @@ class ResetPasswordView(APIView):
         if serializer.is_valid():
 
             user = request.user
+            if "user_id" in request.data and request.data["user_id"] != "":
+                user = MyUser.objects.filter(id=request.data["user_id"]).first()
             current_password = serializer.validated_data.get('current_password')
             new_password = serializer.validated_data.get('new_password')
 
@@ -1085,29 +1087,44 @@ class PieChartHandlerApi(APIView):
 
 class AccountLimitApi(APIView):
     def get(self, request):
-        user = MyUser.objects.get(id=request.GET.get("user_id"))
         try:
-            user_limit = user.master_user
+            user = request.user
+            if (request.GET.get("user_id") and request.GET.get("user_id") != ""):
+                user = MyUser.objects.get(id=request.GET.get("user_id"))
         except:
             return Response({"status":False, "message":"you dont have a right to set limit"},status=status.HTTP_400_BAD_REQUEST)
-        client = user.master_user.master_user_link.count()
-        master_created = MastrModel.objects.filter(master_link=user_limit).count()
-        limit_obj = user_limit.limit
-        master_limit = user_limit.master_limit
-        client_obj = user_limit.client_limit
         
-        client_rem = client_obj - client
-        master_rem = master_limit -master_created
-        
+        master_limit = user.master_user.master_limit
+        created_master = MastrModel.objects.filter(master_link=user.master_user)
+        master_created = 0
+        master_occupied = 0
+        for obj in created_master:
+            if (obj.master_user.user_history.first()):
+                master_created += 1
+            else:
+                master_occupied += 1
+        master_remaining = master_limit - (master_created + master_occupied)
+
+        client_limit = user.master_user.client_limit
+        created_client = user.master_user.master_user_link.all()
+        client_created = 0
+        client_occupied = 0
+        for obj in created_client:
+            if (obj.client.user_history.first()):
+                client_created += 1
+            else:
+                client_occupied += 1
+        client_remaining = client_limit - (client_created + client_occupied)
         return Response({
             "status": True,
-            "limit": limit_obj,
             "master_limit": master_limit,
-            "client_obj": client_obj,
-            "client_occupied": client,
-            "client_rem":client_rem,
-            "master_occupied":master_created,
-            "master_rem":master_rem
+            "master_created": master_created,
+            "master_occupied": master_occupied,
+            "master_remaining": master_remaining,
+            "client_limit": client_limit,
+            "client_created": client_created,
+            "client_occupied": client_occupied,
+            "client_remaining": client_remaining
         }, status=status.HTTP_200_OK)
 
 # ------------------------------------------------
