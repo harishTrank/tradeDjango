@@ -136,7 +136,7 @@ class AddUserView(View):
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
                 selected_admin.user.balance -=int(request.POST.get("credit"))
                 selected_admin.user.save()
-                create_user = MyUser.objects.create(user_type="Master", **user_data)
+                create_user = MyUser.objects.create(user_type="Master", **user_data, parent=selected_admin.user.user_name)
                 try:
                     self_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     MastrModel.objects.create(master_user=create_user, admin_user=selected_admin,master_link=self_master)
@@ -149,15 +149,16 @@ class AddUserView(View):
                     messages.success(request, f"Master create successfully.")
             else:
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
-                create_user = MyUser.objects.create(user_type="Client", **user_data)
                 try:
                     selected_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
+                    create_user = MyUser.objects.create(user_type="Client", **user_data, parent=selected_master)
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin,master_user_link=selected_master)
                     selected_master.master_user.balance -=int(request.POST.get("credit"))
                     UserCreditModal.objects.create(user_credit=selected_master.master_user, opening=selected_master.master_user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=selected_master.master_user.balance, transection=create_user, message="New client opening credit refrenece.")
                     selected_master.master_user.save()
                     messages.success(request, f"Client create successfully.")   
                 except:
+                    create_user = MyUser.objects.create(user_type="Client", **user_data, parent=selected_admin.user.user_name)
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
                     selected_admin.user.balance -=int(request.POST.get("credit"))
                     UserCreditModal.objects.create(user_credit=selected_admin.user, opening=selected_admin.user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=selected_admin.user.balance, transection=create_user, message="New client opening credit refrenece.")
@@ -176,12 +177,12 @@ class AddUserView(View):
                         return redirect("Admin:add-user")
                 request.user.balance -= credit_amount
                 request.user.save() 
-                create_user = MyUser.objects.create(user_type="Master", **user_data)
+                create_user = MyUser.objects.create(user_type="Master", **user_data, parent=selected_admin)
                 MastrModel.objects.create(master_user=create_user, admin_user=selected_admin)
                 messages.success(request, f"Master added successfully")
                 return redirect("Admin:add-user")
             else:
-                create_user = MyUser.objects.create(user_type="Client", **user_data)
+                create_user = MyUser.objects.create(user_type="Client", **user_data, parent=selected_admin)
                 if (request.POST.get("selectedMasterName") == None or request.POST.get("selectedMasterName") == ""):
                     credit_amount = request.POST.get("credit")
                     if credit_amount is not None and credit_amount.isdigit():
@@ -222,11 +223,11 @@ class AddUserView(View):
             
             if (request.POST.get("add_master") == 'on'):
                 current_master = MyUser.objects.get(id=request.user.id).master_user
-                create_user = MyUser.objects.create(user_type="Master", **user_data)
+                create_user = MyUser.objects.create(user_type="Master", **user_data, parent=current_master)
                 MastrModel.objects.create(master_user=create_user, admin_user=request.user.master_user.admin_user,master_link=current_master)
                 messages.success(request, f"Master added successfully.")
             else:
-                create_user = MyUser.objects.create(user_type="Client", **user_data)
+                create_user = MyUser.objects.create(user_type="Client", **user_data, parent=current_master)
                 ClientModel.objects.create(client=create_user,master_user_link=request.user.master_user,admin_create_client=request.user.master_user.admin_user)
                 messages.success(request, f"Client added successfully.")
        
@@ -240,16 +241,16 @@ class AddUserView(View):
                 symbols=exchange_data['symbols'],
                 turnover=exchange_data['turnover']
             )
-        
-        if request.POST.get("add_master"):
-                    response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
-                        "coinList": exchangeList
-                    })
-                    if response.status_code // 100 == 2 and response.json()['success']:
-                        for obj in response.json()['response']:
-                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'])
-                    else:
-                        print("Response:", response.text)
+        print("-----------------",request.POST.get("add_master"))
+        if request.POST.get("add_master") == "on":
+            response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
+                "coinList": exchangeList
+            })
+            if response.status_code // 100 == 2 and response.json()['success']:
+                for obj in response.json()['response']:
+                    AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'])
+            else:
+                print("Response:", response.text)
         
         return render(request, "User/add-user.html")
 
@@ -561,15 +562,15 @@ class BrkView(View):
     
     
 class TradeMargin(View):
-    def get(self, request):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
         exchange = request.GET.get('exchange')
         trade_margin = request.GET.get('price')
-        trade = TradeMarginModel.objects.all()
-        
+        trade = user.admin_coins.all()
         if exchange:
-            trade = trade.filter(exchange=exchange)
-        if trade_margin:
-            trade = trade.filter(trade_margin=trade_margin)
+            trade = trade.filter(ex_change=exchange)
+        # if trade_margin:
+        #     trade = trade.filter(trade_margin=trade_margin)
             
         return render(request, "components/user/trade-margin.html",{"trade_margin":trade})
     

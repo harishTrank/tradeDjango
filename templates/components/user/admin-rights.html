@@ -48,7 +48,13 @@
             </div>
             <div class="flex toggle-btm space-bw">
               <div></div>
-              <div><p>Give rights to his down user?</p></div>
+              <label class="switch">
+                <input id="trade_rightId" type="checkbox">
+                <span class="slider round"></span>
+              </label>
+              <div>
+                <p>Give rights to his down user?</p>
+              </div>
             </div>
             <div class="save-cancel-btn flex space-bw">
               <button onClick="adminRightHandler(event)">Save</button>
@@ -188,6 +194,23 @@
       
     </style>
     <script>
+
+
+      $("#adminRightuserId").click(() => {
+        axios.get(`{% url "admin-right-get" %}?user_id=${$("#current_selected_userId").val()}`)
+        .then(response => {
+          $("#add_order").prop("checked",response.data.data.trade_right);
+          $("#by_manual").prop("checked",response.data.data.by_manual);
+          $("#delete_tradeId").prop("checked",response.data.data.delete_trade);
+          $("#execute_pending_order").prop("checked",response.data.data.execute_pending_order);
+        })
+        .catch(error => {
+          console.error(error);
+        })
+      })
+
+
+
       $(".adminRightClose").click(() =>
         $("#adminRightsId").css("display", "none")
       );
@@ -197,7 +220,8 @@
           $("#add_order").val() !== "" &&
           $("#delete_tradeId").val() !== "" &&
           $("#execute_pending_order").val() !== "" &&
-          $("#by_manual").val() !== ""
+          $("#by_manual").val() !== "" &&
+          $("#trade_rightId").val() !== ""
         ) {
           event.preventDefault();
           const body = {
@@ -205,10 +229,11 @@
             delete_trade: $("#delete_tradeId").prop("checked"),
             execute_pending_order: $("#execute_pending_order").prop("checked"),
             by_manual: $("#by_manual").prop("checked"),
+            trade_right: $("#trade_rightId").prop("checked"),
           };
           axios
             .post(
-              `{% url 'admin-right' %}?id=${$(
+              `{% url 'admin-right' %}?user_id=${$(
                 "#current_selected_userId"
               ).val()}`,
               body,
@@ -222,6 +247,9 @@
                 title:data.data.message,
                 icon: "success",
               });
+              setTimeout(()=>
+              window.location.reload(),2800
+              )
             });
         }
       };
