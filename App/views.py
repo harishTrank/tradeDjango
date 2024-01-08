@@ -880,7 +880,7 @@ class PositionTopHeader(APIView):
             margin_used_value = 0
             for obj in margin_user:
                 current_coin = TradeMarginModel.objects.filter(exchange=obj['ex_change'], script__icontains=obj['identifer'] if obj['ex_change'] == "NSE" else obj["identifer"].split("_")[1]).first()
-                margin_used_value += abs(obj["total_quantity"]) * current_coin.trade_margin
+                margin_used_value += abs(obj["total_quantity"]) * current_coin.trade_margin if current_coin else 100
             return Response({"success": True, "message": "Data getting successfully.", "credit": user.credit, "balance": user.balance, "release_p_and_l": release_p_and_l['total_amount'] if release_p_and_l['total_amount'] else 0, "margin_used_value": margin_used_value}, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             print("error from position top", e)
