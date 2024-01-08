@@ -47,6 +47,8 @@ class LoginView(View):
                     messages.error(request, "This user is deactivated.")
                     print("User is deactivated")
                 else:
+                    historyGenerator = LoginHistoryModel(user_history=user, ip_address=request.META.get('REMOTE_ADDR'), method='WEB', action='LOGIN')
+                    historyGenerator.save()
                     return redirect("Admin:dashboard")
             else:
                 messages.error(request, "Invalid user type")

@@ -50,6 +50,7 @@ class LoginApi(APIView):
             print(e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
         
+        
 class LogoutUserAPIView(APIView):
     def post(self, request):
         current_user = MyUser.objects.filter(id__iexact=request.data["user_id"]).first()

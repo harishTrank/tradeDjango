@@ -1,230 +1,83 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title></title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="" />
-  </head>
-  <body>
-    <div class="create-profile" id="">
-      <div class="change-pass">
-        <div class="create-profile-inside-admin">
-          <div class="top-body flex align-center space-bw align-center">
-            <div class="flex admin-right">
-              <p>Parent Limit Info</p>
-            </div>
-
-            <div>
-              <i class="fa-solid fa-x adminRightClose"></i>
-            </div>
-          </div>
-          <div class="trades-body user-table">
-            <div class="pos-relate">
-            {% if rejection %}
-              <table style="width: 100%">
-                <tr>
-                  <th>Date</th>
-                  <th>Message</th>
-                  <th>Username</th>
-                  <th>Symbol</th>
-                  <th>Type</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                
-                </tr>
-      
-                <tbody>
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
-           
-            </div>
-          {% comment %} <div class="middle-body">
-            <div class="inner-middle-body">
-              <div class="flex space-bw">
-                <div class="flex add-order cm-order common-font align-center">
-                  <p><b>Parent Info</b></p>
-                </div>
-
-                <div class="flex cm-order common-font align-center">
-                  <p><b>Master</b></p>
-                </div>
-                <div class="flex cm-order common-font align-center">
-                  <p><b>Client</b></p>
-                </div>
-                <div class="flex cm-order common-font align-center">
-                  <p><b>Limit</b></p>
-                </div>
-
-                <div class="flex cm-order common-font align-center">
-                  <p><b>Created</b></p>
-                </div>
-                <div class="flex cm-order common-font align-center">
-                  <p><b>1</b></p>
-                </div>
-
-                <div class="flex cm-order common-font align-center">
-                  <p><b>3</b></p>
-                </div>
-                <br /><br />
-
-                <div class="flex cm-order common-font align-center">
-                  <p><b>Created</b></p>
-                </div>
-                <div class="flex cm-order common-font align-center">
-                  <p><b>Remaining</b></p>
-                </div>
-              </div>
-            </div>
-
-            <div class="save-cancel-btn flex space-bw">
-              <button class="adminRightClose">OK</button>
-            </div>
-          </div> {% endcomment %}
+<div class="create-profile" id="parentLimitInfoId">
+  <div class="change-pass">
+    <div class="create-profile-inside-admin">
+      <div class="top-body flex align-center space-bw align-center">
+        <div class="flex admin-right">
+          <p>Parent Limit Info</p>
+        </div>
+        <div>
+          <i class="fa-solid fa-x adminRightClose"></i>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column">
+          <table style="display: flex; justify-content: center">
+            <tr>
+              <th>Parent Info&nbsp;</th>
+              <th>&nbsp;Master</th>
+              <th>&nbsp;Client</th>
+            </tr>
+            <tr>
+              <th>Limit</th>
+              <th id="parentmasterlimit"></th>
+              <th id="parentclientlimit"></th>
+            </tr>
+            <tr>
+              <th>Occupied</th>
+              <th id="parentmasterOccId"></th>
+              <th id="parentclientOccId"></th>
+            </tr>
+            <tr>
+              <th>Created</th>
+              <th id="parentmasterCreatedId"></th>
+              <th id="parentclientCreatedId"></th>
+            </tr>
+            <tr>
+              <th>Remaining</th>
+              <th id="parentmasterRemId"></th>
+              <th id="parentclientRemId"></th>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
-    <script src="" async defer></script>
-    <style>
-      {% comment %} #adminRightsId {
-        display: none;
-      } {% endcomment %}
+  </div>
 
-      .change-pass {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      li {
-        list-style: none;
-      }
-      .flex {
-        display: flex;
-        flex-wrap: wrap;
-      }
-      .space-bw {
-        justify-content: space-between;
-      }
-      .align-center {
-        align-items: center;
-      }
-      .text-center {
-        text-align: center;
-      }
-      .justify-center {
-        justify-content: center;
-      }
-
-      a {
-        text-decoration: none;
-      }
-      .white-back {
-        background: #fff;
-        box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
-      }
-      .container {
-        max-width: 90%;
-        margin: 0 auto;
-      }
-
-      / --------------------------- / .create-profile {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background: rgba(0, 0, 0, 0.5);
-        width: 100%;
-        height: 100%;
-        z-index: 99;
-      }
-      .create-profile-inside-admin {
-        width: 19%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 999;
-        background: #e7e7e7;
-        border-radius: 10px;
-        box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
-          rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
-          rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-      }
-      .admin-right i {
-        margin-right: 8px;
-        color: #ff0000;
-        font-size: 10px;
-        margin-top: 2px;
-      }
-      .top-body {
-        background-color: #c9c9c9;
-        padding: 8px;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-      }
-      .middle-body {
-        background-color: #fff;
-        padding: 15px;
-      }
-      .inner-middle-body {
-        padding: 6px;
-        border: 1px solid black;
-      }
-
-      .cm-order {
-        margin-bottom: 6px;
-      }
-      .toggle-btm {
-        margin: 8px 0px;
-      }
-      .toggle-btm div p {
-        font-size: 12px;
-        font-weight: 600;
-      }
-      .save-cancel-btn {
-        margin: 8px 0px;
-      }
-      .common-font p b {
-        font-size: 16px;
-      }
-      .save-cancel-btn {
-        padding: 0px 45px;
-      }
-      .save-cancel-btn button:first-child {
-        background-color: #008000;
-        padding: 2px 10px;
-        color: #fff;
-        border: none;
-      }
-      .save-cancel-btn button:last-child {
-        background-color: #221b1b;
-        padding: 5px 10px;
-        color: #fff;
-        border: none;
-      }
-    </style>
-    <script>
+  <style>
+    #parentLimitInfoId {
+      display: none;
+    }
+  </style>
+  
+  <script>
+    $(document).ready(function() {
       $(".adminRightClose").click(() =>
-        $("#adminRightsId").css("display", "none")
+        $("#parentLimitInfoId").css("display", "none")
       );
-    </script>
-  </body>
-</html>
+  
+      $("#parentLimitInfoId").click(() => {
+        axios
+          .get(
+            `{% url "account-limit" %}?user_id=${$(
+              "#current_selected_userId"
+            ).val()}`,
+            { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+          )
+          .then((res) => {
+            $("#parentmasterlimit").text(res.data.master_limit);
+            $("#parentclientlimit").text(res.data.client_limit);
+            $("#parentmasterOccId").text(res.data.master_occupied);
+            $("#parentmasterRemId").text(res.data.master_remaining);
+            $("#parentclientOccId").text(res.data.client_occupied);
+            $("#parentclientRemId").text(res.data.client_remaining);
+            $("#parentmasterCreatedId").text(res.data.master_created);
+            $("#parentclientCreatedId").text(res.data.client_created);
+            console.log("parentLimitInfo ==", res);
+          })
+          .catch((err) => {
+            console.log("err", err);
+          });
+      });
+    });
+  </script>
+</div>
