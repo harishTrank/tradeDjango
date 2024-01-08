@@ -45,7 +45,6 @@ class LoginView(View):
                 login(request, user)
                 if not user.status:
                     messages.error(request, "This user is deactivated.")
-                    print("User is deactivated")
                 else:
                     historyGenerator = LoginHistoryModel(user_history=user, ip_address=request.META.get('REMOTE_ADDR'), method='WEB', action='LOGIN')
                     historyGenerator.save()
@@ -241,7 +240,6 @@ class AddUserView(View):
                 symbols=exchange_data['symbols'],
                 turnover=exchange_data['turnover']
             )
-        print("-----------------",request.POST.get("add_master"))
         if request.POST.get("add_master") == "on":
             response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
                 "coinList": exchangeList
@@ -250,8 +248,7 @@ class AddUserView(View):
                 for obj in response.json()['response']:
                     AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'])
             else:
-                print("Response:", response.text)
-        
+                pass
         return render(request, "User/add-user.html")
 
 
@@ -472,28 +469,7 @@ class SearchUsersView(View):
         
         return JsonResponse(user_data, safe=False)
 
-from App.serializers import *
 
-# class SearchUsersView(View):
-#     def get(self, request):
-#         if request.user.user_type == "Master":
-#             total_parent_master = MastrModel.objects.filter(master_link=request.user.master_user).values_list('id', flat=True)
-#             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
-#             master_models = MastrModel.objects.filter(id__in=all_masters)
-#             serializer = MasterSerializer(master_models, many=True)
-#             print("===",serializer.data[0]
-#                   )
-#         elif request.user.user_type == "Admin":
-#             admin_models = AdminModel.objects.get(user=request.user)
-#             serializer = AdminSerializer(admin_models)
-#         username = serializer.data[0]['master_user_details']['user_name']
-#         return JsonResponse({'username': username})
-    
-    
-    
-    
-    
-    
 #=============================User deatils New Window =======================#
 
 
@@ -533,7 +509,6 @@ class TabTrades(View):
     
 class UserScriptMaster(View):
     def get(self, request, id):
-        print("user_id", id)
         return render(request, "components/user/script-master.html")
 
 
@@ -647,7 +622,6 @@ class RejectionLogView(View):
 class RejectionDownloadCSVView(View):
     def get(self, request, id):
         user = request.GET.get("user_id")
-        print("------------",user)
         return redirect("Admin:user-list")
         # if request.user.user_type == "Master":
         #     user_clients = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
@@ -1109,7 +1083,6 @@ class LoginHistory(View):
             user_obj = user_obj.filter(user_history__user_name=user_name)
 
         user_obj = user_obj.filter(ip_address__icontains="")
-        print("========",user_names)
         # all_users = LoginHistoryModel.objects.filter(user_history__id=request.user.id).values("user_history__user_name").distinct()
         
         if 'download_csv' in request.GET:
