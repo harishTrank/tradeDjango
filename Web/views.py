@@ -538,8 +538,9 @@ class QuantitySettingView(View):
 
 class BrkView(View):
     def get(self, request, id):
-        
-        return render(request, "components/user/brk.html",{"user":MyUser.objects.get(id=id)})
+        user = MyUser.objects.get(id=id)
+        exchange = user.user.values("symbol_name")
+        return render(request, "components/user/brk.html",{"user":user, "exchange":exchange})
     
     
 class TradeMargin(View):
