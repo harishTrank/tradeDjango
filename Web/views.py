@@ -250,7 +250,7 @@ class AddUserView(View):
                             if "_" in obj['InstrumentIdentifier']:
                                 obj['InstrumentIdentifier'] = obj['InstrumentIdentifier'].split("_")[1]
                                 
-                            if AdminCoinWithCaseModal.objects.filter(master_coins=create_user, identifier="", ex_change=obj['Exchange']).count() == 0:
+                            if AdminCoinWithCaseModal.objects.filter(master_coins=create_user, identifier=obj['InstrumentIdentifier'], ex_change=obj['Exchange']).count() == 0:
                                 AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
                     else:
                         print("Response:", response.text)
