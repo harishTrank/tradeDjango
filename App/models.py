@@ -245,6 +245,9 @@ class AdminCoinWithCaseModal(CommonTimePicker):
     def __str__(self):     
         return self.master_coins.user_name + " " + self.ex_change + " " + self.identifier
     
+    class Meta:
+        ordering = ('identifier',)
+    
 
     
     
