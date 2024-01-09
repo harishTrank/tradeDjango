@@ -897,6 +897,28 @@ class BrokrageSettings(APIView):
         except Exception as e:
             print(e)
             return Response({"status": False, "message" :"Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+        
+    def post(self, request):
+        try:
+            user = request.user
+            brk_type = request.data.get("brk_type")
+            amount = request.data.get("amount")
+            coin_list = request.data.get("coin_list")
+
+            user_id = request.data.get("user_id")
+            if user_id and user_id != "":
+                user = MyUser.objects.get(id=user_id)
+
+            records = user.master_coins.filter(master_coins=user, ex_change=request.GET.get("ex_change"), identifier__in=coin_list)
+
+            if brk_type == "TURNOVER WISE":
+                records.update(turnover_brk=float(amount))
+            else:
+                records.update(lot_brk=float(amount))
+            return Response({"status": True, "message": "Data update successfully."})
+        except Exception as e:
+            print(e)
+            return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 # web api ----------------------------------
 class WebScriptQuantityAPI(APIView):
