@@ -87,21 +87,18 @@
             {% comment %} <th>Description</th> {% endcomment %}
             <th>Updated Date</th>
           </tr>
-
           <tbody id="tradeMarginId">
             {% for i in trade_margin %}
             <tr>
               <td><input type="checkbox" /></td>
-                <td>{{i.exchange}}</td>
-                <td>{{i.script}}</td>
+                <td>{{i.ex_change}}</td>
+                <td>{{i.identifier}}</td>
                 <td>{{i.trade_margin}}</td>
                 {% comment %} <td>{{i.disc}}</td> {% endcomment %}
                 <td>{{i.created_at}}</td>
               </tr>
               {% endfor %}
-            
           </tbody>
-         
         </table>
       </div>
     </div>

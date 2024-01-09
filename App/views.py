@@ -109,9 +109,6 @@ class AddUserAPIView(APIView):
             request.user.balance -= credit_amount
             request.user.save() 
             
-        if limit == False:
-            return Response({"status":False, "message":"Cannot create more users."},status=401)
-        
         master_users_count = MastrModel.objects.filter(master_link=request.user.master_user).count()
         if request.data.get("add_master") == True:
             if master_users_count >= master_limit:
@@ -173,10 +170,74 @@ class AddUserAPIView(APIView):
             return Response({"error": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
     
 
+
+class EditUserApi(APIView):
+    def post(self, request):
+        user_id = request.GET.get("user_id")
+        user = MyUser.objects.get(id=user_id)
+            
+        user_data = {
+            "full_name": request.data.get("full_name"),
+            "user_name": request.data.get("user_name"),
+            "phone_number": request.data.get("phone_number"),
+            "city": request.data.get("city"),
+            "credit": request.data.get("credit") if request.data.get("credit") else 0,
+            "remark": request.data.get("remark"),
+            "mcx": True if request.data.get("mcx") and request.data.get("mcx") == True else False,
+            "nse": True if request.data.get("nse") and request.data.get("nse") == True else False,
+            "mini": True if request.data.get("mini") and request.data.get("mini") == True else False,
+            "change_password": True if request.data.get("change_password") and request.data.get("change_password") == True else False,
+            "add_master": True if request.data.get("add_master") and request.data.get("add_master") == True else False,
+            "margin_sq": True if request.data.get("auto_square") and request.data.get("auto_square") == True else False,
+        }
+        if request.data.get("password") != "":
+            print("===",request.data.get("password"))
+            user_data["password"]= make_password(request.data.get("password"))
+        
+        exchanges = [
+            {
+                "name": "MCX",
+                "exchange": request.data.get("mcx_exchange"),
+                "symbols": request.data.get("mcx_symbol"),
+                "turnover": request.data.get("mcx_turnover"),
+            },
+            {
+                "name": "NSE",
+                "exchange": request.data.get("nse_exchange"),
+                "symbols": request.data.get("nse_symbol"),
+                "turnover": request.data.get("nse_turnover"),
+            },
+          
+            {
+                "name": "MINI",
+                "exchange": request.data.get("mini_exchange"),
+                "symbols": request.data.get("mini_symbol"),
+                "turnover": request.data.get("mini_turnover"),
+            },
+        ]
+        user_name = request.data.get("user_name")
+        if MyUser.objects.exclude(id=user.id).filter(user_name=user_name).exists():
+            return Response({"status":False, "message":"already exists for another user. Please choose a different one."},status=404)
+
+        for key, value in user_data.items():
+            setattr(user, key, value)
+        user.save()
+        
+        for exchange_data in exchanges:
+            exchange = ExchangeModel.objects.get(user=user, symbol_name=exchange_data['name'])
+            exchange.exchange = exchange_data['exchange']
+            exchange.symbols = exchange_data['symbols']
+            exchange.turnover = exchange_data['turnover']
+            exchange.save()
+        return Response({"status":True,"message":"User edit succesfully"})
+    
+    
 class UserProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
+        if request.GET.get("user_id") and request.GET.get("user_id") != "":
+            user = MyUser.objects.get(id=request.GET.get("user_id"))
         if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
             user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
         exchange = ExchangeModel.objects.filter(user=user.id).values_list('symbol_name', flat=True)
@@ -198,14 +259,16 @@ class UserDetailsAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
+        
         if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
             user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
         exchange = ExchangeModel.objects.filter(user=user.id).values_list('symbol_name', flat=True)
+        la_lodu = ExchangeModel.objects.filter(user=user.id).values('symbol_name','exchange','symbols','turnover')
         serializer = GetMyUserSerializer(user)
         data_to_send = {
             "responsecode":status.HTTP_200_OK,
             "responsemessage":"data getting sucessfully",
-            "data":{**serializer.data, "exchange": list(exchange)},
+            "data":{**serializer.data, "exchange": list(exchange), "la_lodu":la_lodu},
             "ip_address": user.user_history.first().ip_address if user.user_history.first() else ""
         }
         return Response(data_to_send, status=status.HTTP_200_OK)
@@ -305,8 +368,7 @@ class BuySellSellApi(APIView):
         quantity = request.data.get('quantity')
         lot_size = request.data.get("lot_size")
         is_cancel = request.data.get("is_cancel")
-
-        if request.user.user_type != "Client":
+        if user.user_type != "Client":
             return Response({"success": False, "message": "Not Allowed For Trade"}, status=status.HTTP_404_NOT_FOUND)
         
         totalCount = BuyAndSellModel.objects.filter(identifer=request.data.get("identifer"),is_pending=False, trade_status=True,is_cancel=False).values('identifer').annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
@@ -920,6 +982,10 @@ class LimitUserCreation(APIView):
             print("error error", e)
             return Response({"status": False, "message": "User does not exist."}, status=404)
         master_user_data = user.master_user
+        master_limit = master_user_data.master_limit
+        limit = int(limit_data['master_limit'])
+        if master_limit >= limit:
+            return Response({"message":"Cannot downgrade more limit"},status=404)
         
         if 'limit' in limit_data:
             master_user_data.limit = limit_data['limit'] == "true" if True else False
@@ -934,29 +1000,50 @@ class LimitUserCreation(APIView):
     
     
 class AdminRightApi(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
-        user_id = request.GET.get("id")
+        user_id = request.GET.get("user_id")
         admin_Right = request.data
         try:
             user = MyUser.objects.get(id=user_id)
         except MyUser.DoesNotExist:
             return Response({"status": False, "message": "User does not exist."}, status=400)
-        master_user_data , created = MastrModel.objects.get_or_create(master_user=user)
-        
+        if admin_Right.get('user_rights'):
+            masters = MastrModel.objects.filter(master_link=user.master_user) 
+            for master in masters:
+                master.master_user.add_order = admin_Right['add_order']  
+                master.master_user.delete_trade = admin_Right['delete_trade']  
+                master.master_user.execute_pending_order = admin_Right['execute_pending_order']  
+                master.master_user.save()
+            client_obj = ClientModel.objects.filter(master_user_link=user.master_user)
+            if client_obj and len(client_obj)> 0:
+                for cleint in client_obj:
+                    cleint.client.add_order = admin_Right['add_order']  
+                    cleint.client.delete_trade = admin_Right['delete_trade']  
+                    cleint.client.execute_pending_order = admin_Right['execute_pending_order']  
+                    cleint.client.save()
+                
         if 'add_order' in admin_Right:
-            master_user_data.add_order = admin_Right['add_order']
+            print(admin_Right['add_order'])
+            user.add_order = admin_Right['add_order']
         
         if 'delete_trade' in admin_Right:
-            master_user_data.delete_trade = admin_Right['delete_trade'] 
+            user.delete_trade = admin_Right['delete_trade'] 
             
         if 'execute_pending_order' in admin_Right:
-            master_user_data.execute_pending_order = admin_Right['execute_pending_order'] 
+            user.execute_pending_order = admin_Right['execute_pending_order'] 
             
         if 'by_manual' in admin_Right:
-            master_user_data.by_manual = admin_Right['by_manual']
-        master_user_data.save() 
-        return Response({"status":True, "message":"Admin Right Add Sucessfully"}, status=status.HTTP_200_OK)
+            user.by_manual = admin_Right['by_manual']
+        
+        user.save() 
+        return Response({"status":True, "message":"Admin Right update Sucessfully"}, status=status.HTTP_200_OK)
     
+class AdminRigthsGetApi(APIView):
+    def get(self, request):
+        user_id = request.GET.get("user_id")
+        user = MyUser.objects.filter(id=user_id).values("add_order", "delete_trade", "execute_pending_order", "by_manual", "trade_right").first()
+        return Response({"status":True,"data":user})
     
 class MarketTradeRight(APIView):
     def post(self, request):
@@ -965,15 +1052,19 @@ class MarketTradeRight(APIView):
             user = MyUser.objects.get(id=user_id)
         except MyUser.DoesNotExist:
             return Response({"status": False, "message": "User does not exist."}, status=400)
-        master_user_data , created = MastrModel.objects.get_or_create(master_user=user)
-        print("master_user_data",master_user_data.trade_right)
         trade_right = request.data.get("trade_right") 
         if request.data.get("trade_right")  is None:
             return Response({"status": False, "message": "Trade right is required."}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            master_user_data.trade_right = trade_right
-            master_user_data.save()
+            user.trade_right = trade_right
+            user.save()
             return Response({"status":True,"message":"Trade right added sucessfully"}, status=status.HTTP_200_OK)
+        
+
+class MarketTradeGetApi(APIView):
+    def get(self, request):
+        user = MyUser.objects.filter(id=request.GET.get("user_id")).values("trade_right").first()
+        return Response({"status":True,"data":user})
 
 class BrkApi(APIView):
     def post(self, request):
@@ -1090,6 +1181,7 @@ class PieChartHandlerApi(APIView):
 class AccountLimitApi(APIView):
     def get(self, request):
         try:
+            print("==============",request.GET.get("user_id"))
             user = request.user
             if (request.GET.get("user_id") and request.GET.get("user_id") != ""):
                 user = MyUser.objects.get(id=request.GET.get("user_id"))

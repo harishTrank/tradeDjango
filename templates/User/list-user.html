@@ -140,15 +140,16 @@
                 <div class="pos-relate">
                     <ul class="action_dropdown" id="actionDropDown">
                         <li><a onClick="changePasswordOpen()">Change Password</a></li>
-                        <li><a href="#">Share Details</a></li>
+                        {% comment %} <li><a href="#">Share Details</a></li> {% endcomment %}
                         <li><a id="accountLimitId" onClick="accountLimit()">Account Limit</a></li>
                         {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
-                            <li><a onClick="adminRights()">Admin Rights</a></li>
+                            <li><a onClick="adminRights()" id="adminRightuserId">Admin Rights</a></li>
+                        {% else %}
+                        <li><a onClick="adminRights()" id="adminRightuserId">Master Rights</a></li>
                         {% endif %}
-                        <li><a onClick="adminRights()">Master Rights</a></li>
-                        <li><a onClick="tradeRights()">Market Trade Right</a></li>
+                        <li><a onClick="tradeRights()" id="marketTradeRightBtnId">Market Trade Right</a></li>
                         {% comment %} <li><a href="{% url 'Admin:add-user' %}">Create User</a></li> {% endcomment %}
-                        <li><a href="#">Set Readonly</a></li>
+                        {% comment %} <li><a href="#">Set Readonly</a></li> {% endcomment %}
                     </ul>
                 </div>
            {% for i in client %}
@@ -172,7 +173,7 @@
                     <td class="user-cell" onClick='particularUserView("{{i.id}}")'>{{i.user_name}}</td>
                     <td>{{i.full_name}}</td>
                     <td>{{i.user_type}}</td>
-                    <td>{{i.user_name}}</td>
+                    <td>{{i.parent}}</td>
                     <td>{{i.credit}}</td>
                     <td>{{i.balance}}</td>
                     <td>00.0</td>

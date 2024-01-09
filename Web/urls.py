@@ -31,7 +31,7 @@ urlpatterns = [
     
     path("quantity-setting/<str:id>",QuantitySettingView.as_view(),name="quantity-setting"),
     path("brk/<str:id>",BrkView.as_view(),name="brk"),
-    path("trade-margin",TradeMargin.as_view(),name="trade-margin"),
+    path("trade-margin/<str:id>",TradeMargin.as_view(),name="trade-margin"),
     path("credit/<str:id>",CreditView.as_view(),name="credit"),
     path("tab-account-summary/<str:id>",TabAccountSummary.as_view(),name="tab-account-summary"),
     path("tab-settlement/<str:id>",TabSettlement.as_view(),name="tab-settlement"),
