@@ -2,12 +2,12 @@
 {% load static %}{% block newtab %}
 
 <div class="tab-content" id="brk">
-    <div class="brk-setting-tabs">
-        <ul class="flex brk-tabs">
-            <li data-id="turnover-wise" class="turnover-setting">TURNOVER WISE SETTING</li>
-            <li data-id="symbol-wise" class="symbol-setting">SYMBOL WISE SETTING</li>
-        </ul>
-     </div>
+     <div class="tab-head">
+      <li onClick="trunOverWise()" class="active" data-id="chart">
+        TURNOVER WISE SETTING
+      </li>
+      <li onClick="symbolWise()" data-id="table">SYMBOL WISE SETTING</li>
+    </div>
     <div class="brk-tab-wrapper flex">
         <div class="brk-tab-content" id="turnover-wise">
             <div class="flex">
@@ -17,7 +17,6 @@
                     </div>
                     <span>
                       <a href=""><i class="fa-solid fa-file-csv"></i></a>
-
                     </span>
                 </div>
                 <div class="trades-side">
@@ -56,7 +55,7 @@
             </div>
         </div>
 
-        <div class="trades-body user-table" style="position:absolute;right:0;">
+        <div id="turnoverWiseID" class="trades-body user-table" style="position:absolute;right:0;">
             <table style="width: 100%;">
               <tr>
                 {% comment %} <th><input id="brkCheckAllId" type="checkbox"></th> {% endcomment %}
@@ -71,11 +70,43 @@
             </table>
         </div>
 
+        <div id="symbolWiseId" class="trades-body user-table" style="position:absolute;right:0; display: none">
+          <table style="width: 100%;">
+            <tr>
+              {% comment %} <th><input id="brkCheckAllId" type="checkbox"></th> {% endcomment %}
+                  <th>Exchange</th>
+                  <th>Script</th>
+                  <th>Lot Size</th>
+                  <th>Brk (Rs.)</th>
+            </tr>
+             
+            <tbody id="symbolWiseTable">
+              <tr>
+                <td>MCX</td>
+                <td>Script</td>
+                <td>1000</td>
+                <td>0.00</td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+
     </div>
 </div>
 
 
 <script>
+
+    function trunOverWise() {
+      $("#turnoverWiseID").css('display','block');
+      $("#symbolWiseId").css('display','none')
+    }
+    function symbolWise() {
+      $("#turnoverWiseID").css('display','none');
+      $("#symbolWiseId").css('display','block')
+    }
+
+
     $("#brkCheckAllId").click(function(){
         $('input:checkbox').not(this).prop('checked', this.checked);
     });

@@ -240,15 +240,17 @@ class AddUserView(View):
                 symbols=exchange_data['symbols'],
                 turnover=exchange_data['turnover']
             )
-        if request.POST.get("add_master") == "on":
-            response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
-                "coinList": exchangeList
-            })
-            if response.status_code // 100 == 2 and response.json()['success']:
-                for obj in response.json()['response']:
-                    AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'])
-            else:
-                pass
+        
+        if create_user.user_type == "Master" or create_user.user_type == "Client":
+                    response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
+                        "coinList": exchangeList
+                    })
+                    if response.status_code // 100 == 2 and response.json()['success']:
+                        for obj in response.json()['response']:
+                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
+                    else:
+                        print("Response:", response.text)
+        
         return render(request, "User/add-user.html")
 
 
