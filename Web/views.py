@@ -247,7 +247,7 @@ class AddUserView(View):
                     })
                     if response.status_code // 100 == 2 and response.json()['success']:
                         for obj in response.json()['response']:
-                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'])
+                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
                     else:
                         print("Response:", response.text)
         

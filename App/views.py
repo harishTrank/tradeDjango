@@ -155,18 +155,17 @@ class AddUserAPIView(APIView):
                         turnover=exchange_item['turnover']
                     )
 
-                if request.data.get("add_master"):
+                if create_user.user_type == "Master" or create_user.user_type == "Client":
                     response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
                         "coinList": exchangeList
                     })
                     if response.status_code // 100 == 2 and response.json()['success']:
                         for obj in response.json()['response']:
-                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'])
+                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
                     else:
                         print("Response:", response.text)
             except Exception as e:
                 print("e",e)
-            
             return Response({"status":True,"message":"User created Successfully"}, status=status.HTTP_201_CREATED)
         
         except Exception as e:
@@ -741,10 +740,10 @@ class ScriptQuantityAPI(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
-            user_id = request.user.id
+            user_id = request.user.user_name
             if request.query_params.get("user_id") and request.query_params.get("user_id") != "":
                 user_id = request.query_params.get("user_id")
-            response = list(AdminCoinWithCaseModal.objects.filter(master_coins__id=user_id,ex_change=request.GET.get('searchInput')).values())
+            response = list(AdminCoinWithCaseModal.objects.filter(master_coins__user_name=user_id,ex_change=request.GET.get('searchInput')).values())
             return Response({"success": True, "response": response}, status=status.HTTP_200_OK)
         except:
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
