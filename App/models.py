@@ -236,6 +236,11 @@ class AdminCoinWithCaseModal(CommonTimePicker):
     max_lot = models.FloatField("Max Lot", default=0)
     lot_size = models.FloatField("Lot Size", default=0)
 
+    turnover_brk = models.FloatField("Turn over brk", default=0)
+    lot_brk = models.FloatField("Lot brk", default=0)
+
+    trademargin_amount = models.FloatField("Trade margin amount", default=0)
+    trademargin_percentage = models.FloatField("Trade margin percentage", default=0)
 
     def __str__(self):     
         return self.master_coins.user_name + " " + self.ex_change + " " + self.identifier
