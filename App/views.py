@@ -154,7 +154,11 @@ class AddUserAPIView(APIView):
                     })
                     if response.status_code // 100 == 2 and response.json()['success']:
                         for obj in response.json()['response']:
-                            AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
+                            if "_" in obj['InstrumentIdentifier']:
+                                obj['InstrumentIdentifier'] = obj['InstrumentIdentifier'].split("_")[1]
+                                
+                            if AdminCoinWithCaseModal.objects.filter(master_coins=create_user, identifier="", ex_change=obj['Exchange']).count() == 0:
+                                AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
                     else:
                         print("Response:", response.text)
             except Exception as e:
@@ -881,6 +885,18 @@ class PositionTopHeader(APIView):
             print("error from position top", e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
+
+class BrokrageSettings(APIView):
+    def get(self, request):
+        try:
+            user = request.user
+            if (request.GET.get("user_id") and request.GET.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.GET.get("user_id")).first()
+            response = AdminCoinWithCaseModal.objects.filter(master_coins=user, ex_change=request.GET.get("ex_change")).values("id", "turnover_brk", "lot_brk", "ex_change", "identifier")
+            return Response({"status": True, "message": "Data getting successfully", "response": response})
+        except Exception as e:
+            print(e)
+            return Response({"status": False, "message" :"Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 # web api ----------------------------------
 class WebScriptQuantityAPI(APIView):
