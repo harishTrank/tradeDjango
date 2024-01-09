@@ -40,5 +40,7 @@ urlpatterns = [
     path("master-child-api/", MasterChildApi.as_view(), name="master-child-api"),
     
     path("account-limit/", AccountLimitApi.as_view(), name="account-limit"),
-    path("user-details-api/", UserDetailsAPIView.as_view(), name="user-details-api")
+    path("user-details-api/", UserDetailsAPIView.as_view(), name="user-details-api"),
+    path("brk-setting-api/", BrokrageSettings.as_view(), name="brk-setting-api")
+    
 ]

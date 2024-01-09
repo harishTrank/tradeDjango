@@ -97,14 +97,20 @@
 
 <script>
 
-    function trunOverWise() {
-      $("#turnoverWiseID").css('display','block');
-      $("#symbolWiseId").css('display','none')
-    }
-    function symbolWise() {
-      $("#turnoverWiseID").css('display','none');
-      $("#symbolWiseId").css('display','block')
-    }
+  function trunOverWise() {
+    $("#turnoverWiseID").css('display','block');
+    $("#symbolWiseId").css('display','none');
+    $(".tab-head li").removeClass("active"); 
+    $(".tab-head li[data-id='chart']").addClass("active");
+  }
+  
+  function symbolWise() {
+    $("#turnoverWiseID").css('display','none');
+    $("#symbolWiseId").css('display','block');
+    $(".tab-head li").removeClass("active");
+    $(".tab-head li[data-id='table']").addClass("active"); 
+  }
+  
 
 
     $("#brkCheckAllId").click(function(){
