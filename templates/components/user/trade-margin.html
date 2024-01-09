@@ -29,10 +29,9 @@
         <div class="flex space-bw">
           <label for="">Exchange:</label>
           <select name="exchange" id="tradeMarginExchangeId" class="form_control flex">
-            <option value="">All exchange</option>
-            <option value="MCX">MCX</option>
-            <option value="NSE">NSE</option>
-            <option value="MINI">MINI</option>
+            {% for i in exchange_obj %}
+              <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
+            {% endfor %}
           </select>
         </div>
         <div class="flex space-bw">

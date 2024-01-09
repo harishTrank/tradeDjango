@@ -12,7 +12,7 @@
         <div class="brk-tab-content" id="turnover-wise">
             <div class="flex">
                 <div class="trade-download">
-                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                    <div style="transform: rotate(90deg);padding-left: 10px;cursor:pointer;">
                         <p id="brkFilterID">Filter</p>
                     </div>
                     <span>
@@ -34,7 +34,7 @@
                    
                         <div class="flex space-bw">
                             <label for="" >Exchange:</label>
-                            <select name="" class="form_control flex" id="brkFilterId" onchange="exchangeOnchange(this.value)" >
+                            <select name="" class="form_control flex" id="" onchange="exchangeOnchange(this.value)" >
                               {% for i in exchange %}
                                 <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
                               {% endfor %}
@@ -47,6 +47,7 @@
 
                         <div style="display: flex;" >
                             <input id="brkSearchID" type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
+                            
                             <input id="updateBtnId" onClick="updateBtnHandler(event)" type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
                         </div>
                     </div>
@@ -112,9 +113,15 @@
       $('input:checkbox').not(this).prop('checked', this.checked);
   });
     
+      $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "95%");
+    });
+    
     $('#brkFilterID').click(function () {
-        $(".trades-side").show();
-      });
+      $(".trades-side").show();
+      $(".trades-body").css("width", "68%");
+    });
 
     $("#checkAll").click(function(){
       $('input:checkbox').not(this).prop('checked', this.checked);
@@ -129,6 +136,18 @@
     $(".trades-side").show();
   });
   
+
+  const validateCheckbox = () => {
+    const checkboxes = $("#brktableId input:checkbox:checked");
+    const symbolCheckboxes = $("#symbolWiseTable input:checkbox:checked");
+  
+    if (checkboxes.length === 0 && symbolCheckboxes.length === 0) {
+      // If no checkboxes are checked, prevent the update
+      alert("Please select at least one checkbox.");
+      return false;
+    }
+    return true;
+  };
 
   let exchangeOnchange = (selectedValue) => {
     axios.get(`{% url 'brk-setting-api' %}?user_id={{ user.id }}&ex_change=${selectedValue}`, {
@@ -165,72 +184,100 @@
 exchangeOnchange("{{first}}"); 
 
 
-let checkedIds = new Set(); 
+  let checkedIds = []; 
 
-$("#brkCheckAllId").click(function() {
-  $('#brktableId input:checkbox').prop('checked', this.checked);
-  checkedIds.clear(); 
+  $("#brkCheckAllId").click(function() {
+    $('#brktableId input:checkbox').prop('checked', this.checked);
   
-  if ($(this).is(':checked')) {
-    $('.brkCheckAllClass').each(function() {
-      checkedIds.add($(this).val());
-    });
-    console.log('All checked item IDs:', Array.from(checkedIds)); // Convert Set to Array for logging
-  }
-});
-
-$(document).on('change', '.brkCheckAllClass', function() {
-  const itemId = $(this).val();
-
-  if ($(this).is(':checked')) {
-    checkedIds.add(itemId); 
-  } else {
-    checkedIds.delete(itemId); 
-  }
-  console.log('Selected item IDs:', Array.from(checkedIds)); 
-});
-
-
-
-
-let symbolsIds = new Set(); 
-
-$("#symbolWisecheckbox").click(function() {
-  $('#symbolWiseTable input:checkbox').prop('checked', this.checked);
-  symbolsIds.clear(); 
+    if ($(this).is(':checked')) {
+      checkedIds = [];
+      $('.brkCheckAllClass').each(function() {
+        if (!(checkedIds.includes($(this).val()))) {
+          checkedIds.push($(this).val());
+        }
+      });
+      console.log('All checked item IDs:', checkedIds);
+    } else {
+      checkedIds = []
+    }
+  });
   
-  if ($(this).is(':checked')) {
-    $('.brkCheckAllClass').each(function() {
-      symbolsIds.add($(this).val());
-    });
-    console.log('All checked item IDs:', Array.from(symbolsIds)); // Convert Set to Array for logging
-  }
-});
+  $(document).on('change', '.brkCheckAllClass', function() {
+    if ($(this).is(':checked')) {
+      checkedIds.push($(this).val()); 
+      console.log('Selected item IDs:', checkedIds);
+    } else {
+      if (!$("#brkCheckAllId").is(':checked')) {
+        checkedIds = [];
+        console.log('All items unchecked. Emptying checkedIds array.');
+      } else {
+        const index = checkedIds.indexOf($(this).val());
+        if (index !== -1) {
+          checkedIds.splice(index, 1); 
+        }
+        console.log('Selected item IDs:', checkedIds);
+      }
+    }
+  });
 
-$(document).on('change', '.brkCheckAllClass', function() {
-  const itemId = $(this).val();
 
-  if ($(this).is(':checked')) {
-    symbolsIds.add(itemId); 
-  } else {
-    symbolsIds.delete(itemId); 
-  }
-  console.log('Selected item IDs:', Array.from(symbolsIds)); 
-});
+
+  let symbolscheck = []; 
+
+  $("#symbolWisecheckbox").click(function() {
+    $('#symbolWiseTable input:checkbox').prop('checked', this.checked);
+  
+    if ($(this).is(':checked')) {
+      symbolscheck = [];
+      $('.brkCheckAllClass').each(function() {
+        if (!(symbolscheck.includes($(this).val()))) {
+          symbolscheck.push($(this).val());
+        }
+      });
+      console.log('All checked item IDs:', symbolscheck);
+    } else {
+      symbolscheck = []
+    }
+  });
+  
+  $(document).on('change', '.brkCheckAllClass', function() {
+    if ($(this).is(':checked')) {
+      symbolscheck.push($(this).val()); 
+      console.log('Selected item IDs:', symbolscheck);
+    } else {
+      if (!$("#brkCheckAllId").is(':checked')) {
+        symbolscheck = [];
+        console.log('All items unchecked. Emptying symbolscheck array.');
+      } else {
+        const index = symbolscheck.indexOf($(this).val());
+        if (index !== -1) {
+          symbolscheck.splice(index, 1); 
+        }
+        console.log('Selected item IDs:', symbolscheck);
+      }
+    }
+  });
+
+  
   
   const updateBtnHandler = (event) => {
     event.preventDefault();
+    if (!validateCheckbox()) {
+      return;
+    }
   
     let brkType = "TURNOVER WISE"; 
+    let Ids = checkedIds;
     if ($("#symbolWiseId").css('display') === 'block') {
       brkType = "";
+      Ids = symbolscheck;
     }
     const amount = $("#priceValueId").val();
   
     const body = {
       brk_type: brkType,
       amount: amount,
-      object_list: checkedIds 
+      object_list: Ids 
     };
   
     axios
@@ -254,7 +301,6 @@ $(document).on('change', '.brkCheckAllClass', function() {
         console.error("Error:", error);
       });
   };
-  
   
   </script>
 
