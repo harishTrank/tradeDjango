@@ -47,7 +47,7 @@
 
                         <div style="display: flex;" >
                             <input id="brkSearchID" type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
-                            <input id="updateBtnId" disabled onClick="updateBtnHandler(event)" type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
+                            <input id="updateBtnId" onClick="updateBtnHandler(event)" type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
                         </div>
                     </div>
                 </div>    
@@ -72,7 +72,7 @@
         <div id="symbolWiseId" class="trades-body user-table" style="position:absolute;right:0; display: none">
           <table style="width: 100%;">
             <tr>
-              <th><input id="brkCheckAllId" type="checkbox"></th>
+              <th><input id="symbolWisecheckbox" type="checkbox"></th>
                   <th>Exchange</th>
                   <th>Script</th>
                   <th>Lot Size</th>
@@ -108,6 +108,10 @@
         $('input:checkbox').not(this).prop('checked', this.checked);
     });
 
+    $("#symbolWisecheckbox").click(function(){
+      $('input:checkbox').not(this).prop('checked', this.checked);
+  });
+    
     $('#brkFilterID').click(function () {
         $(".trades-side").show();
       });
@@ -132,6 +136,8 @@
     })
     .then(response => {
         console.log("Response:", response.data); 
+        $("#brktableId").empty();
+        $("#symbolWiseTable").empty();
         response.data.response.map(item => {
             $("#brktableId").append(`
                 <tr>
@@ -144,7 +150,7 @@
 
             $("#symbolWiseTable").append(`
                 <tr>
-                    <td><input id="" type="checkbox"></td>
+                  <td><input class="brkCheckAllClass" value="${item.id}" type="checkbox"></td>
                     <td>${item.ex_change}</td>
                     <td>${item.identifier}</td>
                     <td>${item.lot_size}</td>
@@ -155,30 +161,100 @@
     })
     .catch(err => console.log("err", err));
 }
-  
+
+exchangeOnchange("{{first}}"); 
+
+
+let checkedIds = new Set(); 
 
 $("#brkCheckAllId").click(function() {
   $('#brktableId input:checkbox').prop('checked', this.checked);
-
+  checkedIds.clear(); 
+  
   if ($(this).is(':checked')) {
-      var allCheckedIds = [];
-      $('.brkCheckAllClass').each(function() {
-          allCheckedIds.push($(this).val());
-      });
-      console.log('All checked item IDs:', allCheckedIds);
+    $('.brkCheckAllClass').each(function() {
+      checkedIds.add($(this).val());
+    });
+    console.log('All checked item IDs:', Array.from(checkedIds)); // Convert Set to Array for logging
   }
 });
 
 $(document).on('change', '.brkCheckAllClass', function() {
+  const itemId = $(this).val();
+
   if ($(this).is(':checked')) {
-      var checkedIds = [];
-      $('.brkCheckAllClass:checked').each(function() {
-          checkedIds.push($(this).val());
-      });
-      console.log('Selected item IDs:', checkedIds);
+    checkedIds.add(itemId); 
+  } else {
+    checkedIds.delete(itemId); 
+  }
+  console.log('Selected item IDs:', Array.from(checkedIds)); 
+});
+
+
+
+
+let symbolsIds = new Set(); 
+
+$("#symbolWisecheckbox").click(function() {
+  $('#symbolWiseTable input:checkbox').prop('checked', this.checked);
+  symbolsIds.clear(); 
+  
+  if ($(this).is(':checked')) {
+    $('.brkCheckAllClass').each(function() {
+      symbolsIds.add($(this).val());
+    });
+    console.log('All checked item IDs:', Array.from(symbolsIds)); // Convert Set to Array for logging
   }
 });
 
+$(document).on('change', '.brkCheckAllClass', function() {
+  const itemId = $(this).val();
+
+  if ($(this).is(':checked')) {
+    symbolsIds.add(itemId); 
+  } else {
+    symbolsIds.delete(itemId); 
+  }
+  console.log('Selected item IDs:', Array.from(symbolsIds)); 
+});
+  
+  const updateBtnHandler = (event) => {
+    event.preventDefault();
+  
+    let brkType = "TURNOVER WISE"; 
+    if ($("#symbolWiseId").css('display') === 'block') {
+      brkType = "";
+    }
+    const amount = $("#priceValueId").val();
+  
+    const body = {
+      brk_type: brkType,
+      amount: amount,
+      object_list: checkedIds 
+    };
+  
+    axios
+      .post(
+        '{% url "brk-setting-api" %}',
+        body,
+        { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+      )
+      .then((response) => {
+        console.log("Response:", response.data);
+        toastMixin.fire({
+          animation:true,
+          title:response.data.message,
+          icon: "success",
+        });
+        setTimeout(()=>
+        window.location.reload(),2800
+        )
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+  
   
   </script>
 

@@ -540,7 +540,7 @@ class BrkView(View):
     def get(self, request, id):
         user = MyUser.objects.get(id=id)
         exchange = user.user.values("symbol_name")
-        return render(request, "components/user/brk.html",{"user":user, "exchange":exchange})
+        return render(request, "components/user/brk.html",{"user":user, "exchange":exchange, "first":exchange.first()["symbol_name"]})
     
     
 class TradeMargin(View):
