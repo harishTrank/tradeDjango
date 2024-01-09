@@ -904,11 +904,60 @@ class BrokrageSettings(APIView):
             amount = request.data.get("amount")
             object_list = request.data.get("object_list")
             records = AdminCoinWithCaseModal.objects.filter(id__in=object_list)
-            
+
             if brk_type == "TURNOVER WISE":
                 records.update(turnover_brk=float(amount))
             else:
                 records.update(lot_brk=float(amount))
+            return Response({"status": True, "message": "Data update successfully."})
+        except Exception as e:
+            print(e)
+            return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class TradeMarginSetting(APIView):
+    def get(self, request):
+        try:
+            user = request.user
+            if (request.GET.get("user_id") and request.GET.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.GET.get("user_id")).first()
+            response = AdminCoinWithCaseModal.objects.filter(master_coins=user, ex_change=request.GET.get("ex_change")).values("id", "trademargin_amount", "trademargin_percentage", "ex_change", "identifier")
+            return Response({"status": True, "message": "Data getting successfully", "response": response})
+        except Exception as e:
+            print(e)
+            return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request):
+        try:
+            exchange = request.data.get("exchange")
+            amount = request.data.get("amount")
+            object_list = request.data.get("object_list")
+            records = AdminCoinWithCaseModal.objects.filter(id__in=object_list)
+
+            if exchange != "NSE":
+                records.update(trademargin_amount=float(amount))
+            else:
+                records.update(trademargin_percentage=float(amount))
+            return Response({"status": True, "message": "Data update successfully."})
+        except Exception as e:
+            print(e)
+            return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+        
+class TradeMarginUpdateAllApi(APIView):
+    def post(self, request):
+        try:
+            exchange = request.data.get("exchange")
+            amount = request.data.get("amount")
+            identifier_list = request.data.get("identifier_list")
+            user = request.user
+            users = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True))
+                | set(
+                    MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+            records = AdminCoinWithCaseModal.objects.filter(identifier__in=identifier_list, master_coins__in=users, ex_change=exchange)
+            if exchange != "NSE":
+                records.update(trademargin_amount=float(amount))
+            else:
+                records.update(trademargin_percentage=float(amount))
             return Response({"status": True, "message": "Data update successfully."})
         except Exception as e:
             print(e)
