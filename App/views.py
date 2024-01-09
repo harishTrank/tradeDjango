@@ -900,17 +900,11 @@ class BrokrageSettings(APIView):
         
     def post(self, request):
         try:
-            user = request.user
             brk_type = request.data.get("brk_type")
             amount = request.data.get("amount")
-            coin_list = request.data.get("coin_list")
-
-            user_id = request.data.get("user_id")
-            if user_id and user_id != "":
-                user = MyUser.objects.get(id=user_id)
-
-            records = user.master_coins.filter(master_coins=user, ex_change=request.GET.get("ex_change"), identifier__in=coin_list)
-
+            object_list = request.data.get("object_list")
+            records = AdminCoinWithCaseModal.objects.filter(id__in=object_list)
+            
             if brk_type == "TURNOVER WISE":
                 records.update(turnover_brk=float(amount))
             else:
