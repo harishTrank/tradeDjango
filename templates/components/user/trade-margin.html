@@ -44,21 +44,26 @@
 
         <div class="flex space-bw">
           <label for="">Price</label>
-          <input type="number" name="price" class="form_control" />
+          <input id="tradepriceValueId" value="1" type="number" name="price" class="form_control" />
         </div>
         <div style="display: flex">
           <button
-            type="submit"
-            value="Apply"
-            class="form-btn mr"
-            style="border: 1px solid white"
-            id="applyFilterId">Apply
-          </button>
+          type="button"
+          value="Apply"
+          class="form-btn mr"
+          style="border: 1px solid white"
+          id="applyFilterId"
+          onclick="updateTradeMarginValue()"
+        >
+          Apply
+        </button>
           <button
             type="submit"
             value="Update"
             class="cancel-btn"
-            style="border: 1px solid white">Update
+            style="border: 1px solid white"
+            onClick="tradeMarginOnclick(event)"
+            >Update
           </button>
         </div>
         <button
@@ -68,6 +73,7 @@
             background-color: rgb(89, 89, 229);
             border: 1px solid white;
             padding: 4px;"
+            onClick="updateAllUsers(event)"
         >
           Update to All Users
         </button>
@@ -124,6 +130,20 @@ $('#tradeMarginExchangeId').on('change', function() {
   }
 });
 
+function updateTradeMarginValue() {
+  const inputValue = $("#tradepriceValueId").val();
+  const checkedCheckboxes = $('#radeMarginTableId input:checkbox:checked');
+  if (checkedCheckboxes.length === 0) {
+    alert('Please select at least one checkbox.');
+    return;
+  }
+  checkedCheckboxes.each(function() {
+    const row = $(this).closest('tr');
+    const cell = row.find('.tradeMarginValueCell');
+    cell.text(inputValue);
+  });
+}
+
 
 let tradeExchangeOnchange = (selectedValue) => {
   axios.get(`{% url 'trademargin-setting-api' %}?user_id={{ user.id }}&ex_change=${selectedValue}`, {
@@ -139,7 +159,7 @@ let tradeExchangeOnchange = (selectedValue) => {
                   <td><input class="brkCheckAllClass" value="${item.id}" type="checkbox"></td>
                     <td>${item.ex_change}</td>
                     <td>${item.identifier}</td>
-                    <td>${tradeMarginValue}</td>
+                    <td class="tradeMarginValueCell">${tradeMarginValue}</td>
                     <td>${item.updated_at}</td>
                 </tr>
             `);
@@ -151,66 +171,66 @@ let tradeExchangeOnchange = (selectedValue) => {
 tradeExchangeOnchange("{{first}}");
 
 
-let tradeIds = []; 
+const tradevalidateCheckbox = () => {
+  const checkboxes = $("#radeMarginTableId input:checkbox:checked");
 
+  if (checkboxes.length === 0) {
+    alert("Please select at least one checkbox.");
+    return false;
+  }
+  return true;
+};
+
+
+let tradeMarginIds = []; 
 $("#tradeCheckBoxId").click(function() {
   $('#radeMarginTableId input:checkbox').prop('checked', this.checked);
 
   if ($(this).is(':checked')) {
-    tradeIds = [];
+    tradeMarginIds = [];
     $('.brkCheckAllClass').each(function() {
-      if (!(tradeIds.includes($(this).val()))) {
-        tradeIds.push($(this).val());
+      if (!(tradeMarginIds.includes($(this).val()))) {
+        tradeMarginIds.push($(this).val());
       }
     });
-    console.log('All checked item IDs:', tradeIds);
+    console.log('All checked item IDs:', tradeMarginIds);
   } else {
-    tradeIds = []
+    tradeMarginIds = []
   }
 });
 
 $(document).on('change', '.brkCheckAllClass', function() {
   if ($(this).is(':checked')) {
-    tradeIds.push($(this).val()); 
-    console.log('Selected item IDs:', tradeIds);
+    tradeMarginIds.push($(this).val()); 
+    console.log('Selected item IDs:', tradeMarginIds);
   } else {
-    if (!$("#brkCheckAllId").is(':checked')) {
-      tradeIds = [];
-      console.log('All items unchecked. Emptying tradeIds array.');
+    if (!$("#radeMarginTableId").is(':checked')) {
+      tradeMarginIds = [];
+      console.log('All items unchecked. Emptying tradeMarginIds array.');
     } else {
-      const index = tradeIds.indexOf($(this).val());
+      const index = tradeMarginIds.indexOf($(this).val());
       if (index !== -1) {
-        tradeIds.splice(index, 1); 
+        tradeMarginIds.splice(index, 1); 
       }
-      console.log('Selected item IDs:', tradeIds);
+      console.log('Selected item IDs:', tradeMarginIds);
     }
   }
 });
 
-
-const updateBtnHandler = (event) => {
+const tradeMarginOnclick = (event) => {
   event.preventDefault();
-  if (!validateCheckbox()) {
+  if (!tradevalidateCheckbox()) {
     return;
   }
-
-  let brkType = "TURNOVER WISE"; 
-  let Ids = checkedIds;
-  if ($("#symbolWiseId").css('display') === 'block') {
-    brkType = "";
-    Ids = symbolscheck;
-  }
-  const amount = $("#priceValueId").val();
-
   const body = {
-    brk_type: brkType,
-    amount: amount,
-    object_list: Ids 
+    exchange: $("#tradeMarginExchangeId").val(),
+    amount: $("#tradepriceValueId").val(),
+    object_list: tradeMarginIds 
   };
 
   axios
     .post(
-      '{% url "brk-setting-api" %}',
+      '{% url "trademargin-setting-api" %}',
       body,
       { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
     )
@@ -231,6 +251,49 @@ const updateBtnHandler = (event) => {
 };
 
 
+
+const updateAllUsers = (event) => {
+  event.preventDefault();
+  if (!tradevalidateCheckbox()) {
+    return;
+  }
+
+  const identifierList = [];
+  $('.brkCheckAllClass').each(function() {
+    if ($(this).is(':checked')) {
+      
+      const identifier = $(this).closest('tr').find('td:eq(2)').text(); // Adjust the index based on your table structure
+      identifierList.push(identifier);
+    }
+  });
+  const body = {
+    exchange: $("#tradeMarginExchangeId").val(),
+    amount: $("#tradepriceValueId").val(),
+    identifier_list: identifierList,
+    user_id : "{{user.id}}"
+  };
+
+  axios
+    .post(
+      '{% url "trademargin-all-setting-api" %}',
+      body,
+      { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+    )
+    .then((response) => {
+      console.log("Response:", response.data);
+      toastMixin.fire({
+        animation:true,
+        title:response.data.message,
+        icon: "success",
+      });
+      setTimeout(()=>
+      window.location.reload(),2800
+      )
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+};
 
 </script>
 

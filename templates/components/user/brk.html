@@ -46,7 +46,7 @@
                         </div>
 
                         <div style="display: flex;" >
-                            <input id="brkSearchID" type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
+                            <input id="brkSearchID" onclick="brkApplyOnclick()" type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
                             
                             <input id="updateBtnId" onClick="updateBtnHandler(event)" type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
                         </div>
@@ -137,6 +137,20 @@
   });
   
 
+  function brkApplyOnclick() {
+    const brkinput = $("#priceValueId").val();
+    const brkcheckcheckboxes = $("#brktableId input:checkbox:checked");
+    if (brkcheckcheckboxes.length === 0) {
+      alert('Please select at least one checkbox.');
+      return;
+    }
+    brkcheckcheckboxes.each(function(){
+      const brkrow = $(this).closest('tr')
+      const brkcell = brkrow.find('.turnovercell');
+      brkcell.text(brkinput);
+    });
+  }
+
   const validateCheckbox = () => {
     const checkboxes = $("#brktableId input:checkbox:checked");
     const symbolCheckboxes = $("#symbolWiseTable input:checkbox:checked");
@@ -163,7 +177,7 @@
                   <td><input class="brkCheckAllClass" value="${item.id}" type="checkbox"></td>
                     <td>${item.ex_change}</td>
                     <td>${item.identifier}</td>
-                    <td>${item.turnover_brk}</td>
+                    <td class="turnovercell">${item.turnover_brk}</td>
                 </tr>
             `);
 
@@ -173,7 +187,7 @@
                     <td>${item.ex_change}</td>
                     <td>${item.identifier}</td>
                     <td>${item.lot_size}</td>
-                    <td>${item.lot_brk}</td>
+                    <td class="lotbrkcell">${item.lot_brk}</td>
                 </tr>
             `);
         });

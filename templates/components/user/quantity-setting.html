@@ -55,7 +55,7 @@
           const formattedDate = `${createdAt.getMonth() + 1}/${createdAt.getDate()}/${createdAt.getFullYear()} ${createdAt.getHours()}:${createdAt.getMinutes()}:${createdAt.getSeconds()}`;
           $("#quantityTableBody").append(`
             <tr>
-              <td>${item.ex_change === "NSE" ? item.identifier : item.identifier.split("_")[1]}</td>
+              <td>${item.identifier}</td>
               <td>${item.max_qty}</td>
               <td>${item.max_lot}</td>
               <td>${item.breakup_qty}</td>

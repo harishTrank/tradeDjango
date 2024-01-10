@@ -28,3 +28,13 @@ def mini_mcx_squareoff(coin_type):
         return response.json() 
     except requests.RequestException as e:
         return f"Request failed: {e}"
+    
+    
+def delete_expire():
+    url = f"http://{NODEIP}/api/tradeCoin/expire"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        return f"Request failed: {e}"

@@ -356,11 +356,12 @@ def accountSummaryService(data, user, pandL, summary_flag, admin=""):
                 AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_sell_price'] if data["action"] == 'BUY' else list(result)[0]['avg_buy_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
             else:
                 AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
-            
+          
+import datetime
+import pytz  
 class BuySellSellApi(APIView):
     # permission_classes = [IsAuthenticated]
     def post(self, request):
-        print("========",request.data)
         if (request.data.get("type") == "WEB"):
             user = MyUser.objects.get(id=request.data.get("userId"))
         else:
@@ -369,6 +370,7 @@ class BuySellSellApi(APIView):
         quantity = request.data.get('quantity')
         lot_size = request.data.get("lot_size")
         is_cancel = request.data.get("is_cancel")
+        
         if user.user_type != "Client":
             return Response({"success": False, "message": "Not Allowed For Trade"}, status=status.HTTP_404_NOT_FOUND)
         
@@ -377,10 +379,35 @@ class BuySellSellApi(APIView):
             total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
         except:
             total_quantity = 0
-        if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
+        margin_used_value = 0
+        
+        message = 'Insufficient balance/quantity'
+        if is_cancel:
+            message = 'Market is closed. Please try again later!'
             
-            current_coin = TradeMarginModel.objects.filter(exchange=request.data.get('ex_change'), script__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get("identifer").split("_")[1]).first()
-            currentProfitLoss = total_quantity * quantity * lot_size - current_coin.trade_margin if current_coin else 0 * quantity
+        if request.data.get('ex_change') == "NSE":
+            current_time = datetime.now().astimezone(pytz.timezone('Asia/Kolkata'))
+            market_close_time = current_time.replace(hour=15, minute=30, second=0, microsecond=0)
+            if current_time >= market_close_time:
+                message = "Trading on NSE is closed for the day."
+                is_cancel = True
+                
+        elif request.data.get('ex_change') != "NSE":
+            current_time = datetime.now().astimezone(pytz.timezone('Asia/Kolkata'))
+            market_close_time = current_time.replace(hour=23, minute=55, second=0, microsecond=0)
+            if current_time >= market_close_time:
+                message = f"Trading on {request.data.get('ex_change')} is closed for the day."
+                is_cancel = True
+        
+        if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
+            current_mrg = user.admin_coins.filter(ex_change=request.data.get('ex_change'), identifier__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get('identifer').split("_")[1]).first()
+            if current_mrg.ex_change == "NSE":
+                if current_mrg.trademargin_percentage != 0:
+                    margin_used_value += abs(request.data.get('quantity')) * ((current_mrg.trademargin_percentage/100) * request.data.get('price')) if current_mrg else 0
+            else:
+                margin_used_value += abs(request.data.get('quantity')) * current_mrg.trademargin_amount if current_mrg else 0
+
+            currentProfitLoss = total_quantity * quantity * lot_size - margin_used_value * quantity
             user.balance += currentProfitLoss
             accountSummaryService(request.data, user, currentProfitLoss, "Profit/Loss")
             quantity -= total_quantity
@@ -413,11 +440,11 @@ class BuySellSellApi(APIView):
                 ip_address=request.data.get("ip_address"),
                 order_method=request.data.get("order_method"),
                 stop_loss=request.data.get("stop_loss"),
-                message='Market is closed. Please try again later!' if is_cancel else 'Insufficient balance/quantity',
+                message=message,
                 is_cancel=True
             )
             buy_sell_instance.save()
-            return Response({'message': 'Market is closed. Please try again later!' if is_cancel else 'Insufficient balance/quantity'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': message}, status=status.HTTP_400_BAD_REQUEST)
         user.save()
         buy_sell_instance = BuyAndSellModel(
             buy_sell_user=user,
@@ -457,7 +484,6 @@ class BuySellSellApi(APIView):
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
-        
         
         
 class AccountSummaryApi(APIView):
@@ -951,10 +977,16 @@ class TradeMarginUpdateAllApi(APIView):
             exchange = request.data.get("exchange")
             amount = request.data.get("amount")
             identifier_list = request.data.get("identifier_list")
-            user = request.user
+            if request.data.get("user_id") and request.data.get("user_id") != "":
+                user = MyUser.objects.get(id=request.data.get("user_id"))
+            else:
+                user = request.user
             users = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True))
                 | set(
                     MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
+            if request.data.get("user_id") and request.data.get("user_id") != "":
+                users = list(users)
+                users.append(user)
             records = AdminCoinWithCaseModal.objects.filter(identifier__in=identifier_list, master_coins__in=users, ex_change=exchange)
             if exchange != "NSE":
                 records.update(trademargin_amount=float(amount))
