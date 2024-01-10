@@ -555,7 +555,7 @@ class TradeMargin(View):
         # if trade_margin:
         #     trade = trade.filter(trade_margin=trade_margin)
             
-        return render(request, "components/user/trade-margin.html",{"trade_margin":trade,"exchange_obj":exchange_obj})
+        return render(request, "components/user/trade-margin.html",{"trade_margin":trade,"exchange_obj":exchange_obj,"user":user,"first":exchange_obj.first()["symbol_name"]})
     
 
 class CreditView(View):

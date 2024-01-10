@@ -921,7 +921,7 @@ class TradeMarginSetting(APIView):
             user = request.user
             if (request.GET.get("user_id") and request.GET.get("user_id") != ""):
                 user = MyUser.objects.filter(id=request.GET.get("user_id")).first()
-            response = AdminCoinWithCaseModal.objects.filter(master_coins=user, ex_change=request.GET.get("ex_change")).values("id", "trademargin_amount", "trademargin_percentage", "ex_change", "identifier")
+            response = AdminCoinWithCaseModal.objects.filter(master_coins=user, ex_change=request.GET.get("ex_change")).values("id", "trademargin_amount", "trademargin_percentage", "ex_change", "identifier","updated_at")
             return Response({"status": True, "message": "Data getting successfully", "response": response})
         except Exception as e:
             print(e)

@@ -28,7 +28,7 @@
       <div class="trade-btm">
         <div class="flex space-bw">
           <label for="">Exchange:</label>
-          <select name="exchange" id="tradeMarginExchangeId" class="form_control flex">
+          <select name="exchange" id="tradeMarginExchangeId" onchange="tradeExchangeOnchange(this.value)" class="form_control flex">
             {% for i in exchange_obj %}
               <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
             {% endfor %}
@@ -36,7 +36,7 @@
         </div>
         <div class="flex space-bw">
           <label for="">Margin Type:</label>
-          <select name="margin_type" id="" class="form_control">
+          <select name="margin_type" id="marginTypeDropdownId" class="form_control">
             <option value="">Percentage</option>
             <option value="">Amount</option>
           </select>
@@ -54,14 +54,14 @@
             style="border: 1px solid white"
             id="applyFilterId">Apply
           </button>
-          {% comment %} <button
+          <button
             type="submit"
             value="Update"
             class="cancel-btn"
             style="border: 1px solid white">Update
-          </button> {% endcomment %}
+          </button>
         </div>
-        {% comment %} <button
+        <button
           style="
             width: 100%;
             color: white;
@@ -70,7 +70,7 @@
             padding: 4px;"
         >
           Update to All Users
-        </button> {% endcomment %}
+        </button>
       </div>
     </form>
     </div>
@@ -86,17 +86,8 @@
             {% comment %} <th>Description</th> {% endcomment %}
             <th>Updated Date</th>
           </tr>
-          <tbody id="tradeMarginId">
-            {% for i in trade_margin %}
-            <tr>
-              <td><input type="checkbox" /></td>
-                <td>{{i.ex_change}}</td>
-                <td>{{i.identifier}}</td>
-                <td>{{i.trade_margin}}</td>
-                {% comment %} <td>{{i.disc}}</td> {% endcomment %}
-                <td>{{i.created_at}}</td>
-              </tr>
-              {% endfor %}
+          <tbody id="radeMarginTableId">
+          
           </tbody>
         </table>
       </div>
@@ -115,6 +106,132 @@ $('#tradeMarginFilterId').click(function () {
   $(".trades-side").show();
   $(".trades-body").css("width", "66%");
 });
+
+$("#tradeCheckBoxId").click(function(){
+  $('input:checkbox').not(this).prop('checked', this.checked);
+});
+
+
+$('#tradeMarginExchangeId').on('change', function() {
+  var selectedValue = $(this).val();
+  var marginTypeDropdown = $('#marginTypeDropdownId');
+  if (selectedValue === 'NSE') {
+    marginTypeDropdown.empty(); 
+    marginTypeDropdown.append('<option value="">Percentage</option>');
+  } else {
+    marginTypeDropdown.empty();
+    marginTypeDropdown.append('<option value="">Amount</option>'); 
+  }
+});
+
+
+let tradeExchangeOnchange = (selectedValue) => {
+  axios.get(`{% url 'trademargin-setting-api' %}?user_id={{ user.id }}&ex_change=${selectedValue}`, {
+      headers: { "X-CSRFToken": "{{ csrf_token }}" }
+  })
+  .then(response => {
+      console.log("Response:", response.data); 
+      $("#radeMarginTableId").empty();
+      response.data.response.map(item => {
+        let tradeMarginValue = selectedValue === 'NSE' ? item.trademargin_percentage : item.trademargin_amount;
+        $("#radeMarginTableId").append(`
+                <tr>
+                  <td><input class="brkCheckAllClass" value="${item.id}" type="checkbox"></td>
+                    <td>${item.ex_change}</td>
+                    <td>${item.identifier}</td>
+                    <td>${tradeMarginValue}</td>
+                    <td>${item.updated_at}</td>
+                </tr>
+            `);
+      });
+  })
+  .catch(err => console.log("err", err));
+}
+
+tradeExchangeOnchange("{{first}}");
+
+
+let tradeIds = []; 
+
+$("#tradeCheckBoxId").click(function() {
+  $('#radeMarginTableId input:checkbox').prop('checked', this.checked);
+
+  if ($(this).is(':checked')) {
+    tradeIds = [];
+    $('.brkCheckAllClass').each(function() {
+      if (!(tradeIds.includes($(this).val()))) {
+        tradeIds.push($(this).val());
+      }
+    });
+    console.log('All checked item IDs:', tradeIds);
+  } else {
+    tradeIds = []
+  }
+});
+
+$(document).on('change', '.brkCheckAllClass', function() {
+  if ($(this).is(':checked')) {
+    tradeIds.push($(this).val()); 
+    console.log('Selected item IDs:', tradeIds);
+  } else {
+    if (!$("#brkCheckAllId").is(':checked')) {
+      tradeIds = [];
+      console.log('All items unchecked. Emptying tradeIds array.');
+    } else {
+      const index = tradeIds.indexOf($(this).val());
+      if (index !== -1) {
+        tradeIds.splice(index, 1); 
+      }
+      console.log('Selected item IDs:', tradeIds);
+    }
+  }
+});
+
+
+const updateBtnHandler = (event) => {
+  event.preventDefault();
+  if (!validateCheckbox()) {
+    return;
+  }
+
+  let brkType = "TURNOVER WISE"; 
+  let Ids = checkedIds;
+  if ($("#symbolWiseId").css('display') === 'block') {
+    brkType = "";
+    Ids = symbolscheck;
+  }
+  const amount = $("#priceValueId").val();
+
+  const body = {
+    brk_type: brkType,
+    amount: amount,
+    object_list: Ids 
+  };
+
+  axios
+    .post(
+      '{% url "brk-setting-api" %}',
+      body,
+      { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+    )
+    .then((response) => {
+      console.log("Response:", response.data);
+      toastMixin.fire({
+        animation:true,
+        title:response.data.message,
+        icon: "success",
+      });
+      setTimeout(()=>
+      window.location.reload(),2800
+      )
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+};
+
+
+
 </script>
 
 {% endblock newtab %}
