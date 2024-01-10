@@ -360,6 +360,7 @@ def accountSummaryService(data, user, pandL, summary_flag, admin=""):
 class BuySellSellApi(APIView):
     # permission_classes = [IsAuthenticated]
     def post(self, request):
+        print("========",request.data)
         if (request.data.get("type") == "WEB"):
             user = MyUser.objects.get(id=request.data.get("userId"))
         else:
@@ -377,8 +378,17 @@ class BuySellSellApi(APIView):
         except:
             total_quantity = 0
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
+            
+            margin_used_value = 0
+            current_mrg = user.admin_coins.filter(ex_change=request.data['ex_change'], identifier__icontains=request.data['identifer'] if request.data['ex_change'] == "NSE" else request.data["identifer"].split("_")[1]).first()
+            if current_mrg.ex_change == "NSE":
+                if current_mrg.trademargin_percentage != 0:
+                    margin_used_value += abs(request.data["quantity"]) * ((current_mrg.trademargin_percentage/100) * request.data["avg_buy_price"] if request.data["quantity"] > 0 else request.data["avg_sell_price"]) if current_mrg else 0
+            else:
+                margin_used_value += abs(request.data["quantity"]) * current_mrg.trademargin_amount if current_mrg else 0
+            
             current_coin = TradeMarginModel.objects.filter(exchange=request.data.get('ex_change'), script__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get("identifer").split("_")[1]).first()
-            currentProfitLoss = total_quantity * quantity * lot_size - current_coin.trade_margin * quantity
+            currentProfitLoss = total_quantity * quantity * lot_size - current_coin.trade_margin if current_coin else 0 * quantity
             user.balance += currentProfitLoss
             accountSummaryService(request.data, user, currentProfitLoss, "Profit/Loss")
             quantity -= total_quantity
@@ -869,14 +879,6 @@ class PositionTopHeader(APIView):
                 .values('identifer','coin_name', 'ex_change')
                 .annotate(
                     total_quantity=Sum('quantity'),
-                    avg_buy_price=Coalesce(
-                        Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
-                        Value(0.0)
-                    ),
-                    avg_sell_price=Coalesce(
-                        Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
-                        Value(0.0)
-                    )
                 ).exclude(total_quantity=0)
             )
             release_p_and_l = (
@@ -886,12 +888,8 @@ class PositionTopHeader(APIView):
             )
             margin_used_value = 0
             for obj in margin_user:
-                current_mrg = user.admin_coins.filter(ex_change=obj['ex_change'], identifier__icontains=obj['identifer'] if obj['ex_change'] == "NSE" else obj["identifer"].split("_")[1]).first()
-                if current_mrg.ex_change == "NSE":
-                    if current_mrg.trademargin_percentage != 0:
-                        margin_used_value += abs(obj["total_quantity"]) * ((current_mrg.trademargin_percentage/100) * obj["avg_buy_price"] if obj["total_quantity"] > 0 else obj["avg_sell_price"]) if current_mrg else 0
-                else:
-                    margin_used_value += abs(obj["total_quantity"]) * current_mrg.trademargin_amount if current_mrg else 0
+                current_coin = TradeMarginModel.objects.filter(exchange=obj['ex_change'], script__icontains=obj['identifer'] if obj['ex_change'] == "NSE" else obj["identifer"].split("_")[1]).first()
+                margin_used_value += abs(obj["total_quantity"]) * current_coin.trade_margin if current_coin else 100
             return Response({"success": True, "message": "Data getting successfully.", "credit": user.credit, "balance": user.balance, "release_p_and_l": release_p_and_l['total_amount'] if release_p_and_l['total_amount'] else 0, "margin_used_value": margin_used_value}, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             print("error from position top", e)
@@ -941,11 +939,11 @@ class TradeMarginSetting(APIView):
 
     def post(self, request):
         try:
-            print(request.data)
             exchange = request.data.get("exchange")
             amount = request.data.get("amount")
             object_list = request.data.get("object_list")
             records = AdminCoinWithCaseModal.objects.filter(id__in=object_list)
+
             if exchange != "NSE":
                 records.update(trademargin_amount=float(amount))
             else:
