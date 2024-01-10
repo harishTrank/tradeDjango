@@ -379,14 +379,6 @@ class BuySellSellApi(APIView):
             total_quantity = 0
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
             
-            margin_used_value = 0
-            current_mrg = user.admin_coins.filter(ex_change=request.data['ex_change'], identifier__icontains=request.data['identifer'] if request.data['ex_change'] == "NSE" else request.data["identifer"].split("_")[1]).first()
-            if current_mrg.ex_change == "NSE":
-                if current_mrg.trademargin_percentage != 0:
-                    margin_used_value += abs(request.data["quantity"]) * ((current_mrg.trademargin_percentage/100) * request.data["avg_buy_price"] if request.data["quantity"] > 0 else request.data["avg_sell_price"]) if current_mrg else 0
-            else:
-                margin_used_value += abs(request.data["quantity"]) * current_mrg.trademargin_amount if current_mrg else 0
-            
             current_coin = TradeMarginModel.objects.filter(exchange=request.data.get('ex_change'), script__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get("identifer").split("_")[1]).first()
             currentProfitLoss = total_quantity * quantity * lot_size - current_coin.trade_margin if current_coin else 0 * quantity
             user.balance += currentProfitLoss
