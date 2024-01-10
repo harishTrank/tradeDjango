@@ -376,9 +376,16 @@ class BuySellSellApi(APIView):
             total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
         except:
             total_quantity = 0
+        margin_used_value = 0
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
-            current_coin = TradeMarginModel.objects.filter(exchange=request.data.get('ex_change'), script__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get("identifer").split("_")[1]).first()
-            currentProfitLoss = total_quantity * quantity * lot_size - current_coin.trade_margin * quantity
+            current_mrg = user.admin_coins.filter(ex_change=request.data.get('ex_change'), identifier__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get('identifer').split("_")[1]).first()
+            if current_mrg.ex_change == "NSE":
+                if current_mrg.trademargin_percentage != 0:
+                    margin_used_value += abs(request.data.get('quantity')) * ((current_mrg.trademargin_percentage/100) * request.data.get('price')) if current_mrg else 0
+            else:
+                margin_used_value += abs(request.data.get('quantity')) * current_mrg.trademargin_amount if current_mrg else 0
+
+            currentProfitLoss = total_quantity * quantity * lot_size - margin_used_value * quantity
             user.balance += currentProfitLoss
             accountSummaryService(request.data, user, currentProfitLoss, "Profit/Loss")
             quantity -= total_quantity
