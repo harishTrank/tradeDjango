@@ -538,13 +538,15 @@ class QuantitySettingView(View):
 
 class BrkView(View):
     def get(self, request, id):
-        
-        return render(request, "components/user/brk.html",{"user":MyUser.objects.get(id=id)})
+        user = MyUser.objects.get(id=id)
+        exchange = user.user.values("symbol_name")
+        return render(request, "components/user/brk.html",{"user":user, "exchange":exchange, "first":exchange.first()["symbol_name"]})
     
     
 class TradeMargin(View):
     def get(self, request, id):
         user = MyUser.objects.get(id=id)
+        exchange_obj = user.user.values("symbol_name")
         exchange = request.GET.get('exchange')
         trade_margin = request.GET.get('price')
         trade = user.admin_coins.all()
@@ -553,7 +555,7 @@ class TradeMargin(View):
         # if trade_margin:
         #     trade = trade.filter(trade_margin=trade_margin)
             
-        return render(request, "components/user/trade-margin.html",{"trade_margin":trade})
+        return render(request, "components/user/trade-margin.html",{"trade_margin":trade,"exchange_obj":exchange_obj})
     
 
 class CreditView(View):
