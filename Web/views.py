@@ -624,45 +624,28 @@ class RejectionLogView(View):
             rejection = rejection.filter(coin_name=symbol,is_cancel=True)
             
         return render(request, "components/user/rejection-log.html",{"rejection":rejection,"exchange_obj":exchange_obj,"response":response, "id":id})
-    
 
 
 class RejectionDownloadCSVView(View):
     def get(self, request, id):
-        user = request.GET.get("user_id")
-        return redirect("Admin:user-list")
-        # if request.user.user_type == "Master":
-        #     user_clients = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)))
-        # elif request.user.user_type == "Admin":
-        #     master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
-        #     client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
-        #     user_clients = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
-        # elif request.user.user_type == "SuperAdmin":
-        #     user_clients = MyUser.objects.exclude(id=request.user.id)
+        user = MyUser.objects.get(id=id)
+        buy_and_sell_instances = BuyAndSellModel.objects.filter(buy_sell_user=user,is_cancel=True)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
 
-        # response = HttpResponse(content_type='text/csv')
-        # response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
-
-        # writer = csv.writer(response)
-        # writer.writerow([
-        #     'Username', 'Name', 'Type', 'Parent', 'Credit', 'Balance', 'Bet', 'Close Only', 'Margin Sq', 'Status', 'Created Date', 'Last Login'])
-
-        # for client in user_clients:
-        #     writer.writerow([
-        #         client.user_name,
-        #         client.full_name,
-        #         client.user_type,
-        #         client.user_name,
-        #         client.credit,
-        #         client.balance,
-        #         client.bet,
-        #         client.close_only,
-        #         client.margin_sq,
-        #         client.status,
-        #         client.created_at,
-        #         client.last_login])
-
-        # return respons
+        writer = csv.writer(response)
+        writer.writerow([
+            'Date', 'Message', 'Username', 'Symbol', 'Type', 'Quantity','Price'])
+        for instance in buy_and_sell_instances:
+            writer.writerow([
+                instance.created_at,
+                instance.message,
+                user.user_name,
+                instance.coin_name,
+                instance.trade_type,
+                instance.quantity,
+                instance.price])
+        return response
 
 
 

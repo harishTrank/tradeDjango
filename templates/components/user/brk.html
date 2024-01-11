@@ -15,9 +15,9 @@
                     <div style="transform: rotate(90deg);padding-left: 10px;cursor:pointer;">
                         <p id="brkFilterID">Filter</p>
                     </div>
-                    <span>
+                    {% comment %} <span>
                       <a href=""><i class="fa-solid fa-file-csv"></i></a>
-                    </span>
+                    </span> {% endcomment %}
                 </div>
                 <div class="trades-side">
                     <div class="trade-top">
@@ -150,13 +150,11 @@
       brkcell.text(brkinput);
     });
   }
-
   const validateCheckbox = () => {
     const checkboxes = $("#brktableId input:checkbox:checked");
     const symbolCheckboxes = $("#symbolWiseTable input:checkbox:checked");
   
     if (checkboxes.length === 0 && symbolCheckboxes.length === 0) {
-      // If no checkboxes are checked, prevent the update
       alert("Please select at least one checkbox.");
       return false;
     }
