@@ -1025,6 +1025,40 @@ class TradeMarginUpdateAllApi(APIView):
             print(e)
             return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
+
+
+
+class IntradaySquareoffCheck(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        if request.GET.get("user_id"):
+            user_id = request.GET.get("user_id")
+        else:
+            user_id = request.user.id
+        user = MyUser.objects.get(id=user_id)
+        return Response({"status": True, "data": {"squareoff_nse": user.squareoff_nse,"squareoff_mcx": user.squareoff_mcx,"squareoff_mini": user.squareoff_mini}}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        if request.GET.get("user_id"):
+            user_id = request.GET.get("user_id")
+        else:
+            user_id = request.user.id
+        user = MyUser.objects.get(id=user_id)
+        nse_squareoff = request.data.get("nse_squareoff")
+        mcx_squareoff = request.data.get("mcx_squareoff")
+        mini_squareoff = request.data.get("mini_squareoff")
+
+        if nse_squareoff is not None:
+            user.squareoff_nse = nse_squareoff
+        if mcx_squareoff is not None:
+            user.squareoff_mcx = mcx_squareoff
+        if mini_squareoff is not None:
+            user.squareoff_mini = mini_squareoff
+        user.save()
+        return Response({"status":True, "message":"Intraday status updated"},status=status.HTTP_200_OK)
+
+
+
 # web api ----------------------------------
 class WebScriptQuantityAPI(APIView):
     permission_classes = [IsAuthenticated]
