@@ -492,24 +492,55 @@ class UserDeatilsView(View):
 
 class TabTrades(View):
     def get(self, request, id):
-        response = BuyAndSellModel.objects.filter(buy_sell_user__id=id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
-        # if request.user.user_type == "SuperAdmin":
-        #     response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
-        # if request.user.user_type == "Admin":
-        #     user_keys = [request.user.id]
-        #     child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
-        #     user_keys += list(child_clients)
-        #     response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity","trade_type","action","price","coin_name","ex_change","created_at","is_pending","identifer","order_method","ip_address")
-        # if request.user.user_type == "Client":
-        #     response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
-        # elif request.user.user_type == "Master":
-        #     user_keys = [request.user.id]
-        #     child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
-        #     user_keys += list(child_clients)
-        #     response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer","order_method", "ip_address")
-        return render(request, "components/user/trade.html",{"response":response})
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        status = request.GET.get('status')
+        exchange = request.GET.get('exchange')
+        symbol = request.GET.get('symbol')
+        user = MyUser.objects.get(id=id)
+        symbol_name = user.user.values("symbol_name")
+        response = BuyAndSellModel.objects.filter(buy_sell_user__id=id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address","is_cancel") 
+        if from_date:
+            if to_date:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                response = response.filter(created_at__gte=from_date,created_at__lte=to_date)
+        if exchange:
+            response = response.filter(ex_change=exchange)
+        if status == "Successful":
+            response = response.filter(is_cancel=False)
+        if status == "Pending":
+            response = response.filter(is_pending=True)
+        if status == "Cancelled":
+            response = response.filter(is_cancel=True)
+        return render(request, "components/user/trade.html",{"response":response,"symbol_name":symbol_name,"user":user.user_name,"id":id})
     
-    
+
+class TradeDownloadCsv(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        buy_and_sell_instances = BuyAndSellModel.objects.filter(buy_sell_user=user)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'UserName', 'OrderTime', 'Symbol', 'Order Type', 'Price', 'Quantity','Ip address','Order Method','Trade Status'])
+        for instance in buy_and_sell_instances:
+            if instance.trade_status == True:
+                trade_status = "Complete"
+            else:
+                trade_status = "Not Complete"
+            writer.writerow([
+                user.user_name,
+                instance.created_at,
+                instance.coin_name,
+                instance.action,
+                instance.price,
+                instance.quantity,
+                instance.ip_address,
+                instance.order_method,
+                trade_status])
+        return response 
 
     
     

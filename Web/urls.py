@@ -66,6 +66,6 @@ urlpatterns = [
 #----------------------csv download ---------------------#
 
     path('rejection-csv/<str:id>/', RejectionDownloadCSVView.as_view(), name='rejection-csv'),
-    # path('order-csv/', OrderDownloadCSVView.as_view(), name='order-csv')
+    path('trade-csv/<str:id>/', TradeDownloadCsv.as_view(), name='trade-csv'),
 
 ]
