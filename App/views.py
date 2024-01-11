@@ -636,7 +636,7 @@ class PositionCoinsManager(APIView):
             user = request.user 
             if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
                 user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
-            if request.user.user_type == "Master":
+            if user.user_type == "Master":
                 results = (
                     BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True))
                     .filter(is_pending=False, trade_status=True,is_cancel=False)
@@ -943,39 +943,34 @@ class PositionTopHeader(APIView):
 
 
 class WeeklyAdminListApi(APIView):
+    # permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
             user = request.user
-            if(request.GET.get("user_id") and request.GET.get("user_id") != ""):
-                user = MyUser.objects.get(id=request.GET.get("user_id"))
+            if(request.GET.get("user_name") and request.GET.get("user_name") != ""):
+                user = MyUser.objects.get(user_name=request.GET.get("user_name"))
             
             if user.user_type == "Master":
-                margin_user = (
-                    BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
-                    .values('identifer','coin_name', 'ex_change', "buy_sell_user__id")
-                    .annotate(
-                        total_quantity=Sum('quantity'),
-                    ).exclude(total_quantity=0)
-                )
                 release_p_and_l = (
                     AccountSummaryModal.objects
-                    .filter(user_summary=user, summary_flg='Profit/Loss')
-                    .aggregate(total_amount=Sum('amount'))
+                    .filter(
+                        user_summary__user_name__in=user.master_user.master_user_link.all().values_list("client__user_name", flat=True),
+                        summary_flg='Profit/Loss'
+                    )
+                    .values("user_summary__user_name", "user_summary__user_type", "user_summary__id")
+                    .annotate(total_amount=Sum('amount'))
                 )
             else:
-                margin_user = (
-                    user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                    .values('identifer','coin_name', 'ex_change')
-                    .annotate(
-                        total_quantity=Sum('quantity'),
-                    ).exclude(total_quantity=0)
-                )
                 release_p_and_l = (
                     AccountSummaryModal.objects
-                    .filter(user_summary=user, summary_flg='Profit/Loss')
-                    .aggregate(total_amount=Sum('amount'))
+                    .filter(
+                        user_summary__user_name=user,
+                        summary_flg='Profit/Loss'
+                    )
+                    .values("user_summary__user_name", "user_summary__user_type", "user_summary__id")
+                    .annotate(total_amount=Sum('amount'))
                 )
-            return Response({"status": True, "message": "Data getting successfully"})
+            return Response({"status": True, "message": "Data getting successfully", "release_p_and_l": release_p_and_l})
         except Exception as e:
             print(e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
@@ -1069,22 +1064,19 @@ class TradeMarginUpdateAllApi(APIView):
 class IntradaySquareoffCheck(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        if request.GET.get("user_id"):
-            user_id = request.GET.get("user_id")
-        else:
-            user_id = request.user.id
-        user = MyUser.objects.get(id=user_id)
-        return Response({"status": True, "data": {"squareoff_nse": user.squareoff_nse,"squareoff_mcx": user.squareoff_mcx,"squareoff_mini": user.squareoff_mini}}, status=status.HTTP_200_OK)
+        user = request.user
+        if request.GET.get("user_id") and request.GET.get("user_id") != "":
+            user = MyUser.objects.get(id=request.GET.get("user_id"))
+        return Response({"status": True, "data": {"nse": user.squareoff_nse,"mcx": user.squareoff_mcx,"mini": user.squareoff_mini}}, status=status.HTTP_200_OK)
 
     def post(self, request):
-        if request.GET.get("user_id"):
-            user_id = request.GET.get("user_id")
-        else:
-            user_id = request.user.id
-        user = MyUser.objects.get(id=user_id)
-        nse_squareoff = request.data.get("nse_squareoff")
-        mcx_squareoff = request.data.get("mcx_squareoff")
-        mini_squareoff = request.data.get("mini_squareoff")
+        user = request.user
+        if request.GET.get("user_id") and request.GET.get("user_id") != "":
+            user = MyUser.objects.get(id=request.GET.get("user_id"))
+
+        nse_squareoff = request.data.get("nse")
+        mcx_squareoff = request.data.get("mcx")
+        mini_squareoff = request.data.get("mini")
 
         if nse_squareoff is not None:
             user.squareoff_nse = nse_squareoff
