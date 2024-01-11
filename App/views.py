@@ -380,7 +380,6 @@ class BuySellSellApi(APIView):
             total_quantity = (-totalCount[0]["total_quantity"] if action == 'BUY' else totalCount[0]["total_quantity"])
         except:
             total_quantity = 0
-        margin_used_value = 0
         
         message = 'Insufficient balance/quantity'
         if is_cancel:
@@ -399,7 +398,8 @@ class BuySellSellApi(APIView):
             if current_time >= market_close_time:
                 message = f"Trading on {request.data.get('ex_change')} is closed for the day."
                 is_cancel = True
-        
+                
+        margin_used_value = 0
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
             current_mrg = user.admin_coins.filter(ex_change=request.data.get('ex_change'), identifier__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get('identifer').split("_")[1]).first()
             if current_mrg.ex_change == "NSE":
@@ -590,8 +590,9 @@ class PositionManager(APIView):
             if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
                 user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
 
-            result = (
-                user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
+            if user.user_type == "Master":
+                result = (
+                BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name')
                 .annotate(
                     total_quantity=Sum('quantity'),
@@ -605,6 +606,22 @@ class PositionManager(APIView):
                     )
                 ).exclude(total_quantity=0)
             )
+            else:
+                result = (
+                    user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
+                    .values('identifer','coin_name')
+                    .annotate(
+                        total_quantity=Sum('quantity'),
+                        avg_buy_price=Coalesce(
+                            Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                            Value(0.0)
+                        ),
+                        avg_sell_price=Coalesce(
+                            Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                            Value(0.0)
+                        )
+                    ).exclude(total_quantity=0)
+                )
             return Response({"status": True, "response": result}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -619,14 +636,24 @@ class PositionCoinsManager(APIView):
             user = request.user 
             if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
                 user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
-            results = (
-                user.buy_sell_user.all()
-                .filter(is_pending=False, trade_status=True,is_cancel=False)
-                .values('identifer')
-                .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
-                .exclude(total_quantity=0)
-                .values_list('identifer',flat=True)
-            )
+            if request.user.user_type == "Master":
+                results = (
+                    BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True))
+                    .filter(is_pending=False, trade_status=True,is_cancel=False)
+                    .values('identifer')
+                    .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
+                    .exclude(total_quantity=0)
+                    .values_list('identifer',flat=True)
+                )
+            else:
+                results = (
+                    user.buy_sell_user.all()
+                    .filter(is_pending=False, trade_status=True,is_cancel=False)
+                    .values('identifer')
+                    .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
+                    .exclude(total_quantity=0)
+                    .values_list('identifer',flat=True)
+                )
             return Response({"status": True, "response": results}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
