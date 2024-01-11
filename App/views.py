@@ -942,6 +942,44 @@ class PositionTopHeader(APIView):
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
 
+class WeeklyAdminListApi(APIView):
+    def get(self, request):
+        try:
+            user = request.user
+            if(request.GET.get("user_id") and request.GET.get("user_id") != ""):
+                user = MyUser.objects.get(id=request.GET.get("user_id"))
+            
+            if user.user_type == "Master":
+                margin_user = (
+                    BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
+                    .values('identifer','coin_name', 'ex_change', "buy_sell_user__id")
+                    .annotate(
+                        total_quantity=Sum('quantity'),
+                    ).exclude(total_quantity=0)
+                )
+                release_p_and_l = (
+                    AccountSummaryModal.objects
+                    .filter(user_summary=user, summary_flg='Profit/Loss')
+                    .aggregate(total_amount=Sum('amount'))
+                )
+            else:
+                margin_user = (
+                    user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
+                    .values('identifer','coin_name', 'ex_change')
+                    .annotate(
+                        total_quantity=Sum('quantity'),
+                    ).exclude(total_quantity=0)
+                )
+                release_p_and_l = (
+                    AccountSummaryModal.objects
+                    .filter(user_summary=user, summary_flg='Profit/Loss')
+                    .aggregate(total_amount=Sum('amount'))
+                )
+            return Response({"status": True, "message": "Data getting successfully"})
+        except Exception as e:
+            print(e)
+            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+
 class BrokrageSettings(APIView):
     def get(self, request):
         try:
