@@ -35,7 +35,7 @@ urlpatterns = [
     path("credit/<str:id>",CreditView.as_view(),name="credit"),
     path("tab-account-summary/<str:id>",TabAccountSummary.as_view(),name="tab-account-summary"),
     path("tab-settlement/<str:id>",TabSettlement.as_view(),name="tab-settlement"),
-    path("rejection-log/<str:id>",RejectionLogView.as_view(),name="rejection-log"),
+    path("rejection-log/<str:id>", RejectionLogView.as_view(), name="rejection-log"),
     path("share-deatils",ShareDetailsView.as_view(),name="share-deatils"),
     path("user-info/<str:id>",UserInfoView.as_view(),name="user-info"),
     
@@ -65,7 +65,7 @@ urlpatterns = [
     
 #----------------------csv download ---------------------#
 
-    path('rejection-csv/<str:id>/', RejectionDownloadCSVView.as_view(), name='Admin:rejection-csv'),
+    path('rejection-csv/<str:id>/', RejectionDownloadCSVView.as_view(), name='rejection-csv'),
     # path('order-csv/', OrderDownloadCSVView.as_view(), name='order-csv')
 
 ]

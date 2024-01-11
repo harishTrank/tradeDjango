@@ -43,6 +43,6 @@ urlpatterns = [
     path("user-details-api/", UserDetailsAPIView.as_view(), name="user-details-api"),
     path("brk-setting-api/", BrokrageSettings.as_view(), name="brk-setting-api"),
     path("trademargin-setting-api/", TradeMarginSetting.as_view(), name="trademargin-setting-api"),
-    path("trademargin-all-setting-api/", TradeMarginUpdateAllApi.as_view(), name="trademargin-all-setting-api")
-    
+    path("trademargin-all-setting-api/", TradeMarginUpdateAllApi.as_view(), name="trademargin-all-setting-api"),
+    path("intraday-squareoff-check/", IntradaySquareoffCheck.as_view(), name="intraday-squareoff-check"),
 ]

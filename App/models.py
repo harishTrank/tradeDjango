@@ -82,9 +82,9 @@ class MyUser(AbstractBaseUser,CommonTimePicker):
     mcx_brk = models.PositiveIntegerField("MCX Brk", default=0, null=True, blank=True)
     mini_brk = models.PositiveIntegerField("MINI Brk", default=0, null=True, blank=True)
 
-    squareoff_nse = models.BooleanField("SquareOff NSE", null=True, blank=True)
-    squareoff_mcx = models.BooleanField("SquareOff MCX", null=True, blank=True)
-    squareoff_mini = models.BooleanField("SquareOff MINI", null=True, blank=True)
+    squareoff_nse = models.BooleanField("SquareOff NSE", default=False)
+    squareoff_mcx = models.BooleanField("SquareOff MCX", default=False)
+    squareoff_mini = models.BooleanField("SquareOff MINI", default=False)
 
     objects = MyUserManager()
 
