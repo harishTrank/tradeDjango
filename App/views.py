@@ -70,7 +70,8 @@ class ResetPasswordView(APIView):
 
             if not user.check_password(current_password):
                 raise APIException("Current password is incorrect.", code=status.HTTP_400_BAD_REQUEST)
-
+            
+            user.change_password = False
             user.set_password(new_password)
             user.save()
 
