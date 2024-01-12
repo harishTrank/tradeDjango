@@ -16,8 +16,8 @@ from django.http import JsonResponse
 from django.db.models.functions import Coalesce
 from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
 import requests
+from App.scheduler import NODEIP
 
-NODEIP = '52.66.205.199'
 class LoginApi(APIView):
     def post(self, request):
         try:
@@ -150,7 +150,7 @@ class AddUserAPIView(APIView):
                     )
 
                 if create_user.user_type == "Master" or create_user.user_type == "Client":
-                    response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
+                    response = requests.post(f"http://{NODEIP}/api/tradeCoin/coins", json={
                         "coinList": exchangeList
                     })
                     if response.status_code // 100 == 2 and response.json()['success']:
@@ -585,15 +585,17 @@ class PositionManager(APIView):
         try:
             if (request.GET.get("type") == "WEB"):
                 user = MyUser.objects.get(id = request.GET.get("id"))
+            elif (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
+            elif(request.GET.get("user_name") and request.GET.get("user_name") != ""):
+                user = MyUser.objects.get(user_name=request.GET.get("user_name"))
             else:
                 user = request.user
-            if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
-                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
 
             if user.user_type == "Master":
                 result = (
                 BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
-                .values('identifer','coin_name')
+                .values('identifer','coin_name', 'ex_change')
                 .annotate(
                     total_quantity=Sum('quantity'),
                     avg_buy_price=Coalesce(
@@ -609,7 +611,7 @@ class PositionManager(APIView):
             else:
                 result = (
                     user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                    .values('identifer','coin_name')
+                    .values('identifer','coin_name', 'ex_change')
                     .annotate(
                         total_quantity=Sum('quantity'),
                         avg_buy_price=Coalesce(
@@ -622,6 +624,13 @@ class PositionManager(APIView):
                         )
                     ).exclude(total_quantity=0)
                 )
+
+            if (request.GET.get("exchange") and request.GET.get("exchange") != ""):
+                result = result.filter(ex_change=request.GET.get("exchange"))
+
+            if (request.GET.get("script") and request.GET.get("script") != ""):
+                result = result.filter(coin_name=request.GET.get("script"))
+
             return Response({"status": True, "response": result}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -633,14 +642,18 @@ class PositionCoinsManager(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
-            user = request.user 
             if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
                 user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
+            elif (request.query_params.get("user_name") and request.query_params.get("user_name") != ""):
+                user = MyUser.objects.filter(user_name=request.query_params.get("user_name")).first()
+            else:
+                user = request.user 
+
             if user.user_type == "Master":
                 results = (
                     BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True))
                     .filter(is_pending=False, trade_status=True,is_cancel=False)
-                    .values('identifer')
+                    .values('identifer', 'ex_change', 'coin_name')
                     .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
                     .exclude(total_quantity=0)
                     .values_list('identifer',flat=True)
@@ -649,11 +662,18 @@ class PositionCoinsManager(APIView):
                 results = (
                     user.buy_sell_user.all()
                     .filter(is_pending=False, trade_status=True,is_cancel=False)
-                    .values('identifer')
+                    .values('identifer',  'ex_change', 'coin_name')
                     .annotate(total_quantity=Sum('quantity'), avg_price=Avg('price'))
                     .exclude(total_quantity=0)
                     .values_list('identifer',flat=True)
                 )
+
+            if (request.GET.get("exchange") and request.GET.get("exchange") != ""):
+                result = result.filter(ex_change=request.GET.get("exchange"))
+
+            if (request.GET.get("script") and request.GET.get("script") != ""):
+                result = result.filter(coin_name=request.GET.get("script"))
+
             return Response({"status": True, "response": results}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -915,23 +935,46 @@ class SettlementReportApi(APIView):
 class PositionTopHeader(APIView):
     def get(self, request):
         try:
-            user = request.user
             if(request.GET.get("user_id") and request.GET.get("user_id") != ""):
                 user = MyUser.objects.get(id=request.GET.get("user_id"))
-            if (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
-                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
-            margin_user = (
-                user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                .values('identifer','coin_name', 'ex_change')
-                .annotate(
-                    total_quantity=Sum('quantity'),
-                ).exclude(total_quantity=0)
-            )
-            release_p_and_l = (
-                AccountSummaryModal.objects
-                .filter(user_summary=user, summary_flg='Profit/Loss')
-                .aggregate(total_amount=Sum('amount'))
-            )
+            elif(request.GET.get("user_name") and request.GET.get("user_name") != ""):
+                user = MyUser.objects.get(user_name=request.GET.get("user_name"))
+            else:
+                user = request.user
+
+            if user.user_type == "Master":
+                margin_user = (
+                    BuyAndSellModel.objects.filter(buy_sell_user__id__in= user.master_user.master_user_link.all().values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
+                    .values('identifer','coin_name', 'ex_change')
+                    .annotate(
+                        total_quantity=Sum('quantity'),
+                    ).exclude(total_quantity=0)
+                )
+                release_p_and_l = (
+                    AccountSummaryModal.objects
+                    .filter(user_summary__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True), summary_flg='Profit/Loss')
+                    .aggregate(total_amount=Sum('amount'))
+                )
+            else:
+                margin_user = (
+                    user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
+                    .values('identifer','coin_name', 'ex_change')
+                    .annotate(
+                        total_quantity=Sum('quantity'),
+                    ).exclude(total_quantity=0)
+                )
+                release_p_and_l = (
+                    AccountSummaryModal.objects
+                    .filter(user_summary=user, summary_flg='Profit/Loss')
+                    .aggregate(total_amount=Sum('amount'))
+                )
+
+            if (request.GET.get("exchange") and request.GET.get("exchange") != ""):
+                margin_user = margin_user.filter(ex_change=request.GET.get("exchange"))
+
+            if (request.GET.get("script") and request.GET.get("script") != ""):
+                margin_user = margin_user.filter(coin_name=request.GET.get("script"))
+
             margin_used_value = 0
             for obj in margin_user:
                 current_coin = TradeMarginModel.objects.filter(exchange=obj['ex_change'], script__icontains=obj['identifer'] if obj['ex_change'] == "NSE" else obj["identifer"].split("_")[1]).first()
@@ -943,7 +986,7 @@ class PositionTopHeader(APIView):
 
 
 class WeeklyAdminListApi(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
             user = request.user
@@ -951,16 +994,31 @@ class WeeklyAdminListApi(APIView):
                 user = MyUser.objects.get(user_name=request.GET.get("user_name"))
             
             if user.user_type == "Master":
+                all_clients = user.master_user.master_user_link.all()
                 release_p_and_l = (
                     AccountSummaryModal.objects
                     .filter(
-                        user_summary__user_name__in=user.master_user.master_user_link.all().values_list("client__user_name", flat=True),
+                        user_summary__user_name__in=all_clients.values_list("client__user_name", flat=True),
                         summary_flg='Profit/Loss'
                     )
                     .values("user_summary__user_name", "user_summary__user_type", "user_summary__id")
                     .annotate(total_amount=Sum('amount'))
                 )
+                result = (BuyAndSellModel.objects.filter(buy_sell_user__id__in=all_clients.values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
+                    .values('buy_sell_user__id', 'identifer','coin_name')
+                    .annotate(
+                        total_quantity=Sum('quantity'),
+                        avg_buy_price=Coalesce(
+                            Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                            Value(0.0)
+                        ),
+                        avg_sell_price=Coalesce(
+                            Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                            Value(0.0)
+                        )
+                ).exclude(total_quantity=0))
             else:
+                all_clients = [user]
                 release_p_and_l = (
                     AccountSummaryModal.objects
                     .filter(
@@ -970,7 +1028,23 @@ class WeeklyAdminListApi(APIView):
                     .values("user_summary__user_name", "user_summary__user_type", "user_summary__id")
                     .annotate(total_amount=Sum('amount'))
                 )
-            return Response({"status": True, "message": "Data getting successfully", "release_p_and_l": release_p_and_l})
+                result = (
+                    user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
+                    .values('buy_sell_user__id','identifer','coin_name')
+                    .annotate(
+                        total_quantity=Sum('quantity'),
+                        avg_buy_price=Coalesce(
+                            Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                            Value(0.0)
+                        ),
+                        avg_sell_price=Coalesce(
+                            Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                            Value(0.0)
+                        )
+                    ).exclude(total_quantity=0)
+                )
+
+            return Response({"status": True, "message": "Data getting successfully", "release_p_and_l": release_p_and_l, "result": result})
         except Exception as e:
             print(e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
