@@ -13,8 +13,7 @@ from django.http import HttpResponse
 from datetime import datetime, timedelta
 import requests
 from django.db.models import Avg, F, Subquery, OuterRef
-NODEIP = '52.66.205.199'
-
+from App.scheduler import NODEIP
 class LoginView(View):
     def get(self, request):
         if request.user.is_authenticated:
@@ -262,7 +261,7 @@ class AddUserView(View):
             )
         
         if create_user.user_type == "Master" or create_user.user_type == "Client":
-                    response = requests.post(f"http://{NODEIP}:5000/api/tradeCoin/coins", json={
+                    response = requests.post(f"http://{NODEIP}/api/tradeCoin/coins", json={
                         "coinList": exchangeList
                     })
                     if response.status_code // 100 == 2 and response.json()['success']:
