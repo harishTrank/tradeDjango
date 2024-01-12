@@ -48,6 +48,7 @@
             <li data-id="settlement"><a href="{% url 'Admin:settlement' %}"><i class="fa-solid fa-handshake"></i>Settlement</a></li>
             <li data-id="accountsummary"><a href="{% url 'Admin:account-summary' %}"><i class="fa-solid fa-window-maximize"></i>Account Summary</a></li>
             <li data-id="billgenerate"><a href="{% url 'Admin:bill-generate' %}"><i class="fa-solid fa-money-bill-1-wave"></i>Bill Generate</a></li>
+            <li data-id="trades-margins"><a href="{% url 'Admin:trades-margins' %}"><i class="fa-solid fa-money-bill-1-wave"></i>Trade Margin</a></li>
             <li data-id="logshistory"><a href="{% url 'Admin:logs-history' %}"><i class="fa-solid fa-file-circle-question"></i>Logs History</a></li>
             <li data-id="logsnew"><a href="{% url 'Admin:user-logs-new' %}"><i class="fa-solid fa-users"></i>User Logs New</a></li>
             <li data-id="positiontrack"><a href="{% url 'Admin:user-script-position-track' %}"><i class="fa-solid fa-chalkboard-user"></i>User Script Position Track</a></li>
@@ -55,6 +56,12 @@
             <li data-id="scriptquantity"><a href="{% url 'Admin:script-quantity' %}"><i class="fa-solid fa-scroll"></i>Script Quantity</a></li>
         </ul>
       </li>
+      {% comment %} <li data-id="tools" class="open-tools-menu">Tools</i>
+        <ul class="view-dropdown" id="tools-dropdown">
+            <li data-id="scriptquantity"><a href=""><i class="fa-solid fa-scroll"></i>Message</a></li>
+            <li data-id="scriptquantity"><a href=""><i class="fa-solid fa-scroll"></i>Exchange Time Schedule</a></li>
+        </ul>
+      </li> {% endcomment %}
   </div>
  
   </body>
@@ -217,6 +224,12 @@
         // Dropdown toggle functionality for Report
         $('.open-report-menu').click(function () {
             var $dropdown = $("#report-dropdown");
+            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $dropdown.toggle();
+        });
+
+        $('.open-tools-menu').click(function () {
+            var $dropdown = $("#tools-dropdown");
             $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
             $dropdown.toggle();
         });

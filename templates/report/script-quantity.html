@@ -5,36 +5,70 @@
     <div class="trade-btm">
         <div class="mb-10">
             <label for="">Exchange:</label>
-            <select name="" id="" style="width: 250px;" class="form-control">
-                <option value="">All</option>
-                <option value="">MCX</option>
-                <option value="">NSE</option>
-                <option value="">MINI</option>
+            <select name="" id="selectedExId" style="width: 250px;" class="form-control">
+                <option value="MCX">MCX</option>
+                <option value="NSE">NSE</option>
+                <option value="MINI">MINI</option>
             </select>
         </div>
     </div>
     <div class="user-table col-100">
         <table style="width: 100%;">
             <tr>
-                <th>SCRIPT</th>
+                <th>Script</th>
                 <th>Lot Size</th>
                 <th>Lot Max</th>
+                <th>Breakup Qty</th>
                 <th>Breakup Lot</th>
                 <th>Last Updated</th>
             </tr>
-            {% for i in related_scripts %}
-            <tr>
-                <td>{{i.script}}</td>
-                <td>{{i.lot_size}}</td>
-                <td>{{i.lot_max}}</td>
-                <td>{{i.breakup_lot}}</td>
-                <td>{{i.created_at}}</td>
-            </tr>
-            {% endfor %}
+            <tbody id="scriptQuantityTableId">
+             
+            </tbody>
           
         </table>
     </div>
 </div>
+
+
+<script>
+
+    const apiCallForAllEX = () => {
+      const selectedExchange = $("#selectedExId").val();
+      $.ajax({
+        type: "GET",
+        url: `{% url 'web-script-quantity-api' %}?id={{id}}&searchInput=${selectedExchange}`, // Pass the selected value as 'id'
+        success: function (data) {
+          console.log(data);
+          $("#scriptQuantityTableId").empty();
+          data.response.map(item => {
+            const createdAt = new Date(item.created_at);
+            const formattedDate = `${createdAt.getMonth() + 1}/${createdAt.getDate()}/${createdAt.getFullYear()} ${createdAt.getHours()}:${createdAt.getMinutes()}:${createdAt.getSeconds()}`;
+            $("#scriptQuantityTableId").append(`
+              <tr>
+                <td>${item.identifier}</td>
+                <td>${item.max_qty}</td>
+                <td>${item.max_lot}</td>
+                <td>${item.breakup_qty}</td>
+                <td>${item.breakup_lot}</td>
+                <td>${formattedDate}</td>
+              </tr>
+            `);
+          });
+        
+        },
+        error: function (xhr, status, error) {
+          console.error('Error:', error);
+        }
+      });
+    }
+    
+    $('#selectedExId').on('change', function() {
+      apiCallForAllEX();
+    });
+    
+    apiCallForAllEX();
+  </script> 
 
 
 {% endblock content %}

@@ -26,19 +26,19 @@
         <div class="create-form flex space-bw">
           <div class="col-25">
             <label for="">Name*</label>
-            <input type="text" name="full_name" class="form-group" required/>
+            <input id="nameId" type="text" name="full_name" class="form-group"/>
           </div>
           <div class="col-25">
             <label for="">Username*</label>
-            <input type="text" name="user_name" class="form-group" required/>
+            <input id="userNameId" type="text" name="user_name" class="form-group"/>
           </div>
           <div class="col-25">
             <label for="">Password*</label>
-            <input id="password" type="password" name="password" class="form-group" required/>
+            <input id="password" type="password" name="password" class="form-group"/>
           </div>
           <div class="col-25">
             <label for=""> Retype Password*</label>
-            <input id="retype_password" type="password" name="retype_password" class="form-group" required/>
+            <input id="retype_password" type="password" name="retype_password" class="form-group"/>
           </div>
           <div class="col-25">
             <label for="">Mobile Number</label>
@@ -50,7 +50,7 @@
           </div>
           <div class="col-25">
             <label for="">Credit*</label>
-            <input required type="number" name="credit" class="form-group" />
+            <input id="creditId" type="number" name="credit" class="form-group" />
           </div>
           <div class="col-25">
             <label for="">Remark</label>
@@ -58,6 +58,10 @@
           </div>
         </div>
       </div>
+      <div class="loaderdiv" id="loader"  style="display: none;">
+        <spans class="loader"></span>
+      </div>
+     
       <div class="exchange-table">
         <div>
           <h3>Exchange</h3>
@@ -150,7 +154,7 @@
       </div>
       <div class="view-cancel flex space-bw" style="margin-top:12px">
         <div class="col-49">
-          <button  type="submit"  class="save-btn" />Save</button>
+          <button  type="submit"  class="save-btn" onclick="showLoader()"/>Save</button>
         </div>
         <div class="col-49">
           <button type="button" onclick="history.back()" style="height: 34px;" class="cancel-btn">Cancel<button/>
@@ -161,6 +165,40 @@
 </form>
 
 <style>
+  .loaderdiv{
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      top: 0;
+      left: 0;
+      z-index: 99;
+  }
+  .loader{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 999;
+    width: 48px;
+    height: 48px;
+    border: 5px solid #fff;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+  }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    } 
+
   .top-user {
     background-color: #72c3ff;
     padding: 8px 10px;
@@ -273,6 +311,61 @@ input:checked+.slider:before {
 
 
 <script>
+
+  function showLoader() {
+    document.getElementById('loader').style.display = 'block';
+  }
+  document.getElementById('userForm').addEventListener('submit', function(event) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('retype_password').value;
+    const nameid = document.getElementById('nameId').value;
+    const userNameId = document.getElementById('userNameId').value;
+    const creditId = document.getElementById('creditId').value;
+    if (nameid === ""){
+      alert("Please enter the Name");
+      document.getElementById('loader').style.display = 'none'; 
+      return;
+    }
+    if (userNameId === ""){
+      alert("Please enter the UserName");
+      document.getElementById('loader').style.display = 'none'; 
+      return;
+    }
+
+    if (password === ""){
+      alert("Please enter the Password");
+      document.getElementById('loader').style.display = 'none'; 
+      return;
+    }
+
+    if (confirmPassword === ""){
+      alert("Please enter the Confirm Password");
+      document.getElementById('loader').style.display = 'none'; 
+      return;
+    }
+    if (creditId === ""){
+      alert("Please enter the Credit");
+      document.getElementById('loader').style.display = 'none'; 
+      return;
+    }
+    if (password.length < 6 || confirmPassword.length < 6) {
+      event.preventDefault(); // Prevent form submission
+      alert('Password should be at least 6 characters long.');
+      document.getElementById('loader').style.display = 'none'; 
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      event.preventDefault(); // Prevent form submission
+      alert('Password & Retype Password do not match.');
+      document.getElementById('password').style.border = '1px solid red';
+      document.getElementById('retype_password').style.border = '1px solid red';
+      document.getElementById('loader').style.display = 'none'; // Hide loader on error
+      return;
+    }
+  });
+  
+
 
     document.getElementById('userForm').addEventListener('submit', function(event) {
       const password = document.getElementById('password').value;

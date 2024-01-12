@@ -48,14 +48,34 @@ class LoginView(View):
                 else:
                     historyGenerator = LoginHistoryModel(user_history=user, ip_address=request.META.get('REMOTE_ADDR'), method='WEB', action='LOGIN')
                     historyGenerator.save()
+                    if user.change_password == True:
+                        return redirect("Admin:first-login")
                     return redirect("Admin:dashboard")
             else:
                 messages.error(request, "Invalid user type")
                 return redirect("Admin:login")
         messages.error(request, "Invalid username or password")
         return redirect("Admin:login")
+    
 
-
+class FirstLogin(View):
+    def get(self, request):
+        return render(request, "register/first-login.html")
+    def post(self, request):
+        user = request.user
+        current_password = request.POST.get("current_password")
+        new_password = request.POST.get("new_password")
+        print("current_password",current_password)
+        print("new_password",new_password)
+        if not user.check_password(current_password):
+            messages.error(request,"Invalid Old Password")
+            return redirect("Admin:first-login")
+        user.set_password(new_password)
+        user.change_password = False
+        user.save()
+        update_session_auth_hash(request, user)
+        return redirect("Admin:dashboard")
+    
 
 class LogoutView(View):
     def get(self, request):
@@ -556,6 +576,7 @@ class GropuSettingView(View):
     
 class ScriptQuantitySetting(View):
     def get(self, request):
+        
         group_settings = GroupSettingsModel.objects.get(id=1)  
         related_scripts = group_settings.group_user.all() 
         return render(request, "components/user/script-quantity-setting.html",{"script":related_scripts})
@@ -574,7 +595,7 @@ class BrkView(View):
         return render(request, "components/user/brk.html",{"user":user, "exchange":exchange, "first":exchange.first()["symbol_name"]})
     
     
-class TradeMargin(View):
+class TradeMarginTab(View):
     def get(self, request, id):
         user = MyUser.objects.get(id=id)
         exchange_obj = user.user.values("symbol_name")
@@ -591,6 +612,7 @@ class TradeMargin(View):
 
 class CreditView(View):
     def get(self, request,id):
+        print("dfsffsf",id)
         user = MyUser.objects.get(id=id)
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
@@ -603,7 +625,36 @@ class CreditView(View):
             account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
         if coin_name:
             account_summary = account_summary.filter(particular__icontains=coin_name)
-        return render(request, "components/user/credit.html",{"account_summary":account_summary})
+        return render(request, "components/user/credit.html",{"account_summary":account_summary,"id":user.id})
+
+
+
+
+
+class CreditDownloadCSVView(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        user_credit_instances = UserCreditModal.objects.filter(user_credit=user)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Date Time', 'Opening', 'Credit', 'Debit', 'Closing', 'Comment','Transaction'])
+        for instance in user_credit_instances:
+            writer.writerow([
+                instance.created_at,
+                instance.opening,
+                instance.credit,
+                instance.debit,
+                instance.closing,
+                instance.message,
+                instance.transection])
+        return response
+    
+    
+
+
     
 class TabAccountSummary(View):
     def get(self, request, id):
@@ -627,8 +678,35 @@ class TabAccountSummary(View):
             account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
         elif brk == 'on':
             account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
+        return render(request, "components/user/account-summary.html",{"account_summary":account_summary,"id":user.id})
+  
+  
+  
+class AccountSummaryTabDownloadCSV(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        user_summary_instances = AccountSummaryModal.objects.filter(user_summary=user)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
 
-        return render(request, "components/user/account-summary.html",{"account_summary":account_summary})
+        writer = csv.writer(response)
+        writer.writerow([
+            'Date', 'Username', 'Particular', 'Qty', 'Buy/Sell', 'Price','Average Price','Type','Amount'])
+        for instance in user_summary_instances:
+            writer.writerow([
+                instance.created_at,
+                user.user_name,
+                instance.particular,
+                instance.quantity,
+                instance.buy_sell_type,
+                instance.price,
+                instance.average,
+                instance.summary_flg,
+                instance.amount])
+        return response
+  
+  
+  
     
 class TabSettlement(View):
     def get(self, request ,id):
@@ -1176,13 +1254,53 @@ class AccountSummary(View):
         elif brk == 'on':
             account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
 
-        return render(request, "report/account-summary.html",{"account_summary":account_summary})
-    
+        return render(request, "report/account-summary.html",{"account_summary":account_summary,"id":user.id})
+
+
+
+
+
+class AccountSummaryDownloadCSV(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        user_summary_instances = AccountSummaryModal.objects.filter(user_summary=user)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Date', 'Username', 'Particular', 'Qty', 'Buy/Sell', 'Price','Average Price','Type','Amount','Closing','Open Qty'])
+        for instance in user_summary_instances:
+            writer.writerow([
+                instance.created_at,
+                user.user_name,
+                instance.particular,
+                instance.quantity,
+                instance.buy_sell_type,
+                instance.price,
+                instance.average,
+                instance.summary_flg,
+                instance.amount,
+                instance.closing,
+                instance.open_qty
+                ])
+        return response
     
 class BillGenerate(View):
     def get(self, request):
         return render(request, "report/bill-generate.html")
     
+
+class TradeMargin(View):
+    def get(self, request):
+        user = MyUser.objects.get(id=request.user.id)
+        exchange_obj = user.user.values("symbol_name")
+        exchange = request.GET.get('exchange')
+        trade_margin = request.GET.get('price')
+        trade = user.admin_coins.all()
+        if exchange:
+            trade = trade.filter(ex_change=exchange)
+        return render(request, "report/trade-margin.html",{"trade_margin":trade,"exchange_obj":exchange_obj,"user":user,"first":exchange_obj.first()["symbol_name"]})
 
 class LogsHistory(View):
     def get(self, request):
@@ -1207,6 +1325,7 @@ class UserScriptPositionTrackPl(View):
     
 class ScriptQuantity(View):
     def get(self, request):
-        group_settings = GroupSettingsModel.objects.get(id=1)  
-        related_scripts = group_settings.group_user.all() 
-        return render(request, "report/script-quantity.html",{"related_scripts":related_scripts})
+        user = request.user
+        # group_settings = GroupSettingsModel.objects.get(id=1)  
+        # related_scripts = group_settings.group_user.all() 
+        return render(request, "report/script-quantity.html",{"id":user.id})
