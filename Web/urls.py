@@ -64,6 +64,11 @@ urlpatterns = [
     path("user-script-position-track",UserScriptPositionTrack.as_view(),name="user-script-position-track"),
     path("user-script-position-trac-pl",UserScriptPositionTrackPl.as_view(),name="user-script-position-trac-pl"),
     path("script-quantity",ScriptQuantity.as_view(),name="script-quantity"),
+    path("weekly-admin",WeeklyAdminView.as_view(),name="weekly-admin"),
+    
+    
+    path("exchange-time",ExchangeTimeSchedule.as_view(),name="exchange-time"),
+    
     
 #----------------------csv download ---------------------#
 

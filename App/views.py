@@ -595,7 +595,7 @@ class PositionManager(APIView):
             if user.user_type == "Master":
                 result = (
                 BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
-                .values('identifer','coin_name', 'ex_change')
+                .values('identifer','coin_name', 'ex_change','buy_sell_user__parent','buy_sell_user__user_name')
                 .annotate(
                     total_quantity=Sum('quantity'),
                     avg_buy_price=Coalesce(
@@ -611,7 +611,7 @@ class PositionManager(APIView):
             else:
                 result = (
                     user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                    .values('identifer','coin_name', 'ex_change')
+                    .values('identifer','coin_name', 'ex_change','buy_sell_user__parent','buy_sell_user__user_name')
                     .annotate(
                         total_quantity=Sum('quantity'),
                         avg_buy_price=Coalesce(

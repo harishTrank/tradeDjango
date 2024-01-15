@@ -25,7 +25,7 @@
             <div class="trade-btm">
                 <div>
                     <label for="">Username:</label>
-                    <select name="" id="">
+                    <select name="" id="userNameId">
                         <option value="">Select</option>
                     </select>
                 </div>
@@ -61,20 +61,220 @@
                     <th>CMP</th>
                     <th>Profit / Loss</th>
                 </tr>
-                <tr>
-                    <td>Username</td>
-                    <td>Parent User</td>
-                    <td>Exchange</td>
-                    <td>Symbol</td>
-                    <td>Position</td>
-                    <td>Quantity</td>
-                    <td>Average Rate</td>
-                    <td>CMP</td>
-                    <td>Profit / Loss</td>
-                </tr>
+                <tbody id="openPositionLiveDataid">
+           
+                </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+        const baseNodeURL = BASE_URL
+        const socket = io(baseNodeURL); 
+        const dateManager = (val) => {
+            return `${val?.split("_")?.[2]?.slice(0, 2)} ${val
+              ?.split("_")?.[2]
+              ?.slice(2, 5)} ${val?.split("_")?.[2]?.slice(7)}`;
+          };
+    
+        
+        const updateTotalPrice = (socketResponse, itemResult) => {
+          return itemResult
+            .map(item => {
+              const findSocketVal = socketResponse.find(findObject =>
+                  findObject?.InstrumentIdentifier === item?.identifer
+              );
+              return (
+                item?.total_quantity > 0
+                  ? (findSocketVal?.BuyPrice - item?.avg_buy_price) *
+                    item?.total_quantity *
+                    findSocketVal?.QuotationLot
+                  : (item?.avg_sell_price - findSocketVal?.SellPrice) *
+                    Math.abs(item?.total_quantity) *
+                    findSocketVal?.QuotationLot
+              ).toFixed(2);
+            })
+            .reduce((partialSum, a) => Number(partialSum) + Number(a), 0);
+          };
+        const profitLossHandler = (item, socketResponse) => {
+            return (
+              item?.total_quantity > 0
+                ? (socketResponse?.BuyPrice - item?.avg_buy_price) *
+                  item?.total_quantity *
+                  socketResponse?.QuotationLot
+                : (item?.avg_sell_price - socketResponse?.SellPrice) *
+                  Math.abs(item?.total_quantity) *
+                  socketResponse?.QuotationLot
+                  ).toFixed(2);
+        };
+        $.ajax({
+          type:'GET',
+          url:`{% url "position" %}?type=WEB&id={{id}}`,
+          headers: { "X-CSRFToken": "{{ csrf_token }}" },
+          success:function(res){
+            console.log("res", res)
+            if (res.response.length > 0) {
+              socket.on("connect", () => {
+                console.log("Connected to the Socket.io server");
+              });
+    
+              socket.emit("filterDataGet", {identifier: res.response.map(item => item.identifer)});
+    
+              socket.on("filterDataSend", (data) => {
+                $("#totalPriceId").html(`P/L: ${updateTotalPrice(data, res.response).toFixed(2)}`);
+                $("#openPositionLiveDataid").empty();
+                data.map(item => {
+                  const current_data = res.response.find(findItem => findItem.identifer === item.InstrumentIdentifier)
+                  const profitLossValue = profitLossHandler(current_data, item);
+                  $("#openPositionLiveDataid").append(`
+                    <tr>
+                      <td>${current_data.buy_sell_user__user_name}</td>
+                      <td>${current_data.buy_sell_user__parent}</td>
+                      <td>${item.Exchange}</td>
+                      <td>${item.InstrumentIdentifier}</td>
+                      <td style="color: ${current_data.total_quantity < 0 ? 'red' : 'blue'};">${current_data.total_quantity > 0 ? "BUY" : "SELL"}</td>
+                      <td style="color: ${current_data.total_quantity < 0 ? 'red' : 'blue'};">${Math.abs(current_data.total_quantity)}</td>
+                      <td>${current_data.total_quantity > 0 ? Math.round(current_data.avg_buy_price * 100) / 100 : Math.round(current_data.avg_sell_price * 100) / 100}</td>
+                      <td>${current_data.total_quantity > 0 ? item.BuyPrice : item.SellPrice}</td>
+                      ${profitLossValue && profitLossValue > 0 ? `<td style="color: blue">${profitLossValue}</td>` : `<td style="color: red">${profitLossValue}</td>`}
+                    </tr>
+                  `)
+                })
+              });
+    
+              socket.on("disconnect", () => {
+                  console.log("Disconnected from the Socket.io server");
+              });
+            }
+          },
+          error:function(err){
+            alert(err?.responseJSON.message);
+          }
+        })
+    
+        $("#exchangeSelectId").change((event) => {
+            $.ajax({
+                type:'GET',
+                url:`${baseNodeURL}/api/tradeCoin?coinType=${event.target.value}`,
+                success:function(res){
+                    $("#scriptNameId").empty();
+                    $("#scriptNameId").append(`<option value="">Select</option>`);
+                    res?.response?.map(item => {
+                        $("#scriptNameId").append(`<option value="${item?.InstrumentIdentifier}">${item?.InstrumentIdentifier}</option>`)
+                    })
+                },
+                error:function(err){
+                  alert(err?.responseJSON.message);
+                }
+            })
+        })
+    
+        $("#scriptNameId").change((event) => {
+            socket.on("connect", () => {
+                console.log("Connected to the Socket.io server");
+            });
+              socket.emit("getOneData", { "identifier": event.target.value });
+              socket.on("getOneDataSend", (data) => {
+                  if (data?.InstrumentIdentifier === event.target.value) {
+                      $("#buyPriceID").val(data.BuyPrice);
+                      $("#sellPriceID").val(data.SellPrice);
+                      $("#currentCoinDataId").val(JSON.stringify(data));
+                  }
+              }); 
+            socket.on("disconnect", () => {
+                console.log("Disconnected from the Socket.io server");
+            });
+        });
+        
+    
+        $("#submitBtnOrderId").click(() => {
+            const data = JSON.parse($("#currentCoinDataId").val());
+            
+            if (!$("#exchangeSelectId").val()) {
+                $("#exchangeSelectId").css("border", "solid 1px red")
+            }
+            if (!$("#scriptNameId").val()) {
+                $("#scriptNameId").css("border", "solid 1px red")
+            } else {
+              const currentButtonState = $("#orderTypeID").val().toUpperCase();
+              const currentPrice = Number($("#priceInput").val());
+              const actionType = $("#selectActionTypeId").val().toUpperCase();
+    
+              if (currentButtonState === "SL") {
+                if (actionType === "BUY" && currentPrice > data.BuyPrice) {
+                  toastMixin.fire({
+                    animation: true,
+                    title: "Price key must lower than buy price.",
+                    icon: "error",
+                  });
+                  return;
+                } else if (actionType === "SELL" && currentPrice < data.SellPrice) {
+                  toastMixin.fire({
+                    animation: true,
+                    title: "Price key must higher than sell price.",
+                    icon: "error",
+                  });
+                  return;
+                }
+              }
+                const body = {
+                    identifer: $("#scriptNameId").val(),
+                    trade_type: currentButtonState,
+                    coin_name: data?.Exchange === "NSE"
+                    ? `NSE ${data?.InstrumentIdentifier}`
+                    : `${$("#exchangeSelectId").val()} ${
+                        data?.InstrumentIdentifier?.split("_")?.[1]
+                      }, ${dateManager(data?.InstrumentIdentifier) || ""}`,
+                    ex_change: $("#exchangeSelectId").val(),
+                    action: $("#selectActionTypeId").val().toUpperCase(),
+                    quantity: Number($("#quantityOderId").val()),
+                    price:  $("#selectActionTypeId").val().toUpperCase() === "SELL"
+                    ? Number(data.SellPrice)
+                    : Number(data.BuyPrice),
+                    is_pending: currentButtonState === "LIMIT" ? true : false,
+                    order_method: "Web",
+                    lot_size: Number(data.QuotationLot),
+                    userId: "{{id}}",
+                    type: "WEB",
+                    stop_loss: currentPrice,
+                    is_cancel: false,
+                }
+    
+                if (currentButtonState === "LIMIT") {
+                  body.price = currentPrice;
+                  if (actionType === "SELL" && currentPrice <= data.SellPrice) {
+                    setModalizeMessage("Sell price must higher than high price.");
+                    return;
+                  } else if (actionType === "BUY" && currentPrice >= data.BuyPrice) {
+                    setModalizeMessage("Buy price must lower than low price.");
+                    return;
+                  }
+                }
+                if (data.SellPrice === 0 || data.BuyPrice == 0) {
+                  body.is_cancel = true;
+                }
+    
+                axios.post(`{% url "buy-sell-coin" %}`, body, {headers: { "X-CSRFToken": "{{ csrf_token }}" }}).then(function (response) {
+                    toastMixin.fire({
+                        animation: true,
+                        title: response.data.message,
+                        icon: "success",
+                    });
+                    setTimeout(()=>{
+                        window.location.reload();
+                    },1000)
+                }).catch(err => {
+                  console.log("err",err)
+                  toastMixin.fire({
+                    animation: true,
+                    title: err.response.data.message,
+                    icon: "error",
+                  });
+                })
+            }
+        })
+        
+</script>
 
 {% endblock content %}

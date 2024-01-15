@@ -1208,14 +1208,59 @@ class LoginHistory(View):
     
 class OpenPosition(View):
     def get(self, request):
-        return render(request, "report/open-position.html")
-    
+        user = request.user
+        return render(request, "report/open-position.html",{"id":user.id})
     
     
 class ManageTrades(View):
     def get(self, request):
-        return render(request, "report/manage-trades.html")
-    
+        user = request.user
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        status = request.GET.get('status')
+        exchange = request.GET.get('exchange')
+        user_name = request.GET.get('user_name')
+        user_obj = MyUser.objects.get(id=user.id)
+        
+        if request.user.user_type == "SuperAdmin":
+            client = ClientModel.objects.all().values_list("client__id",flat=True)
+            user = MyUser.objects.filter(user_type="Client")
+            print(user)
+        elif request.user.user_type == "Admin":
+            client = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
+            user = MyUser.objects.filter(id__in=client)
+        elif request.user.user_type == "Master":
+            client = user.master_user.master_user_link.all().values_list("client__id",flat=True)
+            user = MyUser.objects.filter(id__in=client)
+        elif request.user.user_type == "Client":
+            client = [request.user.id]
+            user = request.user
+        
+        manage_trades = BuyAndSellModel.objects.filter(
+           buy_sell_user__id__in=client
+        ).values(
+            "id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", 
+            "coin_name", "ex_change", "created_at", "is_pending", "identifer", 
+            "order_method", "ip_address", "is_cancel"
+        )
+        symbol_name = user_obj.user.values("symbol_name")
+        
+        if from_date and to_date:
+            to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+            manage_trades = manage_trades.filter(created_at__gte=from_date, created_at__lte=to_date)
+                
+        if status == "Pending":
+            manage_trades = manage_trades.filter(trade_status=True)
+        else:
+            manage_trades = manage_trades.filter(trade_status=False)
+            
+        if exchange:
+            manage_trades = manage_trades.filter(ex_change__in=exchange)
+        if user_name:
+            manage_trades = manage_trades.filter(buy_sell_user__user_name=user_name)
+
+        return render(request, "report/manage-trades.html", {"manage_trades": manage_trades, "symbol_name": symbol_name, "user": user})
+
     
     
 class TradeAccount(View):
@@ -1328,3 +1373,16 @@ class ScriptQuantity(View):
         # group_settings = GroupSettingsModel.objects.get(id=1)  
         # related_scripts = group_settings.group_user.all() 
         return render(request, "report/script-quantity.html",{"id":user.id})
+    
+    
+    
+    
+class ExchangeTimeSchedule(View):
+    def get(self, request):
+        return render(request, "tools/exchange-time.html")
+    
+    
+    
+class WeeklyAdminView(View):
+    def get(self, request):
+        return render(request, "report/weekly-admin.html")
