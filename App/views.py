@@ -133,7 +133,7 @@ class AddUserAPIView(APIView):
                 UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New master opening credit refrenece.")
             else:
                 create_user = MyUser.objects.create(user_type="Client", **request.data, password=make_password(password), role=request.user.role)
-                ClientModel.objects.create(client=create_user, master_user_link=current_master)
+                ClientModel.objects.create(client=create_user, master_user_link=current_master, admin_create_client=current_master.admin_user)
                 UserCreditModal.objects.create(user_credit=request.user, opening=request.user.balance + credit_amount, credit=0, debit=credit_amount, closing=request.user.balance, transection=create_user, message="New client opening credit refrenece.")
             try: 
                 exchangeList = []
