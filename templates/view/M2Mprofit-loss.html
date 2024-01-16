@@ -22,6 +22,8 @@
                     </div>
                 </div>
             </div>
+            <form method="get">
+                {% csrf_token %}
             <div class="trade-btm">
                 <div>
                     <label for="">Username:</label>
@@ -32,10 +34,11 @@
                 </div>
                 <div>
                     <label for=""></label>
-                    <input type="submit" value="Apply" class="form-btn">
-                    <input type="submit" value="Clear" class="cancel-btn">
+                    <button type="submit" value="Apply" class="form-btn">Apply</button>
+                    <a href="{% url 'Admin:m2m-profit-and-loss' %}" style="color:#fff !important;padding: 2px 10px; cursor:pointer;" class="cancel-btn">Clear</a>
                 </div>
             </div>
+        </form>
         </div>
         <div class="trades-body user-table">
             <table style="width: 100%;">
@@ -46,7 +49,7 @@
                     <th>PL Share(%)</th>
                     <th>PL Share Amount</th>
                 </tr>
-                <tbody>
+                <tbody id="m2mPnLId">
                     <tr>
                         <td>User</td>
                         <td>User Type</td>
@@ -61,16 +64,70 @@
 </div>
 
 <script>
-    const creditApiCaller = (from_date = '', to_date = '') => {
-        axios.get(`{% url "position-header-api" %}?id={{user_id}}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-        .then(res => {
-            console.log("res===",res)
-          })
-        .catch(err => {
-            console.log("err", err);
-        });
-      } 
-      creditApiCaller();
+    let m2mListUserWise = [];
+    axios.get(`{% url "weekly-admin-api" %}?user_id={{user.id}}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+    .then(res => {
+        console.log("res ==", res);
+        $("#m2mPnLId").empty();
+        if (res?.data?.result) {
+              axios
+                .post(`${BASE_URL}/api/tradeCoin/weekly`, {
+                  identifiers: res?.data?.result?.map(
+                    (obj) => obj.identifer
+                  ),
+                })
+                .then((res1) => {
+                  res?.data?.result.map((mapItem) => {
+                      const currentLiveData = res1.data?.response?.find(
+                        (liveData) =>
+                          liveData?.InstrumentIdentifier === mapItem?.identifer
+                      );
+                      const currentP_L =
+                        mapItem?.total_quantity > 0
+                          ? (currentLiveData?.BuyPrice - mapItem?.avg_buy_price) *
+                            mapItem?.total_quantity *
+                            currentLiveData?.QuotationLot
+                          : (mapItem?.avg_sell_price - currentLiveData?.SellPrice) *
+                            Math.abs(mapItem?.total_quantity) *
+                            currentLiveData?.QuotationLot;
+
+                        m2mListUserWise = [
+                        ...(m2mListUserWise || []),
+                        {
+                          user_id: mapItem?.buy_sell_user__id,
+                          m2mTotal: currentP_L,
+                        },
+                      ];
+                  });
+                })
+        }
+
+        setTimeout(() => {
+            res.data.release_p_and_l.map(item => {
+                const filterUser = m2mListUserWise?.filter(obj => obj.user_id === item.user_summary__id)
+                const m2mFinal =  Number(
+                    filterUser && filterUser.length === 0
+                      ? 0
+                      : filterUser.length === 1
+                      ? filterUser?.[0]?.m2mTotal?.toFixed(2)
+                      : filterUser?.reduce((a, b) => a?.m2mTotal || 0 + b?.m2mTotal || 0)
+                  )?.toFixed(2);
+                  console.log("===============",filterUser?.reduce((a, b) => a?.m2mTotal || 0 + b?.m2mTotal || 0))
+                $("#m2mPnLId").append(`
+                    <tr>
+                        <td>${item.user_summary__user_name}</td>
+                        <td>${item.user_summary__user_type}</td>
+                        <td>${item.total_amount.toFixed(2)}</td>
+                        <td>${m2mFinal}</td> 
+                        <td>${(Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
+                    </tr>
+                `);
+            });
+        }, 1000)
+    })
+    .catch(err => {
+        console.log("err", err);
+    });
 </script>
 
 {% endblock content %}

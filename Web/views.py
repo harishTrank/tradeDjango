@@ -152,12 +152,18 @@ class AddUserView(View):
                 messages.success(request, f"Admin create successfully.")
             elif request.POST.get("add_master") == 'on':
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
+                if selected_admin.user.balance <= int(request.POST.get("credit")):
+                    messages.error(request, f"Insufficient balance.")
+                    return redirect("Admin:add-user")
                 selected_admin.user.balance -=int(request.POST.get("credit"))
                 selected_admin.user.save()
                 create_user = MyUser.objects.create(user_type="Master", **user_data, parent=selected_admin.user.user_name)
                 try:
                     self_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     MastrModel.objects.create(master_user=create_user, admin_user=selected_admin,master_link=self_master)
+                    if self_master.master_user.balance <= int(request.POST.get("credit")):
+                        messages.error(request, f"Insufficient balance.")
+                        return redirect("Admin:add-user")
                     self_master.master_user.balance -=int(request.POST.get("credit"))
                     self_master.master_user.save()
                     messages.success(request, f"Master create successfully.")
@@ -171,6 +177,9 @@ class AddUserView(View):
                     selected_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     create_user = MyUser.objects.create(user_type="Client", **user_data, parent=selected_master)
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin,master_user_link=selected_master)
+                    if selected_master.master_user.balance <= int(request.POST.get("credit")):
+                        messages.error(request, f"Insufficient balance.")
+                        return redirect("Admin:add-user")
                     selected_master.master_user.balance -=int(request.POST.get("credit"))
                     UserCreditModal.objects.create(user_credit=selected_master.master_user, opening=selected_master.master_user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=selected_master.master_user.balance, transection=create_user, message="New client opening credit refrenece.")
                     selected_master.master_user.save()
@@ -178,6 +187,9 @@ class AddUserView(View):
                 except:
                     create_user = MyUser.objects.create(user_type="Client", **user_data, parent=selected_admin.user.user_name)
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
+                    if selected_admin.user.balance <= int(request.POST.get("credit")):
+                        messages.error(request, f"Insufficient balance.")
+                        return redirect(request, "Admin:add-user")
                     selected_admin.user.balance -=int(request.POST.get("credit"))
                     UserCreditModal.objects.create(user_credit=selected_admin.user, opening=selected_admin.user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=selected_admin.user.balance, transection=create_user, message="New client opening credit refrenece.")
                     selected_admin.user.save()
@@ -193,6 +205,9 @@ class AddUserView(View):
                     if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
                         messages.error(request, f"Insufficient balance")
                         return redirect("Admin:add-user")
+                if request.user.balance <= int(request.POST.get("credit")):
+                    messages.error(request, f"Insufficient balance.")
+                    return redirect(request, "Admin:add-user")
                 request.user.balance -= credit_amount
                 request.user.save() 
                 create_user = MyUser.objects.create(user_type="Master", **user_data, parent=selected_admin)
@@ -208,6 +223,10 @@ class AddUserView(View):
                         if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
                             messages.error(request, f"Insufficient balance")
                             return redirect("Admin:add-user")
+                        
+                    if request.user.balance <= int(request.POST.get("credit")):
+                        messages.error(request, f"Insufficient balance.")
+                        return redirect(request, "Admin:add-user")
                     request.user.balance -= credit_amount
                     request.user.save() 
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
@@ -223,6 +242,9 @@ class AddUserView(View):
                 if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
                     messages.error(request, f"Insufficient balance")
                     return redirect("Admin:add-user")
+            if request.user.balance <= int(request.POST.get("credit")):
+                messages.error(request, f"Insufficient balance.")
+                return redirect(request, "Admin:add-user")
             request.user.balance -= credit_amount
             request.user.save() 
             
@@ -1071,9 +1093,9 @@ class ProfitAndLoss(View):
     
 class M2MProfitAndLoss(View):
     def get(self, request):
-        user = request.user.id
+        user = request.user
         
-        return render(request, "view/M2Mprofit-loss.html",{"user_id":user})
+        return render(request, "view/M2Mprofit-loss.html",{"user":user})
     
 
 class IntradayHistory(View):
@@ -1234,7 +1256,7 @@ class ManageTrades(View):
             user = MyUser.objects.filter(id__in=client)
         elif request.user.user_type == "Client":
             client = [request.user.id]
-            user = request.user
+            user = [request.user]
         
         manage_trades = BuyAndSellModel.objects.filter(
            buy_sell_user__id__in=client
@@ -1265,7 +1287,8 @@ class ManageTrades(View):
     
 class TradeAccount(View):
     def get(self, request):
-        return render(request, "report/trade-account.html")
+        user = request.user
+        return render(request, "report/trade-account.html",{"user":user})
     
     
 
@@ -1385,4 +1408,27 @@ class ExchangeTimeSchedule(View):
     
 class WeeklyAdminView(View):
     def get(self, request):
-        return render(request, "report/weekly-admin.html")
+        user = request.user
+        if request.user.user_type == "SuperAdmin":
+            user = request.user
+            user_names = MyUser.objects.filter(user_type__in=["Master", "Client"]).values_list("user_name",flat=True)
+        elif request.user.user_type == "Admin": 
+            user = request.user
+            admin_child = AdminModel.objects.filter(user=user).values_list("user__user_name", flat=True)
+            master_child = MastrModel.objects.filter(admin_user=user.admin_user)
+            print(master_child)
+            client_child = ClientModel.objects.filter(master_user_link__in=master_child).values_list('client__user_name', flat=True)
+            user_names = list(master_child) + list(client_child)
+           
+        elif request.user.user_type == "Master":
+            user = request.user
+            master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=user.master_user).values_list('client__user_name', flat=True)
+            user_names = list(master_child) + list(client_child)
+            user_names.append(user.user_name)
+        else:
+            user = request.user
+            user_names = [user.user_name]
+            
+        return render(request, "report/weekly-admin.html",{"user":user,"user_names":user_names})
+    

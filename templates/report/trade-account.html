@@ -42,7 +42,6 @@
             </div>
         </div>
         <div class="trades-body user-table">
-            <button class="delete-btn">Delete</button>
             <table style="width: 100%;">
                 <tr>
                     <th>Username</th>
@@ -58,23 +57,86 @@
                     <th>FreeMargin</th>
                     <th>MarginLevel</th>
                 </tr>
-                <tr>
-                    <td>Username</td>
-                    <td>ParentUser</td>
-                    <td>PL</td>
-                    <td>Brk</td>
-                    <td>Balance</td>
-                    <td>Equity</td>
-                    <td>Credit</td>
-                    <td>Net P/L</td>
-                    <td>M2M P/L</td>
-                    <td>MarginUsed</td>
-                    <td>FreeMargin</td>
-                    <td>MarginLevel</td>
-                </tr>
+                <tbody id="tradeAccountTable">
+
+                </tbody>
+               
             </table>
         </div>
     </div>
 </div>
+
+<script>
+    let m2mListUserWise = [];
+    axios.get(`{% url "trade-account" %}?user_id={{user.id}}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+    .then(res => {
+        console.log("res ==", res);
+        $("#tradeAccountTable").empty();
+        if (res?.data?.result) {
+              axios
+                .post(`${BASE_URL}/api/tradeCoin/weekly`, {
+                  identifiers: res?.data?.result?.map(
+                    (obj) => obj.identifer
+                  ),
+                })
+                .then((res1) => {
+                  res?.data?.result.map((mapItem) => {
+                      const currentLiveData = res1.data?.response?.find(
+                        (liveData) =>
+                          liveData?.InstrumentIdentifier === mapItem?.identifer
+                      );
+                      const currentP_L =
+                        mapItem?.total_quantity > 0
+                          ? (currentLiveData?.BuyPrice - mapItem?.avg_buy_price) *
+                            mapItem?.total_quantity *
+                            currentLiveData?.QuotationLot
+                          : (mapItem?.avg_sell_price - currentLiveData?.SellPrice) *
+                            Math.abs(mapItem?.total_quantity) *
+                            currentLiveData?.QuotationLot;
+
+                        m2mListUserWise = [
+                        ...(m2mListUserWise || []),
+                        {
+                          user_id: mapItem?.buy_sell_user__id,
+                          m2mTotal: currentP_L,
+                        },
+                      ];
+                  });
+                })
+        }
+
+        setTimeout(() => {
+            res.data.release_p_and_l.map(item => {
+                const filterUser = m2mListUserWise?.filter(obj => obj.user_id === item.user_summary__id)
+                const m2mFinal =  Number(
+                    filterUser && filterUser.length === 0
+                      ? 0
+                      : filterUser.length === 1
+                      ? filterUser?.[0]?.m2mTotal?.toFixed(2)
+                      : filterUser?.reduce((a, b) => a?.m2mTotal + b?.m2mTotal)
+                  )?.toFixed(2);
+                $("#tradeAccountTable").append(`
+                    <tr>
+                        <td>${item.user_summary__user_name}</td>
+                        <td>${item.user_summary__parent}</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                        <td>${item.user_summary__balance}</td>
+                        <td>${item.user_summary__credit}</td>
+                        <td>${item.total_amount.toFixed(2)}</td>
+                        <td>${m2mFinal}</td> 
+                        <td>${(Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
+                        <td>0.00</td>
+                        <td>${(Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
+                    </tr>
+                `);
+            });
+        }, 1000)
+    })
+    .catch(err => {
+        console.log("err", err);
+    });
+</script>
 
 {% endblock content %}
