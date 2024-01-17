@@ -260,7 +260,7 @@ class AddUserView(View):
                 if client_users_count >= client_limit:
                     messages.error(request, f"Cannot create more Client users. Limit reached ({client_limit}).")
                     return redirect("Admin:add-user")
-            
+            current_master = ""
             if (request.POST.get("add_master") == 'on'):
                 current_master = MyUser.objects.get(id=request.user.id).master_user
                 create_user = MyUser.objects.create(user_type="Master", **user_data, parent=current_master)
@@ -1094,8 +1094,22 @@ class ProfitAndLoss(View):
 class M2MProfitAndLoss(View):
     def get(self, request):
         user = request.user
-        
-        return render(request, "view/M2Mprofit-loss.html",{"user":user})
+        user_name = request.GET.get("user_name")
+        if request.user.user_type == "SuperAdmin":
+            user_obj = MyUser.objects.filter(user_type="Client")
+        elif request.user.user_type == "Admin":
+            admin_obj = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
+            print(admin_obj)
+            user_obj = MyUser.objects.filter(id__in=admin_obj)
+        elif request.user.user_type == "Master":
+            master_obj = user.master_user.master_user_link.all().values_list("client__id",flat=True)
+            user_obj = MyUser.objects.filter(id__in=master_obj)
+        else:
+            client_obj = [request.user.id]
+            user_obj = [request.user]
+        if user_name:
+            user_obj = user_obj.filter(user_name=user_name)
+        return render(request, "view/M2Mprofit-loss.html",{"user":user,"user_obj":user_obj})
     
 
 class IntradayHistory(View):
@@ -1230,8 +1244,22 @@ class LoginHistory(View):
     
 class OpenPosition(View):
     def get(self, request):
-        user = request.user
-        return render(request, "report/open-position.html",{"id":user.id})
+        if request.user.user_type == "Master":
+            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
+            user_names = list(master_child) + list(client_child)
+            user_names.append(request.user.user_name)
+        elif request.user.user_type == "SuperAdmin":
+            user_names = MyUser.objects.filter(role=request.user.role).exclude(id=request.user.id).values_list("user_name", flat=True)
+            print(user_names)    
+        elif request.user.user_type == "Admin":
+            masters = request.user.admin_user.admin_user.all().values_list('master_user__user_name', flat=True)
+            clients = request.user.admin_user.admin_create_client.all().values_list('client__user_name', flat=True)
+            user_names = list(masters) + list(clients)
+        else:
+            user_names = [request.user.user_name]
+        exchange = request.user.user.filter(exchange=True).values_list("symbol_name", flat=True)
+        return render(request, "report/open-position.html", {"user_names": user_names, "exchange": exchange})
     
     
 class ManageTrades(View):
@@ -1248,7 +1276,6 @@ class ManageTrades(View):
         if request.user.user_type == "SuperAdmin":
             client = ClientModel.objects.all().values_list("client__id",flat=True)
             user = MyUser.objects.filter(user_type="Client")
-            print(user)
         elif request.user.user_type == "Admin":
             client = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
             user = MyUser.objects.filter(id__in=client)
@@ -1289,7 +1316,23 @@ class ManageTrades(View):
 class TradeAccount(View):
     def get(self, request):
         user = request.user
-        return render(request, "report/trade-account.html",{"user":user})
+        user_name = request.GET.get("user_name")
+        if request.user.user_type == "SuperAdmin":
+            user_obj = MyUser.objects.filter(user_type="Client")
+        elif request.user.user_type == "Admin":
+            admin_obj = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
+            print(admin_obj)
+            user_obj = MyUser.objects.filter(id__in=admin_obj)
+        elif request.user.user_type == "Master":
+            master_obj = user.master_user.master_user_link.all().values_list("client__id",flat=True)
+            user_obj = MyUser.objects.filter(id__in=master_obj)
+        else:
+            client_obj = [request.user.id]
+            user_obj = [request.user]
+        if user_name:
+            user_obj = user_obj.filter(user_name=user_name)
+            
+        return render(request, "report/trade-account.html",{"user":user,"user_obj":user_obj})
     
     
 
@@ -1424,6 +1467,14 @@ class MassageView(View):
 class WeeklyAdminView(View):
     def get(self, request):
         user = request.user
+        user_obj = request.GET.get('user_name')
+        print(user_obj)
+        check = MyUser.objects.filter(user_name=user_obj).values("id")
+        if check.exists():
+            print(check[0]["id"])
+        else:
+            print("User not found")
+
         if request.user.user_type == "SuperAdmin":
             user = request.user
             user_names = MyUser.objects.filter(user_type__in=["Master", "Client"]).values_list("user_name",flat=True)
@@ -1444,6 +1495,8 @@ class WeeklyAdminView(View):
         else:
             user = request.user
             user_names = [user.user_name]
+        if user_obj:
+            pass
             
         return render(request, "report/weekly-admin.html",{"user":user,"user_names":user_names})
     

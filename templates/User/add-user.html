@@ -30,7 +30,7 @@
           </div>
           <div class="col-25">
             <label for="">Username*</label>
-            <input id="userNameId" type="text" name="user_name" class="form-group"/>
+            <input oninput="validateInput()" id="userNameId" type="text" name="user_name" class="form-group"/>
           </div>
           <div class="col-25">
             <label for="">Password*</label>
@@ -311,6 +311,11 @@ input:checked+.slider:before {
 
 
 <script>
+
+function validateInput() {
+  var userNameInput = document.getElementById("userNameId");
+  userNameInput.value = userNameInput.value.replace(/\s/g, ''); // Remove whitespace
+}
 
   function showLoader() {
     document.getElementById('loader').style.display = 'block';

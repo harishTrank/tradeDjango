@@ -7,9 +7,9 @@
             <div style="transform: rotate(90deg);padding-left: 10px;">
                 <p>Filter</p>
             </div>
-            <span>
+            {% comment %} <span>
                 <a href=""><i class="fa-solid fa-file-csv"></i></a>
-            </span>
+            </span> {% endcomment %}
         </div>
         <form method="get">
             {% csrf_token %}
@@ -27,16 +27,16 @@
             <div class="trade-btm">
                 <div>
                     <label for="">UserName:</label>
-                    <select name="user_name" id="">
+                    <select name="user_name" id="weeklyUserNameId">
                         <option value="">All</option>
                         {% for i in user_names %}
-                            <option value="">{{i}}</option>
+                            <option value="{{i}}" >{{i}}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div>
                     <label for=""></label>
-                    <button type="submit" value="View" class="form-btn">View</button>
+                    <button type="button" id="weeklyBtnId" class="form-btn">View</button>
                     <a href="{% url 'Admin:weekly-admin' %}" style="color:#fff !important;padding: 2px 10px; cursor:pointer;" class="cancel-btn">Clear</a>
                 </div>
             </div>
@@ -70,79 +70,93 @@
 </div>
 
 <script>
-    let m2mListUserWise = [];
-    axios.get(`{% url "weekly-admin-api" %}?user_id={{user.id}}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-    .then(res => {
-        console.log("res ==", res);
-        $("#weeklyAdminTable").empty();
-        if (res?.data?.result) {
-              axios
-                .post(`${BASE_URL}/api/tradeCoin/weekly`, {
-                  identifiers: res?.data?.result?.map(
-                    (obj) => obj.identifer
-                  ),
-                })
-                .then((res1) => {
-                  res?.data?.result.map((mapItem) => {
-                      const currentLiveData = res1.data?.response?.find(
-                        (liveData) =>
-                          liveData?.InstrumentIdentifier === mapItem?.identifer
-                      );
-                      const currentP_L =
-                        mapItem?.total_quantity > 0
-                          ? (currentLiveData?.BuyPrice - mapItem?.avg_buy_price) *
-                            mapItem?.total_quantity *
-                            currentLiveData?.QuotationLot
-                          : (mapItem?.avg_sell_price - currentLiveData?.SellPrice) *
-                            Math.abs(mapItem?.total_quantity) *
-                            currentLiveData?.QuotationLot;
+    
+    const weeklyAdminHandler = (user_name="" ,user_id = "{{user.id}}") => {
 
-                        m2mListUserWise = [
-                        ...(m2mListUserWise || []),
-                        {
-                          user_id: mapItem?.buy_sell_user__id,
-                          m2mTotal: currentP_L,
-                        },
-                      ];
-                  });
-                })
-        }
-
-        setTimeout(() => {
-            res.data.release_p_and_l.map(item => {
-                const filterUser = m2mListUserWise?.filter(obj => obj.user_id === item.user_summary__id)
-                console.log("filterUser",filterUser)
-                const m2mFinal =  Number(
-                    filterUser && filterUser.length === 0
-                      ? 0
-                      : filterUser.length === 1
-                      ? filterUser?.[0]?.m2mTotal?.toFixed(2)
-                      : filterUser?.reduce((a, b) => a?.m2mTotal || 0 + b?.m2mTotal || 0)
-                  )?.toFixed(2);
-                  const m2mcolor = m2mFinal > 0 ? 'blue' : 'red';
-                $("#weeklyAdminTable").append(`
-                    <tr>
-                        <td>${item.user_summary__user_name}</td>
-                        <td>${item.user_summary__full_name}</td>
-                        <td>${item.user_summary__parent}</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
-                        <td>${item.total_amount.toFixed(2)}</td>
-                        <td style="color:${m2mcolor}">${m2mFinal}</td> 
-                        <td style="color:${m2mcolor}">${(Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
-                        <td>0.00</td>
-                        <td>${(Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
-                    </tr>
-                `);
+        let m2mListUserWise = [];
+        axios.get(`{% url "weekly-admin-api" %}?user_id=${user_id}&user_name=${user_name}`, { headers: { "X-CSRFToken": "{{ csrf_token }}" } })
+            .then(res => {
+                console.log("res ==", res);
+                $("#weeklyAdminTable").empty();
+                if (res?.data?.result) {
+                    axios
+                        .post(`${BASE_URL}/api/tradeCoin/weekly`, {
+                            identifiers: res?.data?.result?.map(
+                                (obj) => obj.identifer
+                            ),
+                        })
+                        .then((res1) => {
+                            res?.data?.result.map((mapItem) => {
+                                const currentLiveData = res1.data?.response?.find(
+                                    (liveData) =>
+                                        liveData?.InstrumentIdentifier === mapItem?.identifer
+                                );
+                                const currentP_L =
+                                    mapItem?.total_quantity > 0
+                                        ? (currentLiveData?.BuyPrice - mapItem?.avg_buy_price) *
+                                        mapItem?.total_quantity *
+                                        currentLiveData?.QuotationLot
+                                        : (mapItem?.avg_sell_price - currentLiveData?.SellPrice) *
+                                        Math.abs(mapItem?.total_quantity) *
+                                        currentLiveData?.QuotationLot;
+    
+                                m2mListUserWise = [
+                                    ...(m2mListUserWise || []),
+                                    {
+                                        user_id: mapItem?.buy_sell_user__id,
+                                        m2mTotal: currentP_L,
+                                    },
+                                ];
+                            });
+                        })
+                        .catch(err => {
+                            console.log("err", err);
+                        });
+                }
+    
+                setTimeout(() => {
+                    res.data.release_p_and_l.map(item => {
+                        const filterUser = m2mListUserWise?.filter(obj => obj.user_id === item.user_summary__id)
+                        console.log("filterUser", filterUser)
+                        const m2mFinal = Number(
+                            filterUser && filterUser.length === 0
+                                ? 0
+                                : filterUser.length === 1
+                                    ? filterUser?.[0]?.m2mTotal?.toFixed(2)
+                                    : filterUser?.reduce((a, b) => a?.m2mTotal || 0 + b?.m2mTotal || 0)
+                        )?.toFixed(2);
+                        const m2mcolor = m2mFinal > 0 ? 'blue' : 'red';
+                        $("#weeklyAdminTable").append(`
+                            <tr>
+                                <td>${item.user_summary__user_name}</td>
+                                <td>${item.user_summary__full_name}</td>
+                                <td>${item.user_summary__parent}</td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                                <td>${item.total_amount.toFixed(2)}</td>
+                                <td style="color:${m2mcolor}">${m2mFinal}</td> 
+                                <td style="color:${m2mcolor}">${(Number(m2mFinal) + Number(item.total_amount))?.toFixed(2)}</td>
+                                <td>0.00</td>
+                                <td>${(Number(m2mFinal) + Number(item.total_amount))?.toFixed(2)}</td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                            </tr>
+                        `);
+                    });
+                }, 1000)
+            })
+            .catch(err => {
+                console.log("err", err);
             });
-        }, 1000)
-    })
-    .catch(err => {
-        console.log("err", err);
-    });
+    }
+    
+    weeklyAdminHandler();
+
+    $("#weeklyBtnId").click(() => {
+        weeklyAdminHandler($("#weeklyUserNameId").val());
+      })
+ 
 </script>
 
 {% endblock content %}

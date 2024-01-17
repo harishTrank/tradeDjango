@@ -6,9 +6,9 @@
             <div style="transform: rotate(90deg);padding-left: 10px;">
                 <p>Filter</p>
             </div>
-            <span>
+            {% comment %} <span>
                 <a href=""><i class="fa-solid fa-file-csv"></i></a>
-            </span>
+            </span> {% endcomment %}
         </div>
         <div class="trades-side">
             <div class="trade-top">
@@ -24,19 +24,17 @@
             <div class="trade-btm">
                 <div>
                     <label for="">Username:</label>
-                    <select name="" id="">
-                        <option value="">All</option>
-                        <option value="">Successful</option>
-                        <option value="">Pending</option>
+                    <select name="" id="tradeUserNameId">
+                        <option value="">All Users</option>
+                        {% for i in user_obj %}
+                            <option value="{{i.user_name}}">{{i.user_name}}</option>
+                        {% endfor %}
                     </select>
                 </div>
-                <div>
-                    <label for="">Search:</label>
-                    <input type="text">
-                </div>
+               
                 <div>
                     <label for=""></label>
-                    <input type="submit" value="View" class="form-btn">
+                    <input type="button" value="View" id="tradeBtnId" class="form-btn">
                     <input type="submit" value="Clear" class="cancel-btn">
                 </div>
             </div>
@@ -67,76 +65,85 @@
 </div>
 
 <script>
-    let m2mListUserWise = [];
-    axios.get(`{% url "trade-account" %}?user_id={{user.id}}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-    .then(res => {
-        console.log("res ==", res);
-        $("#tradeAccountTable").empty();
-        if (res?.data?.result) {
-              axios
-                .post(`${BASE_URL}/api/tradeCoin/weekly`, {
-                  identifiers: res?.data?.result?.map(
-                    (obj) => obj.identifer
-                  ),
-                })
-                .then((res1) => {
-                  res?.data?.result.map((mapItem) => {
-                      const currentLiveData = res1.data?.response?.find(
-                        (liveData) =>
-                          liveData?.InstrumentIdentifier === mapItem?.identifer
-                      );
-                      const currentP_L =
-                        mapItem?.total_quantity > 0
-                          ? (currentLiveData?.BuyPrice - mapItem?.avg_buy_price) *
-                            mapItem?.total_quantity *
-                            currentLiveData?.QuotationLot
-                          : (mapItem?.avg_sell_price - currentLiveData?.SellPrice) *
-                            Math.abs(mapItem?.total_quantity) *
-                            currentLiveData?.QuotationLot;
 
-                        m2mListUserWise = [
-                        ...(m2mListUserWise || []),
-                        {
-                          user_id: mapItem?.buy_sell_user__id,
-                          m2mTotal: currentP_L,
-                        },
-                      ];
-                  });
-                })
-        }
+    const tradeAccountHandler = (user_name="", user_id="{{user.id}}") =>{
 
-        setTimeout(() => {
-            res.data.release_p_and_l.map(item => {
-                const filterUser = m2mListUserWise?.filter(obj => obj.user_id === item.user_summary__id)
-                const m2mFinal =  Number(
-                    filterUser && filterUser.length === 0
-                      ? 0
-                      : filterUser.length === 1
-                      ? filterUser?.[0]?.m2mTotal?.toFixed(2)
-                      : filterUser?.reduce((a, b) => a?.m2mTotal + b?.m2mTotal)
-                  )?.toFixed(2);
-                $("#tradeAccountTable").append(`
-                    <tr>
-                        <td>${item.user_summary__user_name}</td>
-                        <td>${item.user_summary__parent}</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
-                        <td>${item.user_summary__balance}</td>
-                        <td>${item.user_summary__credit}</td>
-                        <td>${item.total_amount.toFixed(2)}</td>
-                        <td>${m2mFinal}</td> 
-                        <td>${(Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
-                        <td>0.00</td>
-                        <td>${(Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
-                    </tr>
-                `);
-            });
-        }, 1000)
+        let m2mListUserWise = [];
+        axios.get(`{% url "weekly-admin-api" %}?user_id=${user_id}&user_name=${user_name}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            console.log("res ==", res);
+            $("#tradeAccountTable").empty();
+            if (res?.data?.result) {
+                  axios
+                    .post(`${BASE_URL}/api/tradeCoin/weekly`, {
+                      identifiers: res?.data?.result?.map(
+                        (obj) => obj.identifer
+                      ),
+                    })
+                    .then((res1) => {
+                      res?.data?.result.map((mapItem) => {
+                          const currentLiveData = res1.data?.response?.find(
+                            (liveData) =>
+                              liveData?.InstrumentIdentifier === mapItem?.identifer
+                          );
+                          const currentP_L =
+                            mapItem?.total_quantity > 0
+                              ? (currentLiveData?.BuyPrice - mapItem?.avg_buy_price) *
+                                mapItem?.total_quantity *
+                                currentLiveData?.QuotationLot
+                              : (mapItem?.avg_sell_price - currentLiveData?.SellPrice) *
+                                Math.abs(mapItem?.total_quantity) *
+                                currentLiveData?.QuotationLot;
+    
+                            m2mListUserWise = [
+                            ...(m2mListUserWise || []),
+                            {
+                              user_id: mapItem?.buy_sell_user__id,
+                              m2mTotal: currentP_L,
+                            },
+                          ];
+                      });
+                    })
+            }
+    
+            setTimeout(() => {
+                res.data.release_p_and_l.map(item => {
+                    const filterUser = m2mListUserWise?.filter(obj => obj.user_id === item.user_summary__id)
+                    const m2mFinal =  Number(
+                        filterUser && filterUser.length === 0
+                          ? 0
+                          : filterUser.length === 1
+                          ? filterUser?.[0]?.m2mTotal?.toFixed(2)
+                          : filterUser?.reduce((a, b) => a?.m2mTotal + b?.m2mTotal)
+                      )?.toFixed(2);
+                      const m2mcolor = m2mFinal > 0 ? 'blue' : 'red';
+                    $("#tradeAccountTable").append(`
+                        <tr>
+                            <td>${item.user_summary__user_name}</td>
+                            <td>${item.user_summary__parent}</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>${item.user_summary__balance}</td>
+                            <td>${item.user_summary__credit}</td>
+                            <td style="color: ${item.total_amount >= 0 ? 'blue' : 'red'};">${item.total_amount.toFixed(2)}</td>
+                            <td style="color:${m2mcolor}">${isNaN(m2mFinal) ? "0.00" : m2mFinal}</td> 
+                            <td>${(isNaN(m2mFinal) ? 0 : Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
+                            <td>0.00</td>
+                            <td>${(isNaN(m2mFinal) ? 0 : Number(m2mFinal) +Number(item.total_amount))?.toFixed(2)}</td>
+                        </tr>
+                    `);
+                });
+            }, 1000)
+        })
+        .catch(err => {
+            console.log("err", err);
+        });
+    }
+    tradeAccountHandler();
+    $("#tradeBtnId").click(() =>{
+        tradeAccountHandler($("#tradeUserNameId").val());
     })
-    .catch(err => {
-        console.log("err", err);
-    });
 </script>
 
 {% endblock content %}

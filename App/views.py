@@ -596,10 +596,18 @@ class PositionManager(APIView):
                 user = MyUser.objects.get(user_name=request.GET.get("user_name"))
             else:
                 user = request.user
-
-            if user.user_type == "Master":
-                result = (
-                BuyAndSellModel.objects.filter(buy_sell_user__id__in=user.master_user.master_user_link.all().values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
+                
+            if user.user_type == "SuperAdmin":
+                user_ids = ClientModel.objects.filter(client__role=request.user.role).values_list("client__id", flat=True)
+            elif user.user_type == "Admin":
+                user_ids = user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            elif user.user_type == "Master":
+                user_ids = user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            else:
+                user_ids = [user.id]
+            
+            result = (
+                BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_ids, trade_status=True, is_pending=False, is_cancel=False)
                 .values('identifer','coin_name', 'ex_change','buy_sell_user__parent','buy_sell_user__user_name')
                 .annotate(
                     total_quantity=Sum('quantity'),
@@ -613,23 +621,7 @@ class PositionManager(APIView):
                     )
                 ).exclude(total_quantity=0)
             )
-            else:
-                result = (
-                    user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                    .values('identifer','coin_name', 'ex_change','buy_sell_user__parent','buy_sell_user__user_name')
-                    .annotate(
-                        total_quantity=Sum('quantity'),
-                        avg_buy_price=Coalesce(
-                            Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        ),
-                        avg_sell_price=Coalesce(
-                            Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        )
-                    ).exclude(total_quantity=0)
-                )
-
+                
             if (request.GET.get("exchange") and request.GET.get("exchange") != ""):
                 result = result.filter(ex_change=request.GET.get("exchange"))
 
@@ -780,14 +772,23 @@ class CoinNameApi(APIView):
         user = request.user
         if (request.query_params.get('user_id') and request.query_params.get('user_id') != ""):
             user = MyUser.objects.filter(id=request.query_params.get('user_id')).first()
-        if user.user_type == "Master":
+            
+        
+        if user.user_type == "SuperAdmin":
+            user_ids = ClientModel.objects.filter(client__role=request.user.role).values_list("client__user_name", flat=True)
+        elif user.user_type == "Admin":
+            user_ids = user.admin_user.admin_create_client.all().values_list("client__user_name", flat=True)
+        elif user.user_type == "Master":
+            clients = user.master_user.master_user_link.all().values_list("client__user_name", flat=True)
             master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__user_name', flat=True)
-            client_child = ClientModel.objects.filter(master_user_link=user.master_user).values_list('client__user_name', flat=True)
-            user_names = list(master_child) + list(client_child)
-            user_names.append(user.user_name)
-            response = BuyAndSellModel.objects.filter(buy_sell_user__user_name__in=user_names).order_by('-coin_name').values('coin_name').distinct()
+            user_ids = list(clients) + list(master_child)
         else:
-            response = user.buy_sell_user.order_by('-coin_name').values('coin_name').distinct()
+            user_ids = [user.user_name]
+            
+        response = BuyAndSellModel.objects.filter(buy_sell_user__user_name__in=user_ids).order_by('-coin_name').values('coin_name').distinct()
+        if request.GET.get("exchange") and request.GET.get("exchange") != "":
+            response = response.filter(ex_change = request.GET.get("exchange"))
+            
         return Response({"response":response,"status":status.HTTP_200_OK},status=status.HTTP_200_OK) 
     
     
@@ -1000,57 +1001,39 @@ class WeeklyAdminListApi(APIView):
                 user = request.user
             if(request.GET.get("user_name") and request.GET.get("user_name") != ""):
                 user = MyUser.objects.get(user_name=request.GET.get("user_name"))
-            
-            if user.user_type == "Master":
-                all_clients = user.master_user.master_user_link.all()
-                release_p_and_l = (
-                    AccountSummaryModal.objects
-                    .filter(
-                        user_summary__user_name__in=all_clients.values_list("client__user_name", flat=True),
-                        summary_flg='Profit/Loss'
-                    )
-                    .values("user_summary__user_name", "user_summary__full_name","user_summary__user_type", "user_summary__parent","user_summary__id")
-                    .annotate(total_amount=Sum('amount'))
-                )
-                result = (BuyAndSellModel.objects.filter(buy_sell_user__id__in=all_clients.values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
-                    .values('buy_sell_user__id', 'identifer','coin_name')
-                    .annotate(
-                        total_quantity=Sum('quantity'),
-                        avg_buy_price=Coalesce(
-                            Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        ),
-                        avg_sell_price=Coalesce(
-                            Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        )
-                ).exclude(total_quantity=0))
+                
+                
+            if user.user_type == "SuperAdmin":
+                user_ids = ClientModel.objects.filter(client__role=request.user.role).values_list("client__id", flat=True)
+            elif user.user_type == "Admin":
+                user_ids = user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            elif user.user_type == "Master":
+                user_ids = user.master_user.master_user_link.all().values_list("client__id", flat=True)
             else:
-                all_clients = [user]
-                release_p_and_l = (
-                    AccountSummaryModal.objects
-                    .filter(
-                        user_summary__user_name=user,
-                        summary_flg='Profit/Loss'
+                user_ids = [user.id]
+            
+            release_p_and_l = (
+                AccountSummaryModal.objects
+                .filter(
+                    user_summary__id__in=user_ids,
+                    summary_flg='Profit/Loss'
+                )
+                .values("user_summary__user_name", "user_summary__full_name","user_summary__user_type", "user_summary__parent","user_summary__id","user_summary__credit","user_summary__balance")
+                .annotate(total_amount=Sum('amount'))
+            )
+            result = (BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_ids, trade_status=True, is_pending=False, is_cancel=False)
+                .values('buy_sell_user__id', 'identifer','coin_name')
+                .annotate(
+                    total_quantity=Sum('quantity'),
+                    avg_buy_price=Coalesce(
+                        Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    ),
+                    avg_sell_price=Coalesce(
+                        Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
                     )
-                    .values("user_summary__user_name", "user_summary__full_name", "user_summary__parent","user_summary__user_type", "user_summary__id")
-                    .annotate(total_amount=Sum('amount'))
-                )
-                result = (
-                    user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                    .values('buy_sell_user__id','identifer','coin_name')
-                    .annotate(
-                        total_quantity=Sum('quantity'),
-                        avg_buy_price=Coalesce(
-                            Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        ),
-                        avg_sell_price=Coalesce(
-                            Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        )
-                    ).exclude(total_quantity=0)
-                )
+            ).exclude(total_quantity=0))
 
             return Response({"status": True, "message": "Data getting successfully", "release_p_and_l": release_p_and_l, "result": result})
         except Exception as e:
@@ -1513,70 +1496,4 @@ class AccountLimitApi(APIView):
 
 
 
-class TradeAccount(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request):
-        user = request.user
-        try:
-            if(request.GET.get("user_id") and request.GET.get("user_id") != ""):
-                user = MyUser.objects.get(id=request.GET.get("user_id"))
-                
-            if(request.GET.get("user_name") and request.GET.get("user_name") != ""):
-                user = MyUser.objects.get(user_name=request.GET.get("user_name"))
-            
-            if user.user_type == "Master":
-                all_clients = user.master_user.master_user_link.all()
-                release_p_and_l = (
-                    AccountSummaryModal.objects
-                    .filter(
-                        user_summary__user_name__in=all_clients.values_list("client__user_name", flat=True),
-                        summary_flg='Profit/Loss'
-                    )
-                    .values("user_summary__user_name", "user_summary__parent","user_summary__id","user_summary__credit","user_summary__balance")
-                    .annotate(total_amount=Sum('amount'))
-                )
-                result = (BuyAndSellModel.objects.filter(buy_sell_user__id__in=all_clients.values_list("client__id", flat=True), trade_status=True, is_pending=False, is_cancel=False)
-                    .values('buy_sell_user__id', 'identifer','coin_name')
-                    .annotate(
-                        total_quantity=Sum('quantity'),
-                        avg_buy_price=Coalesce(
-                            Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        ),
-                        avg_sell_price=Coalesce(
-                            Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        )
-                ).exclude(total_quantity=0))
-            else:
-                all_clients = [user]
-                release_p_and_l = (
-                    AccountSummaryModal.objects
-                    .filter(
-                        user_summary__user_name=user,
-                        summary_flg='Profit/Loss'
-                    )
-                    .values("user_summary__user_name", "user_summary__parent", "user_summary__id","user_summary__credit","user_summary__balance")
-                    .annotate(total_amount=Sum('amount'))
-                )
-                result = (
-                    user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False)
-                    .values('buy_sell_user__id','identifer','coin_name')
-                    .annotate(
-                        total_quantity=Sum('quantity'),
-                        avg_buy_price=Coalesce(
-                            Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        ),
-                        avg_sell_price=Coalesce(
-                            Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
-                            Value(0.0)
-                        )
-                    ).exclude(total_quantity=0)
-                )
-
-            return Response({"status": True, "message": "Data getting successfully", "release_p_and_l": release_p_and_l, "result": result})
-        except Exception as e:
-            print(e)
-            return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 # ------------------------------------------------
