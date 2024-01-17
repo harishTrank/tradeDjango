@@ -59,6 +59,7 @@ urlpatterns = [
     path("account-summary",AccountSummary.as_view(),name="account-summary"),
     path("bill-generate",BillGenerate.as_view(),name="bill-generate"),
     path("trades-margins",TradeMargin.as_view(),name="trades-margins"),
+    path("script-master",ScriptMaster.as_view(),name="script-master"),
     path("logs-history",LogsHistory.as_view(),name="logs-history"),
     path("user-logs-new",UserLogsNew.as_view(),name="user-logs-new"),
     path("user-script-position-track",UserScriptPositionTrack.as_view(),name="user-script-position-track"),
@@ -68,6 +69,7 @@ urlpatterns = [
     
     
     path("exchange-time",ExchangeTimeSchedule.as_view(),name="exchange-time"),
+    path("message",MassageView.as_view(),name="message"),
     
     
 #----------------------csv download ---------------------#

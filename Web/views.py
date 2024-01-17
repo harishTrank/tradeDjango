@@ -1237,6 +1237,7 @@ class OpenPosition(View):
 class ManageTrades(View):
     def get(self, request):
         user = request.user
+        print(user,"user===")
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
         status = request.GET.get('status')
@@ -1369,6 +1370,14 @@ class TradeMargin(View):
             trade = trade.filter(ex_change=exchange)
         return render(request, "report/trade-margin.html",{"trade_margin":trade,"exchange_obj":exchange_obj,"user":user,"first":exchange_obj.first()["symbol_name"]})
 
+
+
+class ScriptMaster(View):
+    def get(self, request):
+        return render(request, "report/script-master.html")
+    
+    
+    
 class LogsHistory(View):
     def get(self, request):
         return render(request, "report/logs-history.html")
@@ -1403,6 +1412,12 @@ class ScriptQuantity(View):
 class ExchangeTimeSchedule(View):
     def get(self, request):
         return render(request, "tools/exchange-time.html")
+    
+    
+
+class MassageView(View):
+    def get(self, request):
+        return render(request, "tools/message.html")
     
     
     
