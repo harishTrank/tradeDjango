@@ -1357,22 +1357,28 @@ class TableChartAPi(APIView):
         currentCoins = request.data["currentCoin"]
         date_array , cancelArray, successArray = [] , [] , [] 
 
-        if user.user_type == "SuperAdmin":
-            pass
+        if user.user_type == "Master":
+            master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__id', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=user.master_user).values_list('client__id', flat=True)
+            user_ids = list(master_child) + list(client_child)
+            user_ids.append(user.id)
+        elif user.user_type == "SuperAdmin":
+            user_ids = MyUser.objects.filter(role=user.role).exclude(id=user.id).values_list("id", flat=True)
         elif user.user_type == "Admin":
-            pass
-        elif user.user_type == "Master":
-            pass
+            masters = user.admin_user.admin_user.all().values_list('master_user__id', flat=True)
+            clients = user.admin_user.admin_create_client.all().values_list('client__id', flat=True)
+            user_ids = list(masters) + list(clients)
         else:
-            pass        
+            user_ids = [user.id] 
+
         if request.data["type"] == "day":
             four_days_ago = timezone.now().date() - timedelta(days=3)
             current_date = four_days_ago
             while current_date <= timezone.now().date():
                 date_array.append(current_date)
-                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=True, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
+                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user__id__in=user_ids, is_cancel=True, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
                 cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
-                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=False, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
+                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user__id__in=user_ids, is_cancel=False, created_at__date=current_date).values('created_at__date').annotate(count=Count('id'))
                 successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
                 current_date += timedelta(days=1)
                 
@@ -1383,10 +1389,10 @@ class TableChartAPi(APIView):
                 start_of_week = end_of_week - timedelta(days=6)
                 date_array.append((start_of_week.strftime('%Y-%m-%d'), end_of_week.strftime('%Y-%m-%d')))
                 
-                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=True, created_at__range=(start_of_week, end_of_week)).count()
+                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user__id__in=user_ids, is_cancel=True, created_at__range=(start_of_week, end_of_week)).count()
                 cancelArray.append(cancel_query)
                 
-                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=False, created_at__range=(start_of_week, end_of_week)).count()
+                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user__id__in=user_ids, is_cancel=False, created_at__range=(start_of_week, end_of_week)).count()
                 successArray.append(success_query)
                 
                 current_date = start_of_week - timedelta(days=1)
@@ -1395,9 +1401,9 @@ class TableChartAPi(APIView):
             for i in range (0, 4):
                 month_year = current_date.strftime("%B %Y")
                 date_array.append(month_year)
-                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=True, created_at__month=current_date.month, created_at__year=current_date.year).values('created_at__month').annotate(count=Count('id'))
+                cancel_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user__id__in=user_ids, is_cancel=True, created_at__month=current_date.month, created_at__year=current_date.year).values('created_at__month').annotate(count=Count('id'))
                 cancelArray.append(0) if len(cancel_query) == 0 else cancelArray.append(cancel_query[0]["count"])
-                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user=user, is_cancel=False, created_at__month=current_date.month, created_at__year=current_date.year).values('created_at__month').annotate(count=Count('id'))
+                success_query = BuyAndSellModel.objects.filter(ex_change__in=currentCoins, buy_sell_user__id__in=user_ids, is_cancel=False, created_at__month=current_date.month, created_at__year=current_date.year).values('created_at__month').annotate(count=Count('id'))
                 successArray.append(0) if len(success_query) == 0 else successArray.append(success_query[0]["count"])
                 current_date = current_date - timedelta(days=current_date.day)
                 
@@ -1410,12 +1416,26 @@ class PieChartHandlerApi(APIView):
         try:
             filterType = request.data["type"]
             limit = int(request.data["limit"])
-            currentUser = MyUser.objects.get(id=request.data["user_id"])
+            user = MyUser.objects.get(id=request.data["user_id"])
+
+            if user.user_type == "Master":
+                master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__id', flat=True)
+                client_child = ClientModel.objects.filter(master_user_link=user.master_user).values_list('client__id', flat=True)
+                user_ids = list(master_child) + list(client_child)
+                user_ids.append(user.id)
+            elif user.user_type == "SuperAdmin":
+                user_ids = MyUser.objects.filter(role=user.role).exclude(id=user.id).values_list("id", flat=True)
+            elif user.user_type == "Admin":
+                masters = user.admin_user.admin_user.all().values_list('master_user__id', flat=True)
+                clients = user.admin_user.admin_create_client.all().values_list('client__id', flat=True)
+                user_ids = list(masters) + list(clients)
+            else:
+                user_ids = [user.id] 
             
             currentResult = (
                 BuyAndSellModel.objects
                 .filter(
-                    buy_sell_user=currentUser,
+                    buy_sell_user__id__in=user_ids,
                     is_cancel=False,
                     ex_change__in=request.data["currentCoin"],
                     created_at__date__gte=request.data["fromDate"],
