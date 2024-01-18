@@ -1366,7 +1366,15 @@ class TableChartAPi(APIView):
         user = MyUser.objects.get(id=request.data["user_id"])
         currentCoins = request.data["currentCoin"]
         date_array , cancelArray, successArray = [] , [] , [] 
-        
+
+        if user.user_type == "SuperAdmin":
+            pass
+        elif user.user_type == "Admin":
+            pass
+        elif user.user_type == "Master":
+            pass
+        else:
+            pass        
         if request.data["type"] == "day":
             four_days_ago = timezone.now().date() - timedelta(days=3)
             current_date = four_days_ago
