@@ -47,14 +47,34 @@ class LoginView(View):
                 else:
                     historyGenerator = LoginHistoryModel(user_history=user, ip_address=request.META.get('REMOTE_ADDR'), method='WEB', action='LOGIN')
                     historyGenerator.save()
+                    if user.change_password == True:
+                        return redirect("Admin:first-login")
                     return redirect("Admin:dashboard")
             else:
                 messages.error(request, "Invalid user type")
                 return redirect("Admin:login")
         messages.error(request, "Invalid username or password")
         return redirect("Admin:login")
+    
 
-
+class FirstLogin(View):
+    def get(self, request):
+        return render(request, "register/first-login.html")
+    def post(self, request):
+        user = request.user
+        current_password = request.POST.get("current_password")
+        new_password = request.POST.get("new_password")
+        print("current_password",current_password)
+        print("new_password",new_password)
+        if not user.check_password(current_password):
+            messages.error(request,"Invalid Old Password")
+            return redirect("Admin:first-login")
+        user.set_password(new_password)
+        user.change_password = False
+        user.save()
+        update_session_auth_hash(request, user)
+        return redirect("Admin:dashboard")
+    
 
 class LogoutView(View):
     def get(self, request):
@@ -132,12 +152,18 @@ class AddUserView(View):
                 messages.success(request, f"Admin create successfully.")
             elif request.POST.get("add_master") == 'on':
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
+                if selected_admin.user.balance <= int(request.POST.get("credit")):
+                    messages.error(request, f"Insufficient balance.")
+                    return redirect("Admin:add-user")
                 selected_admin.user.balance -=int(request.POST.get("credit"))
                 selected_admin.user.save()
                 create_user = MyUser.objects.create(user_type="Master", **user_data, parent=selected_admin.user.user_name)
                 try:
                     self_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     MastrModel.objects.create(master_user=create_user, admin_user=selected_admin,master_link=self_master)
+                    if self_master.master_user.balance <= int(request.POST.get("credit")):
+                        messages.error(request, f"Insufficient balance.")
+                        return redirect("Admin:add-user")
                     self_master.master_user.balance -=int(request.POST.get("credit"))
                     self_master.master_user.save()
                     messages.success(request, f"Master create successfully.")
@@ -151,6 +177,9 @@ class AddUserView(View):
                     selected_master = MyUser.objects.get(id=request.POST.get("selectedMasterName")).master_user
                     create_user = MyUser.objects.create(user_type="Client", **user_data, parent=selected_master)
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin,master_user_link=selected_master)
+                    if selected_master.master_user.balance <= int(request.POST.get("credit")):
+                        messages.error(request, f"Insufficient balance.")
+                        return redirect("Admin:add-user")
                     selected_master.master_user.balance -=int(request.POST.get("credit"))
                     UserCreditModal.objects.create(user_credit=selected_master.master_user, opening=selected_master.master_user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=selected_master.master_user.balance, transection=create_user, message="New client opening credit refrenece.")
                     selected_master.master_user.save()
@@ -158,6 +187,9 @@ class AddUserView(View):
                 except:
                     create_user = MyUser.objects.create(user_type="Client", **user_data, parent=selected_admin.user.user_name)
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
+                    if selected_admin.user.balance <= int(request.POST.get("credit")):
+                        messages.error(request, f"Insufficient balance.")
+                        return redirect(request, "Admin:add-user")
                     selected_admin.user.balance -=int(request.POST.get("credit"))
                     UserCreditModal.objects.create(user_credit=selected_admin.user, opening=selected_admin.user.balance + int(request.POST.get("credit")), credit=0, debit=int(request.POST.get("credit")), closing=selected_admin.user.balance, transection=create_user, message="New client opening credit refrenece.")
                     selected_admin.user.save()
@@ -173,6 +205,9 @@ class AddUserView(View):
                     if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
                         messages.error(request, f"Insufficient balance")
                         return redirect("Admin:add-user")
+                if request.user.balance <= int(request.POST.get("credit")):
+                    messages.error(request, f"Insufficient balance.")
+                    return redirect(request, "Admin:add-user")
                 request.user.balance -= credit_amount
                 request.user.save() 
                 create_user = MyUser.objects.create(user_type="Master", **user_data, parent=selected_admin)
@@ -188,6 +223,10 @@ class AddUserView(View):
                         if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
                             messages.error(request, f"Insufficient balance")
                             return redirect("Admin:add-user")
+                        
+                    if request.user.balance <= int(request.POST.get("credit")):
+                        messages.error(request, f"Insufficient balance.")
+                        return redirect(request, "Admin:add-user")
                     request.user.balance -= credit_amount
                     request.user.save() 
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
@@ -203,6 +242,9 @@ class AddUserView(View):
                 if hasattr(request.user, 'balance') and request.user.balance <= credit_amount:
                     messages.error(request, f"Insufficient balance")
                     return redirect("Admin:add-user")
+            if request.user.balance <= int(request.POST.get("credit")):
+                messages.error(request, f"Insufficient balance.")
+                return redirect(request, "Admin:add-user")
             request.user.balance -= credit_amount
             request.user.save() 
             
@@ -218,7 +260,7 @@ class AddUserView(View):
                 if client_users_count >= client_limit:
                     messages.error(request, f"Cannot create more Client users. Limit reached ({client_limit}).")
                     return redirect("Admin:add-user")
-            
+            current_master = ""
             if (request.POST.get("add_master") == 'on'):
                 current_master = MyUser.objects.get(id=request.user.id).master_user
                 create_user = MyUser.objects.create(user_type="Master", **user_data, parent=current_master)
@@ -491,24 +533,55 @@ class UserDeatilsView(View):
 
 class TabTrades(View):
     def get(self, request, id):
-        response = BuyAndSellModel.objects.filter(buy_sell_user__id=id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
-        # if request.user.user_type == "SuperAdmin":
-        #     response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
-        # if request.user.user_type == "Admin":
-        #     user_keys = [request.user.id]
-        #     child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
-        #     user_keys += list(child_clients)
-        #     response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity","trade_type","action","price","coin_name","ex_change","created_at","is_pending","identifer","order_method","ip_address")
-        # if request.user.user_type == "Client":
-        #     response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address") 
-        # elif request.user.user_type == "Master":
-        #     user_keys = [request.user.id]
-        #     child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
-        #     user_keys += list(child_clients)
-        #     response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","is_pending","identifer","order_method", "ip_address")
-        return render(request, "components/user/trade.html",{"response":response})
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        status = request.GET.get('status')
+        exchange = request.GET.get('exchange')
+        symbol = request.GET.get('symbol')
+        user = MyUser.objects.get(id=id)
+        symbol_name = user.user.values("symbol_name")
+        response = BuyAndSellModel.objects.filter(buy_sell_user__id=id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "order_method", "ip_address","is_cancel") 
+        if from_date:
+            if to_date:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                response = response.filter(created_at__gte=from_date,created_at__lte=to_date)
+        if exchange:
+            response = response.filter(ex_change=exchange)
+        if status == "Successful":
+            response = response.filter(is_cancel=False)
+        if status == "Pending":
+            response = response.filter(is_pending=True)
+        if status == "Cancelled":
+            response = response.filter(is_cancel=True)
+        return render(request, "components/user/trade.html",{"response":response,"symbol_name":symbol_name,"user":user.user_name,"id":id})
     
-    
+
+class TradeDownloadCsv(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        buy_and_sell_instances = BuyAndSellModel.objects.filter(buy_sell_user=user)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'UserName', 'OrderTime', 'Symbol', 'Order Type', 'Price', 'Quantity','Ip address','Order Method','Trade Status'])
+        for instance in buy_and_sell_instances:
+            if instance.trade_status == True:
+                trade_status = "Complete"
+            else:
+                trade_status = "Not Complete"
+            writer.writerow([
+                user.user_name,
+                instance.created_at,
+                instance.coin_name,
+                instance.action,
+                instance.price,
+                instance.quantity,
+                instance.ip_address,
+                instance.order_method,
+                trade_status])
+        return response 
 
     
     
@@ -524,6 +597,7 @@ class GropuSettingView(View):
     
 class ScriptQuantitySetting(View):
     def get(self, request):
+        
         group_settings = GroupSettingsModel.objects.get(id=1)  
         related_scripts = group_settings.group_user.all() 
         return render(request, "components/user/script-quantity-setting.html",{"script":related_scripts})
@@ -542,7 +616,7 @@ class BrkView(View):
         return render(request, "components/user/brk.html",{"user":user, "exchange":exchange, "first":exchange.first()["symbol_name"]})
     
     
-class TradeMargin(View):
+class TradeMarginTab(View):
     def get(self, request, id):
         user = MyUser.objects.get(id=id)
         exchange_obj = user.user.values("symbol_name")
@@ -559,6 +633,7 @@ class TradeMargin(View):
 
 class CreditView(View):
     def get(self, request,id):
+        print("dfsffsf",id)
         user = MyUser.objects.get(id=id)
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
@@ -571,7 +646,36 @@ class CreditView(View):
             account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
         if coin_name:
             account_summary = account_summary.filter(particular__icontains=coin_name)
-        return render(request, "components/user/credit.html",{"account_summary":account_summary})
+        return render(request, "components/user/credit.html",{"account_summary":account_summary,"id":user.id})
+
+
+
+
+
+class CreditDownloadCSVView(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        user_credit_instances = UserCreditModal.objects.filter(user_credit=user)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Date Time', 'Opening', 'Credit', 'Debit', 'Closing', 'Comment','Transaction'])
+        for instance in user_credit_instances:
+            writer.writerow([
+                instance.created_at,
+                instance.opening,
+                instance.credit,
+                instance.debit,
+                instance.closing,
+                instance.message,
+                instance.transection])
+        return response
+    
+    
+
+
     
 class TabAccountSummary(View):
     def get(self, request, id):
@@ -595,8 +699,35 @@ class TabAccountSummary(View):
             account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
         elif brk == 'on':
             account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
+        return render(request, "components/user/account-summary.html",{"account_summary":account_summary,"id":user.id})
+  
+  
+  
+class AccountSummaryTabDownloadCSV(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        user_summary_instances = AccountSummaryModal.objects.filter(user_summary=user)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
 
-        return render(request, "components/user/account-summary.html",{"account_summary":account_summary})
+        writer = csv.writer(response)
+        writer.writerow([
+            'Date', 'Username', 'Particular', 'Qty', 'Buy/Sell', 'Price','Average Price','Type','Amount'])
+        for instance in user_summary_instances:
+            writer.writerow([
+                instance.created_at,
+                user.user_name,
+                instance.particular,
+                instance.quantity,
+                instance.buy_sell_type,
+                instance.price,
+                instance.average,
+                instance.summary_flg,
+                instance.amount])
+        return response
+  
+  
+  
     
 class TabSettlement(View):
     def get(self, request ,id):
@@ -962,9 +1093,23 @@ class ProfitAndLoss(View):
     
 class M2MProfitAndLoss(View):
     def get(self, request):
-        user = request.user.id
-        
-        return render(request, "view/M2Mprofit-loss.html",{"user_id":user})
+        user = request.user
+        user_name = request.GET.get("user_name")
+        if request.user.user_type == "SuperAdmin":
+            user_obj = MyUser.objects.filter(user_type="Client")
+        elif request.user.user_type == "Admin":
+            admin_obj = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
+            print(admin_obj)
+            user_obj = MyUser.objects.filter(id__in=admin_obj)
+        elif request.user.user_type == "Master":
+            master_obj = user.master_user.master_user_link.all().values_list("client__id",flat=True)
+            user_obj = MyUser.objects.filter(id__in=master_obj)
+        else:
+            client_obj = [request.user.id]
+            user_obj = [request.user]
+        if user_name:
+            user_obj = user_obj.filter(user_name=user_name)
+        return render(request, "view/M2Mprofit-loss.html",{"user":user,"user_obj":user_obj})
     
 
 class IntradayHistory(View):
@@ -1099,19 +1244,95 @@ class LoginHistory(View):
     
 class OpenPosition(View):
     def get(self, request):
-        return render(request, "report/open-position.html")
-    
+        if request.user.user_type == "Master":
+            master_child = MastrModel.objects.filter(master_link=request.user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=request.user.master_user).values_list('client__user_name', flat=True)
+            user_names = list(master_child) + list(client_child)
+            user_names.append(request.user.user_name)
+        elif request.user.user_type == "SuperAdmin":
+            user_names = MyUser.objects.filter(role=request.user.role).exclude(id=request.user.id).values_list("user_name", flat=True)
+            print(user_names)    
+        elif request.user.user_type == "Admin":
+            masters = request.user.admin_user.admin_user.all().values_list('master_user__user_name', flat=True)
+            clients = request.user.admin_user.admin_create_client.all().values_list('client__user_name', flat=True)
+            user_names = list(masters) + list(clients)
+        else:
+            user_names = [request.user.user_name]
+        exchange = request.user.user.filter(exchange=True).values_list("symbol_name", flat=True)
+        return render(request, "report/open-position.html", {"user_names": user_names, "exchange": exchange})
     
     
 class ManageTrades(View):
     def get(self, request):
-        return render(request, "report/manage-trades.html")
-    
+        user = request.user
+        print(user,"user===")
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        status = request.GET.get('status')
+        exchange = request.GET.get('exchange')
+        user_name = request.GET.get('user_name')
+        user_obj = MyUser.objects.get(id=user.id)
+        
+        if request.user.user_type == "SuperAdmin":
+            client = ClientModel.objects.all().values_list("client__id",flat=True)
+            user = MyUser.objects.filter(user_type="Client")
+        elif request.user.user_type == "Admin":
+            client = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
+            user = MyUser.objects.filter(id__in=client)
+        elif request.user.user_type == "Master":
+            client = user.master_user.master_user_link.all().values_list("client__id",flat=True)
+            user = MyUser.objects.filter(id__in=client)
+        elif request.user.user_type == "Client":
+            client = [request.user.id]
+            user = [request.user]
+        
+        manage_trades = BuyAndSellModel.objects.filter(
+           buy_sell_user__id__in=client
+        ).values(
+            "id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", 
+            "coin_name", "ex_change", "created_at", "is_pending", "identifer", 
+            "order_method", "ip_address", "is_cancel"
+        )
+        symbol_name = user_obj.user.values("symbol_name")
+        
+        if from_date and to_date:
+            to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+            manage_trades = manage_trades.filter(created_at__gte=from_date, created_at__lte=to_date)
+                
+        if status == "Pending":
+            manage_trades = manage_trades.filter(trade_status=True)
+        else:
+            manage_trades = manage_trades.filter(trade_status=False)
+            
+        if exchange:
+            manage_trades = manage_trades.filter(ex_change__in=exchange)
+        if user_name:
+            manage_trades = manage_trades.filter(buy_sell_user__user_name=user_name)
+
+        return render(request, "report/manage-trades.html", {"manage_trades": manage_trades, "symbol_name": symbol_name, "user": user})
+
     
     
 class TradeAccount(View):
     def get(self, request):
-        return render(request, "report/trade-account.html")
+        user = request.user
+        user_name = request.GET.get("user_name")
+        if request.user.user_type == "SuperAdmin":
+            user_obj = MyUser.objects.filter(user_type="Client")
+        elif request.user.user_type == "Admin":
+            admin_obj = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
+            print(admin_obj)
+            user_obj = MyUser.objects.filter(id__in=admin_obj)
+        elif request.user.user_type == "Master":
+            master_obj = user.master_user.master_user_link.all().values_list("client__id",flat=True)
+            user_obj = MyUser.objects.filter(id__in=master_obj)
+        else:
+            client_obj = [request.user.id]
+            user_obj = [request.user]
+        if user_name:
+            user_obj = user_obj.filter(user_name=user_name)
+            
+        return render(request, "report/trade-account.html",{"user":user,"user_obj":user_obj})
     
     
 
@@ -1144,14 +1365,62 @@ class AccountSummary(View):
         elif brk == 'on':
             account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
 
-        return render(request, "report/account-summary.html",{"account_summary":account_summary})
-    
+        return render(request, "report/account-summary.html",{"account_summary":account_summary,"id":user.id})
+
+
+
+
+
+class AccountSummaryDownloadCSV(View):
+    def get(self, request, id):
+        user = MyUser.objects.get(id=id)
+        user_summary_instances = AccountSummaryModal.objects.filter(user_summary=user)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Date', 'Username', 'Particular', 'Qty', 'Buy/Sell', 'Price','Average Price','Type','Amount','Closing','Open Qty'])
+        for instance in user_summary_instances:
+            writer.writerow([
+                instance.created_at,
+                user.user_name,
+                instance.particular,
+                instance.quantity,
+                instance.buy_sell_type,
+                instance.price,
+                instance.average,
+                instance.summary_flg,
+                instance.amount,
+                instance.closing,
+                instance.open_qty
+                ])
+        return response
     
 class BillGenerate(View):
     def get(self, request):
         return render(request, "report/bill-generate.html")
     
 
+class TradeMargin(View):
+    def get(self, request):
+        user = MyUser.objects.get(id=request.user.id)
+        exchange_obj = user.user.values("symbol_name")
+        exchange = request.GET.get('exchange')
+        trade_margin = request.GET.get('price')
+        trade = user.admin_coins.all()
+        if exchange:
+            trade = trade.filter(ex_change=exchange)
+        return render(request, "report/trade-margin.html",{"trade_margin":trade,"exchange_obj":exchange_obj,"user":user,"first":exchange_obj.first()["symbol_name"]})
+
+
+
+class ScriptMaster(View):
+    def get(self, request):
+        return render(request, "report/script-master.html")
+    
+    
+    
 class LogsHistory(View):
     def get(self, request):
         return render(request, "report/logs-history.html")
@@ -1175,6 +1444,59 @@ class UserScriptPositionTrackPl(View):
     
 class ScriptQuantity(View):
     def get(self, request):
-        group_settings = GroupSettingsModel.objects.get(id=1)  
-        related_scripts = group_settings.group_user.all() 
-        return render(request, "report/script-quantity.html",{"related_scripts":related_scripts})
+        user = request.user
+        # group_settings = GroupSettingsModel.objects.get(id=1)  
+        # related_scripts = group_settings.group_user.all() 
+        return render(request, "report/script-quantity.html",{"id":user.id})
+    
+    
+    
+    
+class ExchangeTimeSchedule(View):
+    def get(self, request):
+        return render(request, "tools/exchange-time.html")
+    
+    
+
+class MassageView(View):
+    def get(self, request):
+        return render(request, "tools/message.html")
+    
+    
+    
+class WeeklyAdminView(View):
+    def get(self, request):
+        user = request.user
+        user_obj = request.GET.get('user_name')
+        print(user_obj)
+        check = MyUser.objects.filter(user_name=user_obj).values("id")
+        if check.exists():
+            print(check[0]["id"])
+        else:
+            print("User not found")
+
+        if request.user.user_type == "SuperAdmin":
+            user = request.user
+            user_names = MyUser.objects.filter(user_type__in=["Master", "Client"]).values_list("user_name",flat=True)
+        elif request.user.user_type == "Admin": 
+            user = request.user
+            admin_child = AdminModel.objects.filter(user=user).values_list("user__user_name", flat=True)
+            master_child = MastrModel.objects.filter(admin_user=user.admin_user)
+            print(master_child)
+            client_child = ClientModel.objects.filter(master_user_link__in=master_child).values_list('client__user_name', flat=True)
+            user_names = list(master_child) + list(client_child)
+           
+        elif request.user.user_type == "Master":
+            user = request.user
+            master_child = MastrModel.objects.filter(master_link=user.master_user).values_list('master_user__user_name', flat=True)
+            client_child = ClientModel.objects.filter(master_user_link=user.master_user).values_list('client__user_name', flat=True)
+            user_names = list(master_child) + list(client_child)
+            user_names.append(user.user_name)
+        else:
+            user = request.user
+            user_names = [user.user_name]
+        if user_obj:
+            pass
+            
+        return render(request, "report/weekly-admin.html",{"user":user,"user_names":user_names})
+    

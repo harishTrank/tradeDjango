@@ -8,7 +8,7 @@
                 <p id="accountFilterId">Filter</p>
             </div>
             <span>
-                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                <a href="{% url 'Admin:account-summary-csv' id %}"><i class="fa-solid fa-file-csv"></i></a>
             </span>
         </div>
         <div class="trades-side">
@@ -61,8 +61,8 @@
                 </div>
             </form>
         </div>
-        <div class="trades-body user-table">
-            <button class="delete-btn">Delete</button>
+        <div class="trades-body user-table" style="margin-top:1%;">
+            {% comment %} <button class="delete-btn">Delete</button> {% endcomment %}
             {% if account_summary %}
             <table style="width: 100%;">
                 <tr>
@@ -84,11 +84,19 @@
                     <td>{{i.user_summary__user_name}}</td>
                     <td>{{i.particular}}</td>
                     <td>{{i.quantity}}</td>
-                    <td>{{i.buy_sell_type}}</td>
+                    {% if i.buy_sell_type == "BUY" %}
+                    <td style="color: blue;">{{i.buy_sell_type}}</td>
+                    {% else %}
+                    <td style="color: red;">{{i.buy_sell_type}}</td>
+                    {% endif %}
                     <td>{{i.price}}</td>
-                    <td>{{i.average}}</td>
+                    <td>{{i.average|floatformat:2}}</td>
                     <td>{{i.summary_flg}}</td>
-                    <td>{{i.amount}}</td>
+                    {% if i.amount > 0 %}
+                        <td style="color: blue;">{{i.amount|floatformat:2}}</td>
+                    {% else %}
+                        <td style="color: red;">{{i.amount|floatformat:2}}</td>
+                    {% endif %}
                     <td>{{i.closing}}</td>
                     <td>{{i.open_qty}}</td>
                 </tr>

@@ -22,50 +22,59 @@
                     </div>
                 </div>
             </div>
-            <div class="trade-btm">
-                <div>
-                    <label for="">From:</label>
-                    <input type="date" name="" id="">
+            <form method="get">
+                {% csrf_token %}
+                <div class="trade-btm">
+                    <div>
+                        <label for="">From:</label>
+                        <input type="date" name="from_date" id="">
+                    </div>
+                    <div>
+                        <label for="">To:</label>
+                        <input type="date" name="to_date" id="">
+                    </div>
+                    <div>
+                        <label for="">Username:</label>
+                        <select name="user_name" id="">
+                            {% for i in user %}
+                                <option value="{{ i.user_name }}">{{ i.user_name }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                    </div>
+                    <div>
+                        <label for="">Status:</label>
+                        <select name="status" id="">
+                            <option value="">All</option>
+                            <option value="">Successful</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="">Exchange:</label>
+                        <select name="exchange" id="">
+                            <option value="">Select</option>
+                            {% for i in symbol_name %}
+                            <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
+                          {% endfor %}
+                        </select>
+                    </div>
+                    {% comment %} <div>
+                        <label for="">Symbol:</label>
+                        <select name="" id="">
+                            <option value="">Select</option>
+                        </select>
+                    </div> {% endcomment %}
+                    <div>
+                        <label for=""></label>
+                        <button type="submit" value="View" class="form-btn">View</button>
+                        <a style="color:#fff !important;padding: 2px 10px; cursor:pointer;" href="{% url 'Admin:manage-trades' %}" class="cancel-btn">Clear</a>
+                    </div>
                 </div>
-                <div>
-                    <label for="">To:</label>
-                    <input type="date" name="" id="">
-                </div>
-                <div>
-                    <label for="">Username:</label>
-                    <select name="" id="">
-                        <option value="">Select</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="">Status:</label>
-                    <select name="" id="">
-                        <option value="">All</option>
-                        <option value="">Successful</option>
-                        <option value="">Pending</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="">Exchange:</label>
-                    <select name="" id="">
-                        <option value="">Select</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="">Symbol:</label>
-                    <select name="" id="">
-                        <option value="">Select</option>
-                    </select>
-                </div>
-                <div>
-                    <label for=""></label>
-                    <input type="submit" value="View" class="form-btn">
-                    <input type="submit" value="Clear" class="cancel-btn">
-                </div>
-            </div>
+            </form>
         </div>
         <div class="trades-body user-table">
-            <button class="delete-btn">Delete</button>
+            {% comment %} <button class="delete-btn">Delete</button> {% endcomment %}
             <table style="width: 100%;">
                 <tr>
                     <th>Username</th>
@@ -73,32 +82,44 @@
                     <th>Type</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Brk</th>
-                    <th>Deal</th>
+                    {% comment %} <th>Brk</th>
+                    <th>Deal</th> {% endcomment %}
                     <th>Status</th>
                     <th>Order Time</th>
-                    <th>Execution Time</th>
+                    {% comment %} <th>Execution Time</th> {% endcomment %}
                     <th>IPAddress</th>
-                    <th>DeviceId</th>
+                    {% comment %} <th>DeviceId</th> {% endcomment %}
                     <th>Reference Price</th>
                     <th>Order Method</th>
                 </tr>
+                {% for i in manage_trades %}
                 <tr>
-                    <td>Username</td>
-                    <td>Symbol</td>
-                    <td>Type</td>
-                    <td>Quantity</td>
-                    <td>Price</td>
-                    <td>Brk</td>
-                    <td>Deal</td>
-                    <td>Status</td>
-                    <td>Order Time</td>
-                    <td>Execution Time</td>
-                    <td>IPAddress</td>
-                    <td>DeviceId</td>
-                    <td>Reference Price</td>
-                    <td>Order Method</td>
+                    <td>{{i.buy_sell_user__user_name}}</td>
+                    <td>{{i.coin_name}}</td>
+                    {% if i.quantity > 0 %}
+                        <td style="color: blue">{{i.action}}</td>
+                        <td style="color: blue">{{i.quantity |stringformat:"+d"|slice:"1:"}}</td>
+                        <td style="color: blue">{{i.price}}</td>
+                    {% else %}
+                        <td style="color: red">{{i.action}}</td>
+                        <td style="color: red">{{i.quantity |stringformat:"+d"|slice:"1:"}}</td>
+                        <td style="color: red">{{i.price}}</td>
+                    {% endif %}
+                    {% comment %} <td>Brk</td> {% endcomment %}
+                    {% comment %} <td>Deal</td> {% endcomment %}
+                    {% if i.trade_status != True %}
+                        <td>Successful</td>
+                    {% else %}
+                        <td>Pending</td>
+                    {% endif %}
+                    <td>{{i.created_at}}</td>
+                    {% comment %} <td>Execution Time</td> {% endcomment %}
+                    <td>{{i.ip_address}}</td>
+                    {% comment %} <td>DeviceId</td> {% endcomment %}
+                    <td>{{i.price}}</td>
+                    <td>{{i.order_method}}</td>
                 </tr>
+                {% endfor %}
             </table>
         </div>
     </div>
