@@ -108,7 +108,7 @@
     <div class="flex">
         <div class="trade-download">
             <div style="transform: rotate(90deg);padding-left: 10px;">
-                <p>Filter</p>
+                <p id="listUserFilterId">Filter</p>
             </div>
             <span>
                 <a href="{% url 'Admin:download-csv' %}"><i class="fa-solid fa-file-csv"></i></a>
@@ -276,6 +276,17 @@
 
 
 <script>
+
+
+    $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "100%");
+    });
+    
+    $('#listUserFilterId').click(function () {
+      $(".trades-side").show();
+      $(".trades-body").css("width", "69%");
+    });
     
 
     $(document).on("click", function(event){
