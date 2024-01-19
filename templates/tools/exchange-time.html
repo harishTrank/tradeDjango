@@ -1,12 +1,15 @@
 {% extends "index.html" %} {% block content %}
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>FullCalendar Example</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css">
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css"
+    />
 
     <!-- jQuery -->
     <!-- Moment.js -->
@@ -19,89 +22,89 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/locale-all.js"></script>
 
     <style>
-        #calendar {
-            width:800px;
-            {% comment %} max-width: 600px; {% endcomment %}
-            margin: 40px auto;
-            padding: 0 10px;
-        }
+      #calendar {
+          width:800px;
+          {% comment %} max-width: 600px; {% endcomment %}
+          margin: 40px auto;
+          padding: 0 10px;
+      }
     </style>
-</head>
-<body>
-
-<div class="trade-btm">
-    <div class="mb-10">
+  </head>
+  <body>
+    <div class="trade-btm">
+      <div class="mb-10">
         <label for="">Exchange:</label>
-        <select name="" id="selectedExId" onchange="updateCalendar()" style="width: 250px;" class="form-control">
-            <option value="MCX">MCX</option>
-            <option value="NSE">NSE</option>
-            <option value="MINI">MINI</option>
+        <select
+          name=""
+          id="selectedExId"
+          onchange="updateCalendar()"
+          style="width: 250px"
+          class="form-control"
+        >
+          <option value="MCX">MCX</option>
+          <option value="NSE">NSE</option>
+          <option value="MINI">MINI</option>
         </select>
+      </div>
     </div>
-</div>
 
-<div id="calendar"></div>
+    <div id="calendar"></div>
 
-<script>
-    
-    var calendar;
-    function updateCalendar() {
-        var selectedExchange = $('#selectedExId').val();
+    <script>
+      var calendar;
+      function updateCalendar() {
+        var selectedExchange = $("#selectedExId").val();
         var calendarOptions;
-    
-        var today = new Date(); // Get current date as a JavaScript Date object
-    
-        if (selectedExchange === 'NSE') {
-            calendarOptions = {
-                editable: true,
-                eventLimit: true,
-                businessHours: {
-                    dow: [1, 2, 3, 4, 5], // Monday - Friday
-                },
-                events: [
-                    {
-                        title: '09:15-03:30',
-                        start: today, // Set the start date to today
-                    }
-                ],
-                eventRender: function(event, element) {
-                    // Customize the event title display
-                    element.find('.fc-title').text(event.title);
-                }
-            };
-        } else {
-            calendarOptions = {
-                editable: true,
-                eventLimit: true,
-               
-                events: [
-                    {
-                        title: '09:01-23:55',
-                        start: today, // Set the start date to today
-                    }
-                ],
-                eventRender: function(event, element) {
-                    // Customize the event title display
-                    element.find('.fc-title').text(event.title);
-                }
-            };
-        }
-    
-        if (calendar) {
-            calendar.fullCalendar('destroy');
-        }
-    
-        calendar = $('#calendar').fullCalendar(calendarOptions);
-    }
-    
-    $(document).ready(function () {
-        updateCalendar();
-    });
-    
-    
-    
-</script>
 
-</body>
+        var today = new Date(); // Get current date as a JavaScript Date object
+
+        if (selectedExchange === "NSE") {
+          calendarOptions = {
+            editable: true,
+            eventLimit: true,
+            businessHours: {
+              dow: [1, 2, 3, 4, 5], // Monday - Friday
+            },
+            events: [
+              {
+                title: "09:15-03:30",
+                start: today, // Set the start date to today
+              },
+            ],
+            eventRender: function (event, element) {
+              // Customize the event title display
+              element.find(".fc-title").text(event.title);
+            },
+          };
+        } else {
+          calendarOptions = {
+            editable: true,
+            eventLimit: true,
+
+            events: [
+              {
+                title: "09:01-23:55",
+                start: today, // Set the start date to today
+              },
+            ],
+            eventRender: function (event, element) {
+              // Customize the event title display
+              element.find(".fc-title").text(event.title);
+            },
+          };
+        }
+
+        if (calendar) {
+          calendar.fullCalendar("destroy");
+        }
+
+        calendar = $("#calendar").fullCalendar(calendarOptions);
+      }
+
+      $(document).ready(function () {
+        updateCalendar();
+      });
+    </script>
+  </body>
 </html>
 {% endblock content %}
