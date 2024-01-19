@@ -413,17 +413,34 @@ class EditUserView(View):
         
         
 class ListUserView(View):
-    def get(self , request):
+    def get(self, request):
+        filter_type = request.GET.get('filter_type')
         user = request.user
-        if request.user.user_type == "Master":
-            response_user = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True))).order_by("user_name")
-        elif request.user.user_type == "Admin":
+        requested_user_type = request.GET.get('user_type')
+        user_status = request.GET.get('user_status')
+
+        if user.user_type == "Master":
+            master_clients = ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)
+            master_users = MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True)
+            response_user = MyUser.objects.filter(id__in=list(master_clients) + list(master_users)).order_by("user_name")
+        elif user.user_type == "Admin":
             master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
             client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
-            response_user = MyUser.objects.filter(id__in=set(master_ids) | set(client_ids))
-        elif request.user.user_type == "SuperAdmin":
-            response_user = MyUser.objects.exclude(id=request.user.id).order_by("user_name")
-        return render(request, "User/list-user.html",{"client":response_user})
+            response_user = MyUser.objects.filter(id__in=list(master_ids) + list(client_ids))
+        elif user.user_type == "SuperAdmin":
+            response_user = MyUser.objects.exclude(id=user.id).order_by("user_name")
+
+        if requested_user_type == "Master":
+            response_user = response_user.filter(user_type="Master")
+        else:
+            response_user = response_user.filter(user_type="Client")
+
+        if user_status == "In Active":
+            response_user = response_user.filter(status=False)
+        elif user_status == "Active":
+            response_user = response_user.filter(status=True)
+
+        return render(request, "User/list-user.html", {"client": response_user})
     
 
 class DownloadCSVView(View):

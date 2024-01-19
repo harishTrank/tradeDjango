@@ -3,7 +3,7 @@
 <style>
     
     .new-table{
-        width: calc(100% - 30px);
+        width: calc(100% - 290px);
     }
         .switch {
           position: relative;
@@ -113,6 +113,54 @@
             <span>
                 <a href="{% url 'Admin:download-csv' %}"><i class="fa-solid fa-file-csv"></i></a>
             </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <form method="get">
+                {% csrf_token %}
+                <div class="trade-btm">
+                    <div>
+                        <label for="">Filter Type:</label>
+                        <select name="user_name">
+                            <option value="">All</option>
+                            {% for i in user_list  %}
+                                <option value="{{ i.user_name }}">{{ i.user_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="">User Type:</label>
+                        <select name="user_type" id="">
+                            <option value="">All</option>
+                            <option value="Master">Master</option>
+                            <option value="Client">Client</option>
+                        </select>
+                    </div>
+                    <div>
+                    <label for="coin_name">User Status:</label>
+                    <select name="user_status" id="">
+                        <option value="">All</option>
+                        <option value="Active">Active</option>
+                        <option value="In Active">In Active</option>
+                    </select>
+
+                    </div>
+                    <div>
+                        <label for=""></label>
+                        <button type="submit" class="form-btn">Search</button>
+                        <a style="color:#fff !important; padding: 2px;" href="{% url 'Admin:list-user' %}" value="Clear" class="cancel-btn">Clear</a>
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="user-table new-table">
             <h3>{{request.user.user_name}}</h3>

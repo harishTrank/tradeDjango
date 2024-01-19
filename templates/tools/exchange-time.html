@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>FullCalendar Example</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- jQuery UI CSS -->
@@ -24,24 +23,17 @@
 
     <style>
         #calendar {
-            width:800px;
-            {% comment %} max-width: 600px; {% endcomment %}
-            margin: 40px auto;
-            padding: 0 10px;
+            width: 600px;
+            margin: 10px auto;
+            padding: 0 4px;
         }
 
-        {% comment %} .fc-sat,
-.fc-sun {
-  &.fc-day {
-    background-color: red !important;
-  }
-} {% endcomment %}
     </style>
 </head>
 <body>
 
-<div class="trade-btm">
-    <div class="mb-10">
+<div class="trade-btm" style="margin-top: 10px ">
+    <div class="">
         <label for="">Exchange:</label>
         <select name="" id="selectedExId" onchange="updateCalendar()" style="width: 250px;" class="form-control">
             <option value="MCX">MCX</option>
@@ -54,19 +46,35 @@
 <div id="calendar"></div>
 
 <script>
-    
+    function updateCalendar() {
+        var selectedExchange = $("#selectedExId").val();
+        var calendarConfig = {
+            events: [{
+                title: (selectedExchange === "NSE") ? "9:10-3:30" : "9:01-23:55",
+                dow: [1, 2, 3, 4, 5],
+            },{
+                title: "00:00-00:00",
+                dow: [0, 6],
+                color: '#ff0000'
+            }],
+        };
+
+        $("#calendar").fullCalendar('destroy'); 
+        $("#calendar").fullCalendar(calendarConfig); 
+    }
+    updateCalendar()
+
+    // Initial calendar setup
     $("#calendar").fullCalendar({
-        events:[{
-            title:"Close",
-            dow:[0,6]
-        },{
-            title:"Open",
-            dow:[1,2,3,4,5],
-         
+        events: [{
+            title: "00:00-00:00",
+            dow: [0, 6],
+            color: '#ff0000'
+        }, {
+            title: "Open",
+            dow: [1, 2, 3, 4, 5],
         }],
     });
-
-    
 </script>
 
 </body>

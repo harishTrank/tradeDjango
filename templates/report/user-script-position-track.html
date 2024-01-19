@@ -112,8 +112,8 @@
                                     <i class="fa-solid fa-eye"></i>
                                   </td>
                                   
-                                <td>Start Tran Date</td>
-                                <td>End Tran Date</td>
+                                <td>${dayjs(item.created_at).format('DD-MM-YYYY')}</td>  
+                                <td>${dayjs(item.updated_at).format('DD-MM-YYYY')}</td> 
                                 <td>${item.buy_sell_user__user_name}</td>
                                 <td>${item.coin_name}</td>
                                 <td style="color : ${item.total_quantity > 0 ? 'blue' : 'red'}">${item.action}</td>
