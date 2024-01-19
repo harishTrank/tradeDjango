@@ -1282,11 +1282,11 @@ class OpenPosition(View):
 class ManageTrades(View):
     def get(self, request):
         user = request.user
-        print(user,"user===")
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
         status = request.GET.get('status')
         exchange = request.GET.get('exchange')
+        print(exchange)
         user_name = request.GET.get('user_name')
         user_obj = MyUser.objects.get(id=user.id)
         
@@ -1322,12 +1322,52 @@ class ManageTrades(View):
             manage_trades = manage_trades.filter(trade_status=False)
             
         if exchange:
-            manage_trades = manage_trades.filter(ex_change__in=exchange)
+            manage_trades = manage_trades.filter(ex_change=exchange)
+            print(manage_trades)
         if user_name:
             manage_trades = manage_trades.filter(buy_sell_user__user_name=user_name)
 
         return render(request, "report/manage-trades.html", {"manage_trades": manage_trades, "symbol_name": symbol_name, "user": user})
 
+    
+    
+    
+# class TradesDownloadCSVView(View):
+#     def get(self, request):
+#         user = request.user
+#         if request.user.user_type == "SuperAdmin":
+#             client = ClientModel.objects.all().values_list("client__id",flat=True)
+#             user = MyUser.objects.filter(user_type="Client")
+#         elif request.user.user_type == "Admin":
+#             client = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
+#             user = MyUser.objects.filter(id__in=client)
+#         elif request.user.user_type == "Master":
+#             client = user.master_user.master_user_link.all().values_list("client__id",flat=True)
+#             user = MyUser.objects.filter(id__in=client)
+#         elif request.user.user_type == "Client":
+#             client = [request.user.id]
+#             user = [request.user]
+
+#         response = HttpResponse(content_type='text/csv')
+#         response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+#         writer = csv.writer(response)
+#         writer.writerow([
+#             'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Status', 'Order Time', 'IPAddress', 'Reference Price'])
+
+#         for client in client:
+#             writer.writerow([
+#                 client.buy_sell_user.user_name,
+#                 client.coin_name,
+#                 client.action,
+#                 client.quantity,
+#                 client.price,
+#                 client.trade_status,
+#                 client.order_method,
+#                ])
+#         return response
+    
+    
     
     
 class TradeAccount(View):
