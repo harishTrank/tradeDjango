@@ -6,17 +6,21 @@
     <title>FullCalendar Example</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css">
+  <!-- jQuery UI CSS -->
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
 
-    <!-- jQuery -->
-    <!-- Moment.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js"></script>
+  <!-- FullCalendar CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.css">
 
-    <!-- FullCalendar JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
+  <!-- jQuery and jQuery UI JS -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
 
-    <!-- FullCalendar Locale (all languages) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/locale-all.js"></script>
+  <!-- Moment.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+
+  <!-- FullCalendar JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.js"></script>
 
     <style>
         #calendar {
@@ -25,6 +29,13 @@
             margin: 40px auto;
             padding: 0 10px;
         }
+
+        {% comment %} .fc-sat,
+.fc-sun {
+  &.fc-day {
+    background-color: red !important;
+  }
+} {% endcomment %}
     </style>
 </head>
 <body>
@@ -44,61 +55,17 @@
 
 <script>
     
-    var calendar;
-    function updateCalendar() {
-        var selectedExchange = $('#selectedExId').val();
-        var calendarOptions;
-    
-        var today = new Date(); // Get current date as a JavaScript Date object
-    
-        if (selectedExchange === 'NSE') {
-            calendarOptions = {
-                editable: true,
-                eventLimit: true,
-                businessHours: {
-                    dow: [1, 2, 3, 4, 5], // Monday - Friday
-                },
-                events: [
-                    {
-                        title: '09:15-03:30',
-                        start: today, // Set the start date to today
-                    }
-                ],
-                eventRender: function(event, element) {
-                    // Customize the event title display
-                    element.find('.fc-title').text(event.title);
-                }
-            };
-        } else {
-            calendarOptions = {
-                editable: true,
-                eventLimit: true,
-               
-                events: [
-                    {
-                        title: '09:01-23:55',
-                        start: today, // Set the start date to today
-                    }
-                ],
-                eventRender: function(event, element) {
-                    // Customize the event title display
-                    element.find('.fc-title').text(event.title);
-                }
-            };
-        }
-    
-        if (calendar) {
-            calendar.fullCalendar('destroy');
-        }
-    
-        calendar = $('#calendar').fullCalendar(calendarOptions);
-    }
-    
-    $(document).ready(function () {
-        updateCalendar();
+    $("#calendar").fullCalendar({
+        events:[{
+            title:"Close",
+            dow:[0,6]
+        },{
+            title:"Open",
+            dow:[1,2,3,4,5],
+         
+        }],
     });
-    
-    
+
     
 </script>
 

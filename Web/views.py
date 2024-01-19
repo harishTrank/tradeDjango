@@ -1434,6 +1434,28 @@ class UserLogsNew(View):
 class UserScriptPositionTrack(View):
     def get(self, request):
         return render(request, "report/user-script-position-track.html")
+
+
+class PositionTrackViewOrders(View):
+    def get(self, request):
+        coin_name = request.GET.get("coin").replace("_", " ")
+        user_id = request.GET.get("id")
+        result = (
+                BuyAndSellModel.objects.filter(buy_sell_user__id=user_id, trade_status=True, is_pending=False, is_cancel=False, coin_name=coin_name)
+                .values('identifer','coin_name', 'action','buy_sell_user__user_name','created_at','quantity','price','trade_status','ip_address','order_method')
+                .annotate(
+                    total_quantity=Sum('quantity'),
+                    avg_buy_price=Coalesce(
+                        Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    ),
+                    avg_sell_price=Coalesce(
+                        Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    )
+                ).exclude(total_quantity=0)
+            )
+        return render(request, "report/position-track-view-orders.html", {"result":result})
     
     
 class UserScriptPositionTrackPl(View):

@@ -1,15 +1,14 @@
 {% extends "index.html" %} {% block content %}
 
-
 <div class="tab-content" id="positiontrack">
     <div class="flex">
         <div class="trade-download">
             <div style="transform: rotate(90deg);padding-left: 10px;">
                 <p>Filter</p>
             </div>
-            <span>
+            {% comment %} <span>
                 <a href=""><i class="fa-solid fa-file-csv"></i></a>
-            </span>
+            </span> {% endcomment %}
         </div>
         <div class="trades-side">
             <div class="trade-top">
@@ -25,36 +24,34 @@
             <div class="trade-btm">
                 <div>
                     <label for="">To:</label>
-                    <input type="date" name="" id="">
+                    <input type="date" name="" id="toDateId">
                 </div>
                 <div>
                     <label for="">Exchange:</label>
-                    <select name="" id="">
+                    <select name="" id="positionTrackId">
                         <option value="">All</option>
-                        <option value="">MCX</option>
-                        <option value="">NSE</option>
-                        <option value="">MINI</option>
+                        <option value="MCX">MCX</option>
+                        <option value="NSE">NSE</option>
+                        <option value="MINI">MINI</option>
                     </select>
                 </div>
                 <div>
                     <label for="">Symbols:</label>
-                    <select name="" id="">
-                        <option value="">LEAD 30 NOV 2023</option>
-                        <option value="">ZINCMINI 30 NOV 2023</option>
+                    <select name="" id="trackSymbolId">
+                       
                     </select>
                 </div>
                 <div>
                     <label for=""></label>
-                    <input type="submit" value="View" class="form-btn">
+                    <input type="button" id="positionBtnId" value="View" class="form-btn">
                     <input type="submit" value="Clear" class="cancel-btn">
                 </div>
             </div>
         </div>
         <div class="trades-body user-table">
-            <button class="delete-btn">Delete</button>
             <table style="width: 100%;">
                 <tr>
-                    <th>Name</th>
+                    <th>View</th>
                     <th>Start Tran Date</th>
                     <th>End Tran Date</th>
                     <th>Username</th>
@@ -63,19 +60,80 @@
                     <th>Open Quanity</th>
                     <th>open Average Price</th>
                 </tr>
-                <tr>
-                    <td>Name</td>
-                    <td>Start Tran Date</td>
-                    <td>End Tran Date</td>
-                    <td>Username</td>
-                    <td>Symbol</td>
-                    <td>Position</td>
-                    <td>Open Quanity</td>
-                    <td>open Average Price</td>
-                </tr>
+                <tbody id="userScriptTableId">
+                  
+                </tbody>
             </table>
         </div>
     </div>
 </div>
+<script>
 
+    var cancelBtn = document.querySelector('.cancel-btn');
+    cancelBtn.addEventListener('click', function() {
+      location.reload();
+    });
+
+
+    const UserScriptView = (id="", coin="") => {
+        var left = (screen.width/2)-(1200/2);
+        var top = (screen.height/2)-(600/2);
+        window.open(`position-track-view-orders?id=${id}&coin=${coin}`, 'NewWindow', `width=1200,height=600,left=${left},top=${top}`);
+        localStorage.setItem("currentUserID");
+    }
+    
+
+    const TrackSymbolsHandler = (exhange="") => {
+        axios.get(`{% url 'user-coin-list' %}?exchange=${exhange}`).then(res => {
+          $("#trackSymbolId").empty();
+          $("#trackSymbolId").append(`<option value="">Select</option>`);
+          res?.data?.response?.map(pussy => {
+            $("#trackSymbolId").append(`<option value="${pussy.coin_name}">${pussy.coin_name}</option>`)
+          })
+        })
+      }
+      TrackSymbolsHandler();
+
+      $("#positionTrackId").change((event) => {
+        TrackSymbolsHandler(event.target.value)
+      })
+
+      const weeklyAdminHandler = (exchange = "", script = "", to_date = "", user_id = "{{user.id}}") => {
+
+        let m2mListUserWise = [];
+        axios.get(`{% url "user-script-position-track" %}?user_id=${user_id}&exchange=${exchange}&script=${script}&to_date=${to_date}`, { headers: { "X-CSRFToken": "{{ csrf_token }}" } })
+            .then(res => {
+                console.log("res ==", res);
+                $("#userScriptTableId").empty();
+                res.data.response.map(item => {
+                    $("#userScriptTableId").append(`
+                            <tr>
+                                <td onclick="UserScriptView('${item.buy_sell_user__id}', '${item.coin_name.replaceAll(" ", "_")}')">
+                                    <i class="fa-solid fa-eye"></i>
+                                  </td>
+                                  
+                                <td>Start Tran Date</td>
+                                <td>End Tran Date</td>
+                                <td>${item.buy_sell_user__user_name}</td>
+                                <td>${item.coin_name}</td>
+                                <td style="color : ${item.total_quantity > 0 ? 'blue' : 'red'}">${item.action}</td>
+                                <td style="color : ${item.total_quantity > 0 ? 'blue' : 'red'}">${Math.abs(item.total_quantity)}</td>
+                                <td style="color : ${item.total_quantity > 0 ? 'blue' : 'red'}">${item.avg_buy_price > 0 ? item.avg_buy_price?.toFixed(2) : item.avg_sell_price?.toFixed(2)}</td>
+                            </tr>
+                        `);
+                });
+            })
+            .catch(err => {
+                console.log("err", err);
+            });
+    }
+    
+    weeklyAdminHandler();
+
+    $("#positionBtnId").click(() => {
+        weeklyAdminHandler($("#positionTrackId").val(), $("#trackSymbolId").val(), $("#toDateId").val());
+    });
+
+    
+</script>
 {% endblock content %}

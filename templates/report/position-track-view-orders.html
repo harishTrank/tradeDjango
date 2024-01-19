@@ -1,0 +1,97 @@
+<style>
+    
+    .flex {
+        display: flex;
+    }
+
+    .user-table {
+        width: 100%;
+        margin-top: 20px; 
+    }
+    th, td {
+        font-size: 15px;
+        text-align: center;
+    }
+    
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        border: 1px solid #dddddd;
+        padding: 0px;
+    }
+
+    th {
+        background-color: #8edfff;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
+
+<div class="tab-content" id="user-list">
+    <div class="flex">
+        <div class="user-table new-table">
+            <table style="width: 100%;">
+                
+                <tr>
+                    <th>Name</th>   
+                    <th>Symbol</th>
+                    <th>Order Time</th>
+                    {% comment %} <th>Execution Time</th> {% endcomment %}
+                    <th>Type</th>
+                    <th>Quanity</th>
+                    <th>Price</th>
+                    {% comment %} <th>Current Status</th> {% endcomment %}
+                    <th>Position Status</th>
+                    <th>IPAddress</th>
+                    {% comment %} <th>Reference Price</th> {% endcomment %}
+                    <th>Order Method</th>
+
+                </tr>
+               <tbody>
+                {% for i in result %}
+                   <tr>
+                       <td>{{i.buy_sell_user__user_name}}</td>   
+                       <td>{{i.coin_name}}</td>
+                       <td>{{i.created_at}}</td>
+                       {% comment %} <td>Execution Time</td> {% endcomment %}
+                       {% if i.action == "BUY" %}
+                            <td style="color: blue";>{{i.action}}</td>
+                            <td style="color: blue";>{{i.quantity}}</td>
+                            <td style="color: blue";>{{i.price}}</td>
+                        {% else %}
+                            <td style="color: red";>{{i.action}}</td>
+                            <td style="color: red";>{{i.quantity}}</td>
+                            <td style="color: red";>{{i.price}}</td>
+                        {% endif %}
+                       {% comment %} <td>Current Status</td> {% endcomment %}
+                       {% if i.trade_status == True %}
+                        <td>Successful</td>
+                        {% else %}
+                        <td>Pending</td>
+                        {% endif %}
+                        <td>{{i.ip_address}}</td>
+                       {% comment %} <td>Reference Price</td> {% endcomment %}
+                       <td>{{i.order_method}}</td>
+                   </tr>
+                   {% endfor %}
+               </tbody>
+            </table>
+           
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    
+
+    
+    
+</script>

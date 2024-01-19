@@ -52,7 +52,7 @@
             <li data-id="trades-margins"><a href="{% url 'Admin:trades-margins' %}"><i class="fa-brands fa-stack-overflow"></i>Trade Margin</a></li>
             <li data-id="trades-margins"><a href="{% url 'Admin:script-master' %}"><i class="fa-solid fa-money-bill-1-wave"></i>Script Master</a></li>
             <li data-id="logshistory"><a href="{% url 'Admin:logs-history' %}"><i class="fa-solid fa-file-circle-question"></i>Logs History</a></li>
-            <li data-id="logsnew"><a href="{% url 'Admin:user-logs-new' %}"><i class="fa-solid fa-users"></i>User Logs New</a></li>
+            {% comment %} <li data-id="logsnew"><a href="{% url 'Admin:user-logs-new' %}"><i class="fa-solid fa-users"></i>User Logs New</a></li> {% endcomment %}
             <li data-id="positiontrack"><a href="{% url 'Admin:user-script-position-track' %}"><i class="fa-solid fa-chalkboard-user"></i>User Script Position Track</a></li>
             <li data-id="positionpl"><a href="{% url 'Admin:user-script-position-trac-pl' %}"><i class="fa-solid fa-chart-simple"></i>User Script Position PL</a></li>
             <li data-id="scriptquantity"><a href="{% url 'Admin:script-quantity' %}"><i class="fa-solid fa-scroll"></i>Script Quantity</a></li>
