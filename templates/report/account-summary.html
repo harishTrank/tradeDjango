@@ -42,15 +42,15 @@
                     <div class="flex">
                         <div class="mr flex">
                             <p style="font-size: 14px; margin-right: 5px;">P/L</p>
-                            <input type="checkbox" name="p_and_l" id="" class="unset mb-0">
+                            <input type="checkbox" name="p_and_l" id="ppandlID" class="unset mb-0">
                         </div>
                         <div class="mr flex">
                             <p style="font-size: 14px; margin-right: 5px;">Brk</p>
-                            <input type="checkbox" name="brk" id="" class="unset mb-0">
+                            <input type="checkbox" name="brk" id="bbrkId" class="unset mb-0">
                         </div>
                         <div class="mr flex">
                             <p style="font-size: 14px; margin-right: 5px;">Credit</p>
-                            <input type="checkbox" name="credit" id="" class="unset mb-0">
+                            <input type="checkbox" name="credit" id="creditCheckBoxIds" class="unset mb-0">
                         </div>
                     </div>
                     <div>
@@ -112,6 +112,21 @@
 </div>
 
 <script>
+
+    $(document).ready(function() {
+        $('#ppandlID, #bbrkId').change(function() {
+          if ($(this).is(':checked')) {
+            $('#creditCheckBoxIds').prop('checked', false);
+          }
+        });
+        $('#creditCheckBoxIds').change(function() {
+          if ($(this).is(':checked')) {
+            $('#ppandlID, #bbrkId').prop('checked', false);
+          }
+        });
+      });
+
+
     $('.closeBtn').click(function () {
         $(".trades-side").hide();
         $(".trades-body").css("width", "95%");
