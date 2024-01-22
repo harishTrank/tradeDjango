@@ -3,7 +3,7 @@
 <style>
     
     .new-table{
-        width: calc(100% - 30px);
+        width: calc(100% - 290px);
     }
         .switch {
           position: relative;
@@ -108,11 +108,59 @@
     <div class="flex">
         <div class="trade-download">
             <div style="transform: rotate(90deg);padding-left: 10px;">
-                <p>Filter</p>
+                <p id="listUserFilterId">Filter</p>
             </div>
             <span>
                 <a href="{% url 'Admin:download-csv' %}"><i class="fa-solid fa-file-csv"></i></a>
             </span>
+        </div>
+        <div class="trades-side">
+            <div class="trade-top">
+                <div class="flex space-bw">
+                    <div>
+                        <p>Filter</p>
+                    </div>
+                    <div class="closeBtn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+            </div>
+            <form method="get">
+                {% csrf_token %}
+                <div class="trade-btm">
+                    <div>
+                        <label for="">Filter Type:</label>
+                        <select name="user_name">
+                            <option value="">All</option>
+                            {% for i in user_list  %}
+                                <option value="{{ i.user_name }}">{{ i.user_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="">User Type:</label>
+                        <select name="user_type" id="">
+                            <option value="">All</option>
+                            <option value="Master">Master</option>
+                            <option value="Client">Client</option>
+                        </select>
+                    </div>
+                    <div>
+                    <label for="coin_name">User Status:</label>
+                    <select name="user_status" id="">
+                        <option value="">All</option>
+                        <option value="Active">Active</option>
+                        <option value="In Active">In Active</option>
+                    </select>
+
+                    </div>
+                    <div>
+                        <label for=""></label>
+                        <button type="submit" class="form-btn">Search</button>
+                        <a style="color:#fff !important; padding: 2px;" href="{% url 'Admin:list-user' %}" value="Clear" class="cancel-btn">Clear</a>
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="user-table new-table">
             <h3>{{request.user.user_name}}</h3>
@@ -140,15 +188,16 @@
                 <div class="pos-relate">
                     <ul class="action_dropdown" id="actionDropDown">
                         <li><a onClick="changePasswordOpen()">Change Password</a></li>
-                        <li><a href="#">Share Details</a></li>
+                        {% comment %} <li><a href="#">Share Details</a></li> {% endcomment %}
                         <li><a id="accountLimitId" onClick="accountLimit()">Account Limit</a></li>
                         {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
-                            <li><a onClick="adminRights()">Admin Rights</a></li>
+                            <li><a onClick="adminRights()" id="adminRightuserId">Admin Rights</a></li>
+                        {% else %}
+                        <li><a onClick="adminRights()" id="adminRightuserId">Master Rights</a></li>
                         {% endif %}
-                        <li><a onClick="adminRights()">Master Rights</a></li>
-                        <li><a onClick="tradeRights()">Market Trade Right</a></li>
+                        <li><a onClick="tradeRights()" id="marketTradeRightBtnId">Market Trade Right</a></li>
                         {% comment %} <li><a href="{% url 'Admin:add-user' %}">Create User</a></li> {% endcomment %}
-                        <li><a href="#">Set Readonly</a></li>
+                        {% comment %} <li><a href="#">Set Readonly</a></li> {% endcomment %}
                     </ul>
                 </div>
            {% for i in client %}
@@ -169,10 +218,10 @@
                             </li>
                         </ul>
                     </td>
-                    <td class="user-cell" onClick='particularUserView("{{i.id}}")'>{{i.user_name}}</td>
+                    <td style="text-decoration: underline;" class="user-cell" onClick='particularUserView("{{i.id}}")'>{{i.user_name}}</td>
                     <td>{{i.full_name}}</td>
                     <td>{{i.user_type}}</td>
-                    <td>{{i.user_name}}</td>
+                    <td>{{i.parent}}</td>
                     <td>{{i.credit}}</td>
                     <td>{{i.balance}}</td>
                     <td>00.0</td>
@@ -227,6 +276,17 @@
 
 
 <script>
+
+
+    $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "100%");
+    });
+    
+    $('#listUserFilterId').click(function () {
+      $(".trades-side").show();
+      $(".trades-body").css("width", "69%");
+    });
     
 
     $(document).on("click", function(event){

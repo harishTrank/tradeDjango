@@ -2,8 +2,9 @@ from django.urls import path
 from App.views import *
 urlpatterns = [
     path("login/",LoginApi.as_view(),name="login"),
-    path("logout/",LogoutUserAPIView.as_view(),name="login"),
+    path("logout/",LogoutUserAPIView.as_view(),name="logout"),
     path("add-user/",AddUserAPIView.as_view(),name="add-user"),
+    path("edit-user/",EditUserApi.as_view(),name="edit-user"),
     path('update-password/', ResetPasswordView.as_view(), name='change-password'),
     path('user-profile/', UserProfileAPIView.as_view(), name='user-profile'),
     path('market-coin/', MaketWatchScreenApi.as_view(), name='add-market-coin'),
@@ -21,7 +22,9 @@ urlpatterns = [
     path("get-master-api/", GetMasterApiView.as_view(), name="get-master-api"),
     path("limit-user-creation/", LimitUserCreation.as_view(), name="limit-user-creation"),
     path("admin-right/", AdminRightApi.as_view(), name="admin-right"),
+    path("admin-right-get/", AdminRigthsGetApi.as_view(), name="admin-right-get"),
     path("admin-trade-right/", MarketTradeRight.as_view(), name="admin-trade-right"),
+    path("admin-trade-get/", MarketTradeGetApi.as_view(), name="admin-trade-get"),
     path("brk/", BrkApi.as_view(), name="brk"),
     path("table-chart/", TableChartAPi.as_view(), name="table-chart"),
     path("pie-chart-api/", PieChartHandlerApi.as_view(), name="pie-chart-api"),
@@ -37,5 +40,11 @@ urlpatterns = [
     path("master-child-api/", MasterChildApi.as_view(), name="master-child-api"),
     
     path("account-limit/", AccountLimitApi.as_view(), name="account-limit"),
-    path("user-details-api/", UserDetailsAPIView.as_view(), name="user-details-api")
+    path("user-details-api/", UserDetailsAPIView.as_view(), name="user-details-api"),
+    path("brk-setting-api/", BrokrageSettings.as_view(), name="brk-setting-api"),
+    path("trademargin-setting-api/", TradeMarginSetting.as_view(), name="trademargin-setting-api"),
+    path("trademargin-all-setting-api/", TradeMarginUpdateAllApi.as_view(), name="trademargin-all-setting-api"),
+    path("intraday-squareoff-check/", IntradaySquareoffCheck.as_view(), name="intraday-squareoff-check"),
+    path("weekly-admin-api/", WeeklyAdminListApi.as_view(), name="weekly-admin-api"),
+    path("user-script-position-track/", UserScriptPositionTrack.as_view(), name="user-script-position-track"),
 ]

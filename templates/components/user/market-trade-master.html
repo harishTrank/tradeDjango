@@ -169,6 +169,17 @@
       }
     </style>
     <script>
+
+      $("#marketTradeRightBtnId").click(() => {
+        axios.get(`{% url "admin-trade-get" %}?user_id=${$("#current_selected_userId").val()}`)
+        .then(response => {
+          $("#traderightID").prop("checked",response.data.data.trade_right);
+        })
+        .catch(error => {
+          console.error(error);
+        })
+      })
+
       $(".adminRightClose").click(() =>
         $("#tradeRightId").css("display", "none")
       );
@@ -200,9 +211,6 @@
             });
           }
           };
-
-
-
     </script>
   </body>
 </html>

@@ -5,6 +5,7 @@ from Web.views import *
 urlpatterns = [
     path("",LoginView.as_view(),name="login"),
     path("logout", LogoutView.as_view(), name="logout"),
+    path("first-login", FirstLogin.as_view(), name="first-login"),
     path("change-password",ChangePasswordView.as_view(),name="change-password"),
     path("dashboard",Dashboard.as_view(),name="dashboard"),
     
@@ -31,11 +32,11 @@ urlpatterns = [
     
     path("quantity-setting/<str:id>",QuantitySettingView.as_view(),name="quantity-setting"),
     path("brk/<str:id>",BrkView.as_view(),name="brk"),
-    path("trade-margin",TradeMargin.as_view(),name="trade-margin"),
+    path("trade-margin/<str:id>",TradeMarginTab.as_view(),name="trade-margin"),
     path("credit/<str:id>",CreditView.as_view(),name="credit"),
     path("tab-account-summary/<str:id>",TabAccountSummary.as_view(),name="tab-account-summary"),
     path("tab-settlement/<str:id>",TabSettlement.as_view(),name="tab-settlement"),
-    path("rejection-log/<str:id>",RejectionLogView.as_view(),name="rejection-log"),
+    path("rejection-log/<str:id>", RejectionLogView.as_view(), name="rejection-log"),
     path("share-deatils",ShareDetailsView.as_view(),name="share-deatils"),
     path("user-info/<str:id>",UserInfoView.as_view(),name="user-info"),
     
@@ -57,15 +58,28 @@ urlpatterns = [
     path("settlement",SettlementView.as_view(),name="settlement"),
     path("account-summary",AccountSummary.as_view(),name="account-summary"),
     path("bill-generate",BillGenerate.as_view(),name="bill-generate"),
+    path("trades-margins",TradeMargin.as_view(),name="trades-margins"),
+    path("script-master",ScriptMaster.as_view(),name="script-master"),
     path("logs-history",LogsHistory.as_view(),name="logs-history"),
     path("user-logs-new",UserLogsNew.as_view(),name="user-logs-new"),
     path("user-script-position-track",UserScriptPositionTrack.as_view(),name="user-script-position-track"),
+    path("position-track-view-orders",PositionTrackViewOrders.as_view(),name="position-track-view-orders"),
     path("user-script-position-trac-pl",UserScriptPositionTrackPl.as_view(),name="user-script-position-trac-pl"),
     path("script-quantity",ScriptQuantity.as_view(),name="script-quantity"),
+    path("weekly-admin",WeeklyAdminView.as_view(),name="weekly-admin"),
+    
+    
+    
+    path("exchange-time",ExchangeTimeSchedule.as_view(),name="exchange-time"),
+    path("message",MassageView.as_view(),name="message"),
+    
     
 #----------------------csv download ---------------------#
 
-    path('rejection-csv/<str:id>/', RejectionDownloadCSVView.as_view(), name='Admin:rejection-csv'),
-    # path('order-csv/', OrderDownloadCSVView.as_view(), name='order-csv')
+    path('rejection-csv/<str:id>/', RejectionDownloadCSVView.as_view(), name='rejection-csv'),
+    path('trade-csv/<str:id>/', TradeDownloadCsv.as_view(), name='trade-csv'),
+    path('credit-csv/<str:id>/', CreditDownloadCSVView.as_view(), name='credit-csv'),
+    path('account-summary-tab-csv/<str:id>/', AccountSummaryTabDownloadCSV.as_view(), name='account-summary-tab-csv'),
+    path('account-summary-csv/<str:id>/', AccountSummaryDownloadCSV.as_view(), name='account-summary-csv'),
 
 ]

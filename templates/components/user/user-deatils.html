@@ -100,7 +100,9 @@
             value="1"
             type="number"
             class="form_control"
+          
           />
+
         </div>
         <div class="flex space-bw">
           <label for="rateBy">Rate By:</label>
@@ -169,6 +171,16 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
 </script>
 
 <script>
+
+  $(document).ready(function(){
+    $("#quantityOderId").keydown(function(e){
+    
+         if (e.key == "." || e.key=="-" || e.key=="0") {
+             e.preventDefault();
+         }
+ });
+ });
+
 
 $('.user-deatils').click(function () {
     $(".trades-side").hide();

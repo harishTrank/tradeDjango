@@ -1,0 +1,82 @@
+{% extends "index.html" %} {% block content %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- jQuery UI CSS -->
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+
+  <!-- FullCalendar CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.css">
+
+  <!-- jQuery and jQuery UI JS -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+
+  <!-- Moment.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+
+  <!-- FullCalendar JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.js"></script>
+
+    <style>
+        #calendar {
+            width: 600px;
+            margin: 10px auto;
+            padding: 0 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="trade-btm" style="margin-top: 10px ">
+    <div class="">
+        <label for="">Exchange:</label>
+        <select name="" id="selectedExId" onchange="updateCalendar()" style="width: 250px;" class="form-control">
+            <option value="MCX">MCX</option>
+            <option value="NSE">NSE</option>
+            <option value="MINI">MINI</option>
+        </select>
+    </div>
+</div>
+
+<div id="calendar"></div>
+
+<script>
+    function updateCalendar() {
+        var selectedExchange = $("#selectedExId").val();
+        var calendarConfig = {
+            events: [{
+                title: (selectedExchange === "NSE") ? "9:10-3:30" : "9:01-23:55",
+                dow: [1, 2, 3, 4, 5],
+            },{
+                title: "00:00-00:00",
+                dow: [0, 6],
+                color: '#ff0000'
+            }],
+        };
+
+        $("#calendar").fullCalendar('destroy'); 
+        $("#calendar").fullCalendar(calendarConfig); 
+    }
+    updateCalendar()
+
+    // Initial calendar setup
+    $("#calendar").fullCalendar({
+        events: [{
+            title: "00:00-00:00",
+            dow: [0, 6],
+            color: '#ff0000'
+        }, {
+            title: "Open",
+            dow: [1, 2, 3, 4, 5],
+        }],
+    });
+</script>
+
+</body>
+</html>
+{% endblock content %}

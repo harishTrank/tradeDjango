@@ -2,23 +2,22 @@
 {% load static %}{% block newtab %}
 
 <div class="tab-content" id="brk">
-    <div class="brk-setting-tabs">
-        <ul class="flex brk-tabs">
-            <li data-id="turnover-wise" class="turnover-setting">TURNOVER WISE SETTING</li>
-            <li data-id="symbol-wise" class="symbol-setting">SYMBOL WISE SETTING</li>
-        </ul>
-     </div>
+     <div class="tab-head">
+      <li onClick="trunOverWise()" class="active" data-id="chart">
+        TURNOVER WISE SETTING
+      </li>
+      <li onClick="symbolWise()" data-id="table">SYMBOL WISE SETTING</li>
+    </div>
     <div class="brk-tab-wrapper flex">
         <div class="brk-tab-content" id="turnover-wise">
             <div class="flex">
                 <div class="trade-download">
-                    <div style="transform: rotate(90deg);padding-left: 10px;">
+                    <div style="transform: rotate(90deg);padding-left: 10px;cursor:pointer;">
                         <p id="brkFilterID">Filter</p>
                     </div>
-                    <span>
+                    {% comment %} <span>
                       <a href=""><i class="fa-solid fa-file-csv"></i></a>
-
-                    </span>
+                    </span> {% endcomment %}
                 </div>
                 <div class="trades-side">
                     <div class="trade-top">
@@ -35,11 +34,10 @@
                    
                         <div class="flex space-bw">
                             <label for="" >Exchange:</label>
-                            <select name="" class="form_control flex" id="brkFilterId">
-                                <option value="MCX">MCX</option>
-                                <option value="NSE">NSE</option>
-                                <option value="MINI">MINI</option>
-                               
+                            <select name="" class="form_control flex" id="" onchange="exchangeOnchange(this.value)" >
+                              {% for i in exchange %}
+                                <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
+                              {% endfor %}
                             </select>
                         </div>
                         <div class="flex space-bw">
@@ -48,41 +46,82 @@
                         </div>
 
                         <div style="display: flex;" >
-                            <input id="brkSearchID" type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
-                            <input id="updateBtnId" disabled onClick="updateBtnHandler(event)" type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
+                            <input id="brkSearchID" onclick="brkApplyOnclick()" type="submit" value="Apply" class="form-btn mr" style="border: 1px solid white;">
+                            
+                            <input id="updateBtnId" onClick="updateBtnHandler(event)" type="submit" value="Update" class="cancel-btn" style="border: 1px solid white;">
                         </div>
                     </div>
                 </div>    
             </div>
         </div>
 
-        <div class="trades-body user-table" style="position:absolute;right:0;">
+        <div id="turnoverWiseID" class="trades-body user-table" style="position:absolute;right:0;">
             <table style="width: 100%;">
               <tr>
-                {% comment %} <th><input id="brkCheckAllId" type="checkbox"></th> {% endcomment %}
+                <th><input id="brkCheckAllId" type="checkbox"></th>
                     <th>Exchange</th>
                     <th>Script</th>
                     <th>Turnover Wise Brk (Rs.per1/Lac)</th>
               </tr>
                
               <tbody id="brktableId">
-
+               
               </tbody>
             </table>
         </div>
+
+        <div id="symbolWiseId" class="trades-body user-table" style="position:absolute;right:0; display: none">
+          <table style="width: 100%;">
+            <tr>
+              <th><input id="symbolWisecheckbox" type="checkbox"></th>
+                  <th>Exchange</th>
+                  <th>Script</th>
+                  <th>Lot Size</th>
+                  <th>Brk (Rs.)</th>
+            </tr>
+             
+            <tbody id="symbolWiseTable">
+            
+            </tbody>
+          </table>
+      </div>
 
     </div>
 </div>
 
 
 <script>
+
+  function trunOverWise() {
+    $("#turnoverWiseID").css('display','block');
+    $("#symbolWiseId").css('display','none');
+    $(".tab-head li").removeClass("active"); 
+    $(".tab-head li[data-id='chart']").addClass("active");
+  }
+  function symbolWise() {
+    $("#turnoverWiseID").css('display','none');
+    $("#symbolWiseId").css('display','block');
+    $(".tab-head li").removeClass("active");
+    $(".tab-head li[data-id='table']").addClass("active"); 
+  }
+
     $("#brkCheckAllId").click(function(){
         $('input:checkbox').not(this).prop('checked', this.checked);
     });
 
+    $("#symbolWisecheckbox").click(function(){
+      $('input:checkbox').not(this).prop('checked', this.checked);
+  });
+    
+      $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "95%");
+    });
+    
     $('#brkFilterID').click(function () {
-        $(".trades-side").show();
-      });
+      $(".trades-side").show();
+      $(".trades-body").css("width", "68%");
+    });
 
     $("#checkAll").click(function(){
       $('input:checkbox').not(this).prop('checked', this.checked);
@@ -98,72 +137,183 @@
   });
   
 
-  
-  const miniList = [
-    /ZINCMINI/,
-    /SILVERM/,
-    /NATGASMINI/,
-    /LEADMINI/,
-    /GOLDM/,
-    /COPPERM/,
-    /ALUMINIUM/,
-    /CRUDEOILM/,
-  ]
-
-  const apiCallForAllExchange = (exchange = "") => {
-    if (exchange !== "") {
-        $('#updateBtnId').prop('disabled', false);
+  function brkApplyOnclick() {
+    const brkinput = $("#priceValueId").val();
+    const brkcheckcheckboxes = $("#brktableId input:checkbox:checked");
+    if (brkcheckcheckboxes.length === 0) {
+      alert('Please select at least one checkbox.');
+      return;
     }
-    $.ajax({
-      type: "GET",
-      url: `${BASE_URL}/api/tradeCoin?coinType=${exchange}`,
-      success: function (data) {
-        console.log(data); 
-        $("#brktableId").empty();
-        data.response.map(item => {
-            const currentExchange = miniList.find(itemFind => item.InstrumentIdentifier.match(itemFind)) ? "MINI" : item.Exchange
-          $("#brktableId").append(`
-            <tr>
-              <td>${currentExchange}</td>
-              <td>${item.InstrumentIdentifier}</td>
-              <td>${ currentExchange === "MCX" ? "{{user.mcx_brk}}" : currentExchange === "NSE" ? "{{user.nse_brk}}" : "{{user.mini_brk}}" }</td>
-            </tr>
-          `);
-        });
-      },
-      error: function (xhr, status, error) {
-        console.error('Error:', error);
-      }
+    brkcheckcheckboxes.each(function(){
+      const brkrow = $(this).closest('tr')
+      const brkcell = brkrow.find('.turnovercell');
+      brkcell.text(brkinput);
     });
   }
+  const validateCheckbox = () => {
+    const checkboxes = $("#brktableId input:checkbox:checked");
+    const symbolCheckboxes = $("#symbolWiseTable input:checkbox:checked");
   
-  $("#brkSearchID").click(() => {
-    apiCallForAllExchange($("#brkFilterId").val())
-  })
-  
-  apiCallForAllExchange();
-
-  const updateBtnHandler = (event) => {
-      event.preventDefault();
-      axios
-        .post(
-          `{% url 'brk' %}?id={{user.id}}`,
-          {
-            exchange: $("#brkFilterId").val(),
-            price: $("#priceValueId").val()
-          },
-          { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
-        )
-        .then((res) => {
-          toastMixin.fire({
-            animation:true,
-            title: res.data.status,
-            icon: "success",
-          });
-            setTimeout(() => window.location.reload(), 2000 )
-        });
+    if (checkboxes.length === 0 && symbolCheckboxes.length === 0) {
+      alert("Please select at least one checkbox.");
+      return false;
+    }
+    return true;
   };
-  </script>
 
+  let exchangeOnchange = (selectedValue) => {
+    axios.get(`{% url 'brk-setting-api' %}?user_id={{ user.id }}&ex_change=${selectedValue}`, {
+        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    })
+    .then(response => {
+        console.log("Response:", response.data); 
+        $("#brktableId").empty();
+        $("#symbolWiseTable").empty();
+        response.data.response.map(item => {
+            $("#brktableId").append(`
+                <tr>
+                  <td><input class="brkCheckAllClass" value="${item.id}" type="checkbox"></td>
+                    <td>${item.ex_change}</td>
+                    <td>${item.identifier}</td>
+                    <td class="turnovercell">${item.turnover_brk}</td>
+                </tr>
+            `);
+
+            $("#symbolWiseTable").append(`
+                <tr>
+                  <td><input class="brkCheckAllClass" value="${item.id}" type="checkbox"></td>
+                    <td>${item.ex_change}</td>
+                    <td>${item.identifier}</td>
+                    <td>${item.lot_size}</td>
+                    <td class="lotbrkcell">${item.lot_brk}</td>
+                </tr>
+            `);
+        });
+    })
+    .catch(err => console.log("err", err));
+}
+
+exchangeOnchange("{{first}}"); 
+
+
+  let checkedIds = []; 
+
+  $("#brkCheckAllId").click(function() {
+    $('#brktableId input:checkbox').prop('checked', this.checked);
+  
+    if ($(this).is(':checked')) {
+      checkedIds = [];
+      $('.brkCheckAllClass').each(function() {
+        if (!(checkedIds.includes($(this).val()))) {
+          checkedIds.push($(this).val());
+        }
+      });
+      console.log('All checked item IDs:', checkedIds);
+    } else {
+      checkedIds = []
+    }
+  });
+  
+  $(document).on('change', '.brkCheckAllClass', function() {
+    if ($(this).is(':checked')) {
+      checkedIds.push($(this).val()); 
+      console.log('Selected item IDs:', checkedIds);
+    } else {
+      if (!$("#brkCheckAllId").is(':checked')) {
+        checkedIds = [];
+        console.log('All items unchecked. Emptying checkedIds array.');
+      } else {
+        const index = checkedIds.indexOf($(this).val());
+        if (index !== -1) {
+          checkedIds.splice(index, 1); 
+        }
+        console.log('Selected item IDs:', checkedIds);
+      }
+    }
+  });
+
+
+
+  let symbolscheck = []; 
+
+  $("#symbolWisecheckbox").click(function() {
+    $('#symbolWiseTable input:checkbox').prop('checked', this.checked);
+  
+    if ($(this).is(':checked')) {
+      symbolscheck = [];
+      $('.brkCheckAllClass').each(function() {
+        if (!(symbolscheck.includes($(this).val()))) {
+          symbolscheck.push($(this).val());
+        }
+      });
+      console.log('All checked item IDs:', symbolscheck);
+    } else {
+      symbolscheck = []
+    }
+  });
+  
+  $(document).on('change', '.brkCheckAllClass', function() {
+    if ($(this).is(':checked')) {
+      symbolscheck.push($(this).val()); 
+      console.log('Selected item IDs:', symbolscheck);
+    } else {
+      if (!$("#brkCheckAllId").is(':checked')) {
+        symbolscheck = [];
+        console.log('All items unchecked. Emptying symbolscheck array.');
+      } else {
+        const index = symbolscheck.indexOf($(this).val());
+        if (index !== -1) {
+          symbolscheck.splice(index, 1); 
+        }
+        console.log('Selected item IDs:', symbolscheck);
+      }
+    }
+  });
+
+  
+  
+  const updateBtnHandler = (event) => {
+    event.preventDefault();
+    if (!validateCheckbox()) {
+      return;
+    }
+  
+    let brkType = "TURNOVER WISE"; 
+    let Ids = checkedIds;
+    if ($("#symbolWiseId").css('display') === 'block') {
+      brkType = "";
+      Ids = symbolscheck;
+    }
+    const amount = $("#priceValueId").val();
+  
+    const body = {
+      brk_type: brkType,
+      amount: amount,
+      object_list: Ids 
+    };
+  
+    axios
+      .post(
+        '{% url "brk-setting-api" %}',
+        body,
+        { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+      )
+      .then((response) => {
+        console.log("Response:", response.data);
+        toastMixin.fire({
+          animation:true,
+          title:response.data.message,
+          icon: "success",
+        });
+        setTimeout(()=>
+        window.location.reload(),2800
+        )
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+  
+  </script>
 
 {% endblock newtab %}

@@ -1,0 +1,244 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <!-- CDN for toast message -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css"
+    />
+
+
+    <style>
+      .col-30 {
+        width: 29%;
+      }
+
+      .col-70 {
+        width: 69%;
+      }
+
+      .flex {
+        display: flex;
+      }
+
+      .align-center {
+        align-items: center;
+      }
+
+      .space-bw {
+        justify-content: space-between;
+      }
+
+      .login-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .login-area {
+        background: #fff;
+        position: absolute;
+        width: 30%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 15px;
+        border-radius: 10px;
+      }
+
+      .login-form label {
+        margin-bottom: 4px;
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .login-form input,
+      .login-form select {
+        width: 100%;
+        outline: none;
+        font-size: 14px;
+      }
+
+      .login-form input {
+        padding: 5px 5px 5px 5px;
+      }
+
+      .login-form div {
+        margin-bottom: 10px;
+      }
+
+      .login-form div:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .login-area .col-30 img {
+        width: 100%;
+      }
+
+      .submit-btn {
+        border: none;
+        outline: none;
+        background: green;
+        color: #fff;
+        width: 100%;
+        padding: 8px 0px;
+      }
+
+
+      .password-mismatch {
+        border: 1px solid red;
+      }
+    </style>
+  </head>
+
+  <body>
+    
+    <div class="login-modal">
+    {% if messages %} {% for message in messages %}
+    {% if message.tags == "alert-success" %}
+    <p id="idd1" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-danger" %}
+    <p id="idd2" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-warning" %}
+    <p id="idd3" hidden>{{ message }}</p>
+    {% elif message.tags == "alert-info" %}
+    <p id="idd4" hidden>{{ message }}</p>
+    {% endif %} {% endfor %} {% endif %} 
+      <div class="login-area">
+        <div class="">
+        <form method="post">
+          {% csrf_token %}
+          <div class="login-form">
+            <div style="text-align: center">
+              <img style="width:20%;" src="{% static 'images/arex.png' %}" alt="" />
+            </div>
+            <div>
+                <div>
+                    <label for="">Old Password</label>
+                    <input required name="current_password" type="password" />
+                  </div>
+            </div>
+            <div>
+              <label for="">New Password</label>
+              <input required name="new_password" type="password" />
+            </div>
+            <div>
+              <label for="">Confirm Password</label>
+              <input required name="password" type="password" />
+            </div>
+            <div>
+              <button type="submit" class="submit-btn">Submit</button>
+            </div>
+          </div>
+          <form/>
+        </div>
+      </div>
+    </div>
+    <script
+    src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+    integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  </body>
+  <script>
+
+    var toastMixin = Swal.mixin({
+      toast: true,
+      title: "General Title",
+      animation: false,
+      position: "top-right",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+      },
+    });
+    var x = $("#idd1").text();
+    if (x !== "") {
+      toastMixin.fire({
+        animation: true,
+        title: x,
+        icon: "success",
+      });
+    }
+    var x = $("#idd2").text();
+    if (x !== "") {
+      toastMixin.fire({
+        animation: true,
+        title: x,
+        icon: "error",
+      });
+    }
+
+    var x = $("#idd3").text();
+    if (x !== "") {
+      toastMixin.fire({
+        animation: true,
+        title: x,
+        icon: "warning",
+      });
+    }
+
+    var x = $("#idd4").text();
+    if (x !== "") {
+      toastMixin.fire({
+        animation: true,
+        title: x,
+        icon: "info",
+      });
+    }
+
+
+
+    function validatePassword() {
+        var newPassword = document.getElementsByName("new_password")[0].value;
+        var confirmPassword = document.getElementsByName("password")[0].value;
+        var newPasswordInput = document.getElementsByName("new_password")[0];
+        var confirmPasswordInput = document.getElementsByName("password")[0];
+
+        if (newPassword !== confirmPassword) {
+          newPasswordInput.classList.add("password-mismatch");
+          confirmPasswordInput.classList.add("password-mismatch");
+          return false;
+        } else {
+          newPasswordInput.classList.remove("password-mismatch");
+          confirmPasswordInput.classList.remove("password-mismatch");
+        }
+
+        if (newPassword.length < 6) {
+          alert("Password length Must be 6 digits")
+          return false;
+        } else {
+          newPasswordInput.classList.remove("password-mismatch");
+        }
+
+        return true;
+      }
+
+      document.querySelector("form").addEventListener("submit", function (event) {
+        if (!validatePassword()) {
+          event.preventDefault();
+        }
+      });
+
+  </script>
+</html>

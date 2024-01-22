@@ -1,6 +1,4 @@
-{% include "components/new-tab/user-header.html" %}
-{% load static %}{% block newtab %}
-
+{% extends "index.html" %} {% block content %}
 
 <div class="tab-content" id="trademargin">
   <div class="flex">
@@ -105,12 +103,12 @@
   
   $('.closeBtn').click(function () {
     $(".trades-side").hide();
-    $(".trades-body").css("width", "95%");
+    $(".trades-body").css("width", "97%");
 });
 
 $('#tradeMarginFilterId').click(function () {
   $(".trades-side").show();
-  $(".trades-body").css("width", "66%");
+  $(".trades-body").css("width", "79%");
 });
 
 $("#tradeCheckBoxId").click(function(){
@@ -297,4 +295,4 @@ const updateAllUsers = (event) => {
 
 </script>
 
-{% endblock newtab %}
+{% endblock content %}

@@ -1,5 +1,4 @@
-{% include "components/new-tab/user-header.html" %}
-{% load static %}{% block newtab %}
+{% extends "index.html" %} {% block content %}
 <div class="tab-content" id="orders">
   <div class="flex">
     <div class="trade-download">
@@ -141,4 +140,4 @@ $("#serachBtnId").click(() => {
 
 apiCallForAllExchange();
 </script>
-{% endblock newtab %}
+{% endblock content %}

@@ -1,0 +1,41 @@
+{% extends "index.html" %} {% block content %}
+
+
+<div class="tab-content" id="accountsummary">
+    <div class="flex">
+        <div class="trades-body user-table" style="margin-top:1%;width: 100%;">
+            {% comment %} {% if account_summary %} {% endcomment %}
+            <table style="width: 100%;">
+                <tr>
+                    <th>Index</th>
+                    <th>Massage</th>
+                    <th>ReceivedOn</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            {% comment %} {% else %}
+            <div style="display: flex;justify-content: center;margin-top: 14%;">
+              <p>No data found</p>
+            </div>
+        {% endif %} {% endcomment %}
+        </div>
+    </div>
+</div>
+
+<script>
+    $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "95%");
+    });
+    
+    $('#accountFilterId').click(function () {
+        $(".trades-side").show();
+        $(".trades-body").css("width", "79%");
+    });
+  </script>
+
+{% endblock content %}
