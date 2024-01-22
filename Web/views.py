@@ -578,7 +578,7 @@ class TradeDownloadCsv(View):
         user = MyUser.objects.get(id=id)
         buy_and_sell_instances = BuyAndSellModel.objects.filter(buy_sell_user=user)
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+        response['Content-Disposition'] = 'attachment; filename="trade.csv"'
 
         writer = csv.writer(response)
         writer.writerow([
@@ -674,7 +674,7 @@ class CreditDownloadCSVView(View):
         user = MyUser.objects.get(id=id)
         user_credit_instances = UserCreditModal.objects.filter(user_credit=user)
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+        response['Content-Disposition'] = 'attachment; filename="credit.csv"'
 
         writer = csv.writer(response)
         writer.writerow([
@@ -725,7 +725,7 @@ class AccountSummaryTabDownloadCSV(View):
         user = MyUser.objects.get(id=id)
         user_summary_instances = AccountSummaryModal.objects.filter(user_summary=user)
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+        response['Content-Disposition'] = 'attachment; filename="account-summary.csv"'
 
         writer = csv.writer(response)
         writer.writerow([
@@ -778,7 +778,7 @@ class RejectionDownloadCSVView(View):
         user = MyUser.objects.get(id=id)
         buy_and_sell_instances = BuyAndSellModel.objects.filter(buy_sell_user=user,is_cancel=True)
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+        response['Content-Disposition'] = 'attachment; filename="rejection.csv"'
 
         writer = csv.writer(response)
         writer.writerow([
@@ -902,7 +902,40 @@ class TradesView(View):
 
         return render(request, "view/trades.html",{"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
     
-    
+
+class ViewTradesDownloadCSV(View):
+     def get(self, request):
+        user = request.user
+        if request.user.user_type == "SuperAdmin":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__user_type="Client")
+        elif request.user.user_type == "Admin":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__client__admin_create_client=user.admin_user)
+        elif request.user.user_type == "Master":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__client__master_user_link=user.master_user)
+        elif request.user.user_type == "Client":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user=user)
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="trades.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Execution Time', 'Username', 'Symbol', 'Type','Quantity', 'Price', 'Order Time', 'IPAddress', 'Order Method'])
+
+        for record in buy_and_sell_records:
+            writer.writerow([
+                record.created_at,
+                record.buy_sell_user.user_name,
+                record.coin_name,
+                record.action,
+                record.quantity,
+                record.price,
+                record.created_at,
+                record.ip_address,
+                record.order_method,
+            ])
+        return response
+
     
     
 class OrdersView(View):
@@ -960,55 +993,43 @@ class OrdersView(View):
             ).order_by('coin_name').values('coin_name').distinct()
             
 
-        # if 'download_csv' in request.GET:
-        #     response = HttpResponse(content_type='text/csv')
-        #     response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
-
-        #     writer = csv.writer(response)
-        #     writer.writerow([
-        #         'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Order Time', 'Ip Address', 'Device id', 'Reference Price', 'Order Method'])
-        #     for order in order_list:
-        #         writer.writerow([
-        #             order['buy_sell_user__user_name'],
-        #             order["coin_name"],
-        #             order["action"],
-        #             order["quantity"],
-        #             order["price"],
-        #             order["created_at"],
-        #             order["ip_address"],
-        #             order["order_method"]
-        #         ])
-        #     return response
+      
         return render(request, "view/order.html", {"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
     
     
     
 
-# class OrderDownloadCSVView(View):
-#     def get(self, request):
-#         user = request.user
-#         order_list = BuyAndSellModel.objects.filter(buy_sell_user=user).values(
-#             "id", "buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change",
-#             "created_at", "is_pending", "identifer", "message", "ip_address", "order_method"
-#         )
+class OrderDownloadCSVView(View):
+    def get(self, request):
+        user = request.user
+        if request.user.user_type == "SuperAdmin":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__user_type="Client")
+        elif request.user.user_type == "Admin":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__client__admin_create_client=user.admin_user)
+        elif request.user.user_type == "Master":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__client__master_user_link=user.master_user)
+        elif request.user.user_type == "Client":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user=user)
 
-#         response = HttpResponse(content_type='text/csv')
-#         response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="orders.csv"'
 
-#         writer = csv.writer(response)
-#         writer.writerow([
-#             'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Order Time', 'Ip Address', 'Device id', 'Reference Price', 'Order Method'])
-#         for order in order_list:
-#             writer.writerow([
-#                 order['buy_sell_user__user_name'],
-#                 order["coin_name"],
-#                 order["action"],
-#                 order["quantity"],
-#                 order["price"],
-#                 order["created_at"],
-#                 order["ip_address"],
-#                 order["order_method"]])
-#         return response
+        writer = csv.writer(response)
+        writer.writerow([
+            'Username', 'Symbol', 'Type','Quantity', 'Price', 'Order Time', 'IPAddress', 'Order Method'])
+
+        for record in buy_and_sell_records:
+            writer.writerow([
+                record.buy_sell_user.user_name,
+                record.coin_name,
+                record.action,
+                record.quantity,
+                record.price,
+                record.created_at,
+                record.ip_address,
+                record.order_method,
+            ])
+        return response
     
     
     
@@ -1332,41 +1353,37 @@ class ManageTrades(View):
     
     
     
-# class TradesDownloadCSVView(View):
-#     def get(self, request):
-#         user = request.user
-#         if request.user.user_type == "SuperAdmin":
-#             client = ClientModel.objects.all().values_list("client__id",flat=True)
-#             user = MyUser.objects.filter(user_type="Client")
-#         elif request.user.user_type == "Admin":
-#             client = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
-#             user = MyUser.objects.filter(id__in=client)
-#         elif request.user.user_type == "Master":
-#             client = user.master_user.master_user_link.all().values_list("client__id",flat=True)
-#             user = MyUser.objects.filter(id__in=client)
-#         elif request.user.user_type == "Client":
-#             client = [request.user.id]
-#             user = [request.user]
+class TradesDownloadCSVView(View):
+    def get(self, request):
+        user = request.user
+        if request.user.user_type == "SuperAdmin":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__user_type="Client")
+        elif request.user.user_type == "Admin":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__client__admin_create_client=user.admin_user)
+        elif request.user.user_type == "Master":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user__client__master_user_link=user.master_user)
+        elif request.user.user_type == "Client":
+            buy_and_sell_records = BuyAndSellModel.objects.filter(buy_sell_user=user)
 
-#         response = HttpResponse(content_type='text/csv')
-#         response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="trades.csv"'
 
-#         writer = csv.writer(response)
-#         writer.writerow([
-#             'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Status', 'Order Time', 'IPAddress', 'Reference Price'])
+        writer = csv.writer(response)
+        writer.writerow([
+            'Username', 'Symbol', 'Type', 'Quantity', 'Price', 'Status', 'Order Time', 'IPAddress', 'Reference Price'])
 
-#         for client in client:
-#             writer.writerow([
-#                 client.buy_sell_user.user_name,
-#                 client.coin_name,
-#                 client.action,
-#                 client.quantity,
-#                 client.price,
-#                 client.trade_status,
-#                 client.order_method,
-#                ])
-#         return response
-    
+        for record in buy_and_sell_records:
+            writer.writerow([
+                record.buy_sell_user.user_name,
+                record.coin_name,
+                record.action,
+                record.quantity,
+                record.price,
+                record.trade_status,
+                record.order_method,
+            ])
+        return response
+
     
     
     
@@ -1405,8 +1422,11 @@ class AccountSummary(View):
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
         p_and_l = request.GET.get('p_and_l')
+        print("p_and_l ===>",p_and_l)
         brk = request.GET.get('brk')
+        print("brk ===>",brk)
         credit = request.GET.get('credit')
+        print("credit ===>",credit)
         user = request.user
         account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
         if from_date:
@@ -1415,12 +1435,14 @@ class AccountSummary(View):
                 account_summary = account_summary.filter(created_at__gte=from_date,created_at__lte=to_date)
         
         if p_and_l == 'on' and brk == 'on':   
-            account_summary = account_summary.filter(Q(summary_flg__icontains='Profit/Loss') | Q(summary_flg__icontains='Brokerage'))
+            account_summary = account_summary.filter(Q(summary_flg='Profit/Loss') | Q(summary_flg='Brokerage'))
        
         elif p_and_l == 'on':
-            account_summary = account_summary.filter(summary_flg__icontains='Profit/Loss')
+            account_summary = account_summary.filter(summary_flg='Profit/Loss')
         elif brk == 'on':
-            account_summary = account_summary.filter(summary_flg__icontains='Brokerage')
+            account_summary = account_summary.filter(summary_flg='Brokerage')
+        if credit == "on":
+            account_summary = account_summary.filter(summary_flg="Credit")
 
         return render(request, "report/account-summary.html",{"account_summary":account_summary,"id":user.id})
 
@@ -1433,7 +1455,7 @@ class AccountSummaryDownloadCSV(View):
         user = MyUser.objects.get(id=id)
         user_summary_instances = AccountSummaryModal.objects.filter(user_summary=user)
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+        response['Content-Disposition'] = 'attachment; filename="account-summary.csv"'
 
         writer = csv.writer(response)
         writer.writerow([

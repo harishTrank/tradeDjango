@@ -26,7 +26,7 @@
       <div class="trade-btm">
         <div class="flex space-bw">
           <label for="">Exchange:</label>
-          <select name="exchange" id="tradeMarginExchangeId" onchange="tradeExchangeOnchange(this.value)" class="form_control flex">
+          <select name="exchange" id="tradesMarginExchangeId" onchange="tradeExchangeOnchange(this.value)" class="form_control flex">
             {% for i in exchange_obj %}
               <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
             {% endfor %}
@@ -116,7 +116,7 @@ $("#tradeCheckBoxId").click(function(){
 });
 
 
-$('#tradeMarginExchangeId').on('change', function() {
+$('#tradesMarginExchangeId').on('change', function() {
   var selectedValue = $(this).val();
   var marginTypeDropdown = $('#marginTypeDropdownId');
   if (selectedValue === 'NSE') {
@@ -221,7 +221,7 @@ const tradeMarginOnclick = (event) => {
     return;
   }
   const body = {
-    exchange: $("#tradeMarginExchangeId").val(),
+    exchange: $("#tradesMarginExchangeId").val(),
     amount: $("#tradepriceValueId").val(),
     object_list: tradeMarginIds 
   };
@@ -260,12 +260,12 @@ const updateAllUsers = (event) => {
   $('.brkCheckAllClass').each(function() {
     if ($(this).is(':checked')) {
       
-      const identifier = $(this).closest('tr').find('td:eq(2)').text(); // Adjust the index based on your table structure
+      const identifier = $(this).closest('tr').find('td:eq(2)').text(); 
       identifierList.push(identifier);
     }
   });
   const body = {
-    exchange: $("#tradeMarginExchangeId").val(),
+    exchange: $("#tradesMarginExchangeId").val(),
     amount: $("#tradepriceValueId").val(),
     identifier_list: identifierList,
     user_id : "{{user.id}}"

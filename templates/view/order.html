@@ -6,7 +6,7 @@
             <div style="transform: rotate(90deg);padding-left: 10px;">
                 <p id="orderFilterId">Filter</p>
             </div>
-            <a href="{% url 'Admin:orders' %}?from_date={{ from_date }}&to_date={{ to_date }}&exchange={{ exchange }}&symbol={{ symbol }}&download_csv=true" class="download-csv-link">
+            <a href="{% url 'Admin:order-csv-download' %}?from_date={{ from_date }}&to_date={{ to_date }}&exchange={{ exchange }}&symbol={{ symbol }}&download_csv=true" class="download-csv-link">
                 <i class="fa-solid fa-file-csv"></i>
             </a>
         </div>
@@ -89,10 +89,10 @@
                     <th>Type</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Order Time</th>
+                    <th>Order Time</th> 
                     <th>Ip Address</th>
-                    <th>Device id</th>
-                    <th>Reference Price</th>
+                    {% comment %} <th>Device id</th>
+                    <th>Reference Price</th> {% endcomment %}
                     <th>Order Method</th>
                 </tr>
                 {% for i in response %}
@@ -104,8 +104,8 @@
                     <td>{{i.price}}</td>
                     <td>{{i.created_at}}</td>
                     <td>{{i.ip_address}}</td>
-                    <td>Device id</td>
-                    <td>Refernce</td>
+                    {% comment %} <td>Device id</td>
+                    <td>Refernce</td> {% endcomment %}
                     <td>{{i.order_method}}</td>
                 </tr>
                 {% endfor %}

@@ -8,7 +8,9 @@
                 <p>Filter</p>
             </div>
             <span>
-                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                <a href="{% url 'Admin:manage-trades-csv' %}?from_date={{ from_date }}&to_date={{ to_date }}&exchange={{ exchange }}&symbol={{ symbol }}&download_csv=true" class="download-csv-link">
+                    <i class="fa-solid fa-file-csv"></i>
+                  </a>
             </span>
         </div>
         <div class="trades-side">
@@ -36,6 +38,7 @@
                     <div>
                         <label for="">Username:</label>
                         <select name="user_name" id="">
+                            <option value="">All</option>
                             {% for i in user %}
                                 <option value="{{ i.user_name }}">{{ i.user_name }}</option>
                             {% endfor %}

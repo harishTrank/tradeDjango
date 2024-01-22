@@ -3,8 +3,8 @@
 <div class="tab-content" id="positiontrack">
     <div class="flex">
         <div class="trade-download">
-            <div style="transform: rotate(90deg);padding-left: 10px;">
-                <p>Filter</p>
+            <div style="transform: rotate(90deg);padding-left: 10px;cursor:pointer;">
+                <p id="positionFilterTrackId">Filter</p>
             </div>
             {% comment %} <span>
                 <a href=""><i class="fa-solid fa-file-csv"></i></a>
@@ -68,6 +68,17 @@
     </div>
 </div>
 <script>
+
+    $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "95%");
+    });
+    
+    $('#positionFilterTrackId').click(function () {
+      $(".trades-side").show();
+      $(".trades-body").css("width", "77%");
+    });
+    
 
     var cancelBtn = document.querySelector('.cancel-btn');
     cancelBtn.addEventListener('click', function() {

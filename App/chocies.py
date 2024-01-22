@@ -30,4 +30,5 @@ ACTIONLOGIN = (
 SUMMARYFLAG = (
     ('Profit/Loss', 'Profit/Loss'),
     ('Brokerage', 'Brokerage'),
+    ('Credit', 'Credit')
 )

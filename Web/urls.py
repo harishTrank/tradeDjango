@@ -81,5 +81,8 @@ urlpatterns = [
     path('credit-csv/<str:id>/', CreditDownloadCSVView.as_view(), name='credit-csv'),
     path('account-summary-tab-csv/<str:id>/', AccountSummaryTabDownloadCSV.as_view(), name='account-summary-tab-csv'),
     path('account-summary-csv/<str:id>/', AccountSummaryDownloadCSV.as_view(), name='account-summary-csv'),
+    path('manage-trades-csv/', TradesDownloadCSVView.as_view(), name='manage-trades-csv'),
+    path('view-trades-csv/', ViewTradesDownloadCSV.as_view(), name='view-trades-csv'),
+    path('order-csv-download/', OrderDownloadCSVView.as_view(), name='order-csv-download'),
 
 ]

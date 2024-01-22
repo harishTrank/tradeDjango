@@ -7,7 +7,7 @@
                 <p style="cursor: pointer;" id="tradesFilerID">Filter</p>
             </div>
             <span>
-                <a href=""><i class="fa-solid fa-file-csv"></i></a>
+                <a href="{% url 'Admin:view-trades-csv' %}"><i class="fa-solid fa-file-csv"></i></a>
             </span>
         </div>
         <div class="trades-side">
@@ -80,7 +80,7 @@
                     <th>Price</th>
                     <th>Order Time</th>
                     <th>Ip Address</th>
-                    <th>Refernce</th>
+                    {% comment %} <th>Refernce</th> {% endcomment %}
                     <th>Order Method</th>
                 </tr>
                 {% for i in response %}
@@ -93,7 +93,7 @@
                     <td style="color: {% if i.action == 'SELL' %}red{% else %}blue{% endif %};" id="price{{i.id}}">{{i.price}}</td>
                     <td>{{i.created_at}}</td>
                     <td>{{i.ip_address}}</td>
-                    <td>Refernce</td>
+                    {% comment %} <td>Refernce</td> {% endcomment %}
                     <td>{{i.order_method}}</td>
                 </tr>
                 {% endfor %}

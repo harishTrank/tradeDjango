@@ -35,7 +35,7 @@
                 <div>
                     <label for=""></label>
                     <input type="button" value="View" id="tradeBtnId" class="form-btn">
-                    <input type="submit" value="Clear" class="cancel-btn">
+                    <input type="submit" value="Clear" class="cancel-btn" onclick="tradeBtnClear()">
                 </div>
             </div>
         </div>
@@ -65,6 +65,9 @@
 </div>
 
 <script>
+    function tradeBtnClear(){
+        location.href="{% url 'Admin:trade-account' %}"
+    }
 
     const tradeAccountHandler = (user_name="", user_id="{{user.id}}") =>{
 
