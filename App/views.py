@@ -863,20 +863,18 @@ class SearchUserAPI(APIView):
             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
             master_models = MastrModel.objects.filter(id__in=all_masters)
             serializer = MasterSerializer(master_models, many=True)
+            print(serializer.data)
         elif request.user.user_type == "Admin":
-            admin_models = AdminModel.objects.get(user=request.user)
-            all_masters = admin_models.admin_user.all().values_list('id', flat=True)
-            admin_master_models = MastrModel.objects.filter(id__in=all_masters)
-            serializer = MasterSerializer(admin_master_models, many=True)
-            
+            admin_models = AdminModel.objects.filter(admin_user=request.user).values_list('id', flat=True)
+            print(admin_models)
+            # all_masters = admin_models.admin_user.all().values_list('id', flat=True)
+            # admin_master_models = MastrModel.objects.filter(id__in=all_masters)
+            # serializer = MasterSerializer(admin_master_models, many=True)
+            serializer = []
         elif request.user.user_type == "SuperAdmin":
-            super_admin_users = MyUser.objects.filter(user_type='Admin', role=request.user.role)
-            print("super_admin_users", super_admin_users)
-            # Fetch associated AdminModel objects for each SuperAdmin
-            super_admin_admin_models = AdminModel.objects.filter(user__in=super_admin_users)
-
-            # Serialize the related AdminModel objects
-            serializer = AdminSerializer(super_admin_admin_models, many=True)
+            all_users_except_current = MyUser.objects.exclude(id=request.user.id)
+            serializer = MyUserSerializerParticularDetails(all_users_except_current, many=True)
+            print(serializer.data)
         return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
 

@@ -3,8 +3,8 @@
 <div class="tab-content" id="tradeaccount">
     <div class="flex">
         <div class="trade-download">
-            <div style="transform: rotate(90deg);padding-left: 10px;">
-                <p>Filter</p>
+            <div style="transform: rotate(90deg);padding-left: 10px;cursor:pointer;">
+                <p id="TradeaccountFilterId">Filter</p>
             </div>
             {% comment %} <span>
                 <a href=""><i class="fa-solid fa-file-csv"></i></a>
@@ -65,6 +65,18 @@
 </div>
 
 <script>
+
+    $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "96%");
+      });
+    
+      $('#TradeaccountFilterId').click(function () {
+        $(".trades-side").show();
+        $(".trades-body").css("width", "78%");
+      });
+
+
     function tradeBtnClear(){
         location.href="{% url 'Admin:trade-account' %}"
     }

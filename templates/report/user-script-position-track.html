@@ -115,6 +115,7 @@
         axios.get(`{% url "user-script-position-track" %}?user_id=${user_id}&exchange=${exchange}&script=${script}&to_date=${to_date}`, { headers: { "X-CSRFToken": "{{ csrf_token }}" } })
             .then(res => {
                 console.log("res ==", res);
+                
                 $("#userScriptTableId").empty();
                 res.data.response.map(item => {
                     $("#userScriptTableId").append(`
@@ -123,8 +124,8 @@
                                     <i class="fa-solid fa-eye"></i>
                                   </td>
                                   
-                                <td>${dayjs(item.created_at).format('DD-MM-YYYY')}</td>  
-                                <td>${dayjs(item.updated_at).format('DD-MM-YYYY')}</td> 
+                                <td>${dayjs(item.created_at).format('MMM. MM ,YYYY, h-mm a')}</td>  
+                                <td>${dayjs(item.created_at).format('MMM. MM ,YYYY, h-mm a')}</td> 
                                 <td>${item.buy_sell_user__user_name}</td>
                                 <td>${item.coin_name}</td>
                                 <td style="color : ${item.total_quantity > 0 ? 'blue' : 'red'}">${item.action}</td>

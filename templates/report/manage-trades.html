@@ -4,8 +4,8 @@
 <div class="tab-content" id="managetrades">
     <div class="flex">
         <div class="trade-download">
-            <div style="transform: rotate(90deg);padding-left: 10px;">
-                <p>Filter</p>
+            <div style="transform: rotate(90deg);padding-left: 10px;cursor:pointer;">
+                <p id="manageTradesFilterId">Filter</p>
             </div>
             <span>
                 <a href="{% url 'Admin:manage-trades-csv' %}?from_date={{ from_date }}&to_date={{ to_date }}&exchange={{ exchange }}&symbol={{ symbol }}&download_csv=true" class="download-csv-link">
@@ -127,5 +127,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "96%");
+      });
+    
+      $('#manageTradesFilterId').click(function () {
+        $(".trades-side").show();
+        $(".trades-body").css("width", "78%");
+      });
+</script>
 
 {% endblock content %}

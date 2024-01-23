@@ -75,7 +75,11 @@
                         {% else %}
                         <td>Pending</td>
                         {% endif %}
-                        <td>{{i.ip_address}}</td>
+                        {% if i.ip_address == None %}
+                            <td>0.0.0.0</td>
+                        {% else %}
+                            <td>{{i.ip_address}}</td>
+                        {% endif %}
                        {% comment %} <td>Reference Price</td> {% endcomment %}
                        <td>{{i.order_method}}</td>
                    </tr>

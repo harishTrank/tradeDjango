@@ -4,8 +4,8 @@
 <div class="tab-content" id="settlement">
     <div class="flex">
       <div class="trade-download">
-        <div style="transform: rotate(90deg); padding-left: 10px">
-          <p>Filter</p>
+        <div style="transform: rotate(90deg); padding-left: 10px; cursor:pointer;">
+          <p id="settlementFilterId">Filter</p>
         </div>
         <span>
           <a href=""><i class="fa-solid fa-file-csv"></i></a>
@@ -97,6 +97,19 @@
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
   
   <script>
+
+    $('.closeBtn').click(function () {
+      $(".trades-side").hide();
+      $(".trades-body").css("width", "96%");
+    });
+  
+    $('#settlementFilterId').click(function () {
+      $(".trades-side").show();
+      $(".trades-body").css("width", "78%");
+    });
+
+
+
     const creditApiCaller = (from_date = '', to_date = '') => {
       axios.get(`{% url "settlement-api" %}?id={{user_id}}&from_date=${from_date}&to_date=${to_date}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
       .then(res => {

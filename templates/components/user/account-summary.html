@@ -4,8 +4,8 @@
 <div class="tab-content" id="accountsummary">
     <div class="flex">
         <div class="trade-download">
-            <div style="transform: rotate(90deg);padding-left: 10px;">
-                <p>Filter</p>
+            <div style="transform: rotate(90deg);padding-left: 10px;cursor:pointer;">
+                <p id="accountSummaryFilterID">Filter</p>
             </div>
             <span>
                 <a href="{% url 'Admin:account-summary-tab-csv' id %}"><i class="fa-solid fa-file-csv"></i></a>
@@ -113,6 +113,19 @@
 </div>
 
 <script>
+
+    $('.closeBtn').click(function () {
+        $(".trades-side").hide();
+        $(".trades-body").css("width", "95%");
+    });
+    
+    $('#accountSummaryFilterID').click(function () {
+      $(".trades-side").show();
+      $(".trades-body").css("width", "65%");
+    });
+    
+
+
     $(document).ready(function() {
         $('#pandlID, #brkId').change(function() {
           if ($(this).is(':checked')) {

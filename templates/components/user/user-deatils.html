@@ -6,7 +6,7 @@
 <div class="tab-content" id="users">
   <div class="flex">
     <div class="trade-download">
-      <div style="transform: rotate(90deg); padding-left: 10px">
+      <div style="transform: rotate(90deg); padding-left: 10px; cursor:pointer;">
         <p id="deatilsFilterOpenId">Add&nbsp;Order</p>
       </div>
     </div>
@@ -188,10 +188,10 @@ $('.user-deatils').click(function () {
     $(".trades-body").css("width", "95%");
 });
 
-{% comment %} $('#deatilsFilterOpenId').click(function () {
+$('#deatilsFilterOpenId').click(function () {
   $(".trades-side").show();
-  $(".trades-body").css("width", "69%");
-}); {% endcomment %}
+  $(".trades-body").css("width", "64%");
+});
 
 
 

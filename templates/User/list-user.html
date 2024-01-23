@@ -107,7 +107,7 @@
 <div class="tab-content" id="user-list">
     <div class="flex">
         <div class="trade-download">
-            <div style="transform: rotate(90deg);padding-left: 10px;">
+            <div style="transform: rotate(90deg);padding-left: 10px; cursor:pointer;">
                 <p id="listUserFilterId">Filter</p>
             </div>
             <span>
@@ -133,16 +133,15 @@
                         <select name="user_name">
                             <option value="">All</option>
                             {% for i in user_list  %}
-                                <option value="{{ i.user_name }}">{{ i.user_name }}</option>
+                                <option value="{{ i }}">{{ i }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div>
                         <label for="">User Type:</label>
                         <select name="user_type" id="">
-                            <option value="">All</option>
-                            <option value="Master">Master</option>
                             <option value="Client">Client</option>
+                            <option value="Master">Master</option>
                         </select>
                     </div>
                     <div>

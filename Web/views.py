@@ -858,7 +858,7 @@ class TradesView(View):
         is_pending = params.get("is_pending")
         user_name = params.get("user_name")
         if request.user.user_type == "SuperAdmin":
-            response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
+            response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).filter(is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
             user_list = MyUser.objects.exclude(id=request.user.id).filter(role=request.user.role)
 
         elif request.user.user_type == "Admin":
@@ -867,7 +867,7 @@ class TradesView(View):
             relative_master = MastrModel.objects.filter(admin_user__user__id=request.user.id).values_list("master_user__id", flat=True)
             user_keys += list(child_clients) + list(relative_master)
             user_list = MyUser.objects.filter(id__in=user_keys)
-            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
+            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys, is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
         elif request.user.user_type == "Client":
             user_list = []
             response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
@@ -876,7 +876,7 @@ class TradesView(View):
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
             user_keys += list(child_clients)
             user_list = MyUser.objects.filter(id__in=user_keys)
-            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
+            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys, is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
         
         if from_date and to_date:
             from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
@@ -895,12 +895,11 @@ class TradesView(View):
             response = response.filter(is_pending=is_pending_bool)
 
         if request.user.user_type == "SuperAdmin":
-            user_coin_names = BuyAndSellModel.objects.all().order_by('coin_name').values('coin_name').distinct()
+            user_coin_names = BuyAndSellModel.objects.filter(is_cancel=False).order_by('coin_name').values('coin_name').distinct()
         else:
             user_coin_names = BuyAndSellModel.objects.filter(
-                buy_sell_user__id__in=user_keys
+                buy_sell_user__id__in=user_keys, is_cancel=False
             ).order_by('coin_name').values('coin_name').distinct()
-
         return render(request, "view/trades.html",{"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
     
 
@@ -1186,7 +1185,7 @@ class RejectionLogTab(View):
 
         elif request.user.user_type == "Client":
             rejection = user.buy_sell_user.filter(is_cancel=True).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
-            user = BuyAndSellModel.objects.get(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
+            user = BuyAndSellModel.objects.filter(buy_sell_user=user, is_cancel=True).values_list("buy_sell_user__user_name", flat=True)
 
         if from_date:
             if to_date:
@@ -1486,9 +1485,10 @@ class TradeMargin(View):
         exchange = request.GET.get('exchange')
         trade_margin = request.GET.get('price')
         trade = user.admin_coins.all()
+        first_symbol_name = exchange_obj.first()["symbol_name"] if exchange_obj.first() else None
         if exchange:
             trade = trade.filter(ex_change=exchange)
-        return render(request, "report/trade-margin.html",{"trade_margin":trade,"exchange_obj":exchange_obj,"user":user,"first":exchange_obj.first()["symbol_name"]})
+        return render(request, "report/trade-margin.html", {"trade_margin": trade, "exchange_obj": exchange_obj, "user": user, "first": first_symbol_name})
 
 
 
@@ -1530,7 +1530,7 @@ class PositionTrackViewOrders(View):
                         Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
                         Value(0.0)
                     )
-                ).exclude(total_quantity=0)
+                ).exclude(total_quantity=0).order_by("created_at")
             )
         return render(request, "report/position-track-view-orders.html", {"result":result})
     
