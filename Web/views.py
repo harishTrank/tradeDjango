@@ -353,6 +353,7 @@ class EditUserView(View):
             "full_name": request.POST.get("full_name"),
             "user_name": request.POST.get("user_name"),
             "phone_number": request.POST.get("phone_number"),
+            "parent": request.user.user_name,
             "city": request.POST.get("city"),
             "credit": request.POST.get("credit") if request.POST.get("credit") else 0,
             "remark": request.POST.get("remark"),
@@ -992,13 +993,10 @@ class OrdersView(View):
                 buy_sell_user__id__in=user_keys
             ).order_by('coin_name').values('coin_name').distinct()
             
-
-      
         return render(request, "view/order.html", {"response": list(response),"user_coin_names": user_coin_names,"filter_data":list({'buy_sell_user__user_name' }), "user_list": user_list})
     
     
     
-
 class OrderDownloadCSVView(View):
     def get(self, request):
         user = request.user
