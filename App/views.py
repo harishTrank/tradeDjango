@@ -1447,6 +1447,7 @@ class PieChartHandlerApi(APIView):
                 totalQuantity = totalQuantity.order_by('-coin_name')[:limit]
             
             tableResult = []
+            new_result = []
             for obj in totalQuantity:
                 currentRow = {}
                 currentRow["coin_name"] = obj["coin_name"]
@@ -1456,8 +1457,9 @@ class PieChartHandlerApi(APIView):
                 sellRecord = currentResult.filter(coin_name=obj["coin_name"], action="SELL").values('coin_name').annotate(total_quantity=Sum('quantity'))
                 currentRow["sell"] = -sellRecord[0]["total_quantity"] if len(sellRecord) > 0 else  0
                 tableResult.append(currentRow)
+                new_result.append({"x": obj["coin_name"], "value": obj["total_quantity"]})
                 
-            return Response({"success": True, "message": "Pie chart data fetch successfully.", "labels": totalQuantity.values_list("coin_name", flat=True), "chartValue": totalQuantity.values_list("total_quantity", flat=True), "tableResult": tableResult}, status=status.HTTP_200_OK)
+            return Response({"success": True, "message": "Pie chart data fetch successfully.", "tableResult": tableResult, "new_result": new_result}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e, "eeeeee")
             return Response({"success": False, "message": "No record found"}, status=status.HTTP_404_NOT_FOUND)
