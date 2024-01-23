@@ -64,8 +64,6 @@ class FirstLogin(View):
         user = request.user
         current_password = request.POST.get("current_password")
         new_password = request.POST.get("new_password")
-        print("current_password",current_password)
-        print("new_password",new_password)
         if not user.check_password(current_password):
             messages.error(request,"Invalid Old Password")
             return redirect("Admin:first-login")
@@ -293,9 +291,6 @@ class AddUserView(View):
                                 
                             if AdminCoinWithCaseModal.objects.filter(master_coins=create_user, identifier=obj['InstrumentIdentifier'], ex_change=obj['Exchange']).count() == 0:
                                 AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
-                    else:
-                        print("Response:", response.text)
-        
         return render(request, "User/add-user.html")
 
 
@@ -651,7 +646,6 @@ class TradeMarginTab(View):
 
 class CreditView(View):
     def get(self, request,id):
-        print("dfsffsf",id)
         user = MyUser.objects.get(id=id)
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
@@ -1134,7 +1128,6 @@ class M2MProfitAndLoss(View):
             user_obj = MyUser.objects.filter(user_type="Client")
         elif request.user.user_type == "Admin":
             admin_obj = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
-            print(admin_obj)
             user_obj = MyUser.objects.filter(id__in=admin_obj)
         elif request.user.user_type == "Master":
             master_obj = user.master_user.master_user_link.all().values_list("client__id",flat=True)
@@ -1286,7 +1279,6 @@ class OpenPosition(View):
             user_names.append(request.user.user_name)
         elif request.user.user_type == "SuperAdmin":
             user_names = MyUser.objects.filter(role=request.user.role).exclude(id=request.user.id).values_list("user_name", flat=True)
-            print(user_names)    
         elif request.user.user_type == "Admin":
             masters = request.user.admin_user.admin_user.all().values_list('master_user__user_name', flat=True)
             clients = request.user.admin_user.admin_create_client.all().values_list('client__user_name', flat=True)
@@ -1304,7 +1296,6 @@ class ManageTrades(View):
         to_date = request.GET.get('to_date')
         status = request.GET.get('status')
         exchange = request.GET.get('exchange')
-        print(exchange)
         user_name = request.GET.get('user_name')
         user_obj = MyUser.objects.get(id=user.id)
         
@@ -1341,7 +1332,6 @@ class ManageTrades(View):
             
         if exchange:
             manage_trades = manage_trades.filter(ex_change=exchange)
-            print(manage_trades)
         if user_name:
             manage_trades = manage_trades.filter(buy_sell_user__user_name=user_name)
 
@@ -1392,7 +1382,6 @@ class TradeAccount(View):
             user_obj = MyUser.objects.filter(user_type="Client")
         elif request.user.user_type == "Admin":
             admin_obj = user.admin_user.admin_create_client.all().values_list("client__id",flat=True)
-            print(admin_obj)
             user_obj = MyUser.objects.filter(id__in=admin_obj)
         elif request.user.user_type == "Master":
             master_obj = user.master_user.master_user_link.all().values_list("client__id",flat=True)
@@ -1419,11 +1408,8 @@ class AccountSummary(View):
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
         p_and_l = request.GET.get('p_and_l')
-        print("p_and_l ===>",p_and_l)
         brk = request.GET.get('brk')
-        print("brk ===>",brk)
         credit = request.GET.get('credit')
-        print("credit ===>",credit)
         user = request.user
         account_summary = user.user_summary.all().values('id','user_summary__user_name', 'particular', 'quantity', 'buy_sell_type', 'price', 'average', 'summary_flg', 'amount', 'closing', 'open_qty','created_at')
         if from_date:
@@ -1567,12 +1553,7 @@ class WeeklyAdminView(View):
     def get(self, request):
         user = request.user
         user_obj = request.GET.get('user_name')
-        print(user_obj)
         check = MyUser.objects.filter(user_name=user_obj).values("id")
-        if check.exists():
-            print(check[0]["id"])
-        else:
-            print("User not found")
 
         if request.user.user_type == "SuperAdmin":
             user = request.user
@@ -1581,7 +1562,6 @@ class WeeklyAdminView(View):
             user = request.user
             admin_child = AdminModel.objects.filter(user=user).values_list("user__user_name", flat=True)
             master_child = MastrModel.objects.filter(admin_user=user.admin_user)
-            print(master_child)
             client_child = ClientModel.objects.filter(master_user_link__in=master_child).values_list('client__user_name', flat=True)
             user_names = list(master_child) + list(client_child)
            

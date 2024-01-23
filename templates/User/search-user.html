@@ -15,23 +15,46 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    const user_type = "{{request.user.user_type}}"
     $(document).ready(function () {
         function loadAllUsers() {
             $.ajax({
                 url: '{% url 'search-user-api' %}',
                 method: 'GET',
                 success: function (data) {
-                    data.data.map(mapItem =>
-                        $("#searchUserUlId").append(`
-                            <ul>
-                                <li>
-                                    <a href="#">${mapItem.master_user_details.user_name}</a>
-                                    <ul>
-                                        ${mapItem.clients.map(child => `<li>${child.client_user_details.user_name}</li>`).join('')}
-                                    </ul>
-                                </li>
-                            </ul>`)
-                    );
+                    if (user_type !== "SuperAdmin") {
+                        data.data.map(mapItem =>
+                            $("#searchUserUlId").append(`
+                                <ul>
+                                    <li>
+                                        <a href="#">${mapItem.master_user_details.user_name}</a>
+                                        <ul>
+                                            ${mapItem.clients.map(child => `<li>${child.client_user_details.user_name}</li>`).join('')}
+                                        </ul>
+                                    </li>
+                                </ul>`)
+                        );
+                    } else {
+//                        ${mapItem.masters.map(child => `<li>${child.master_user_details.user_name}</li>`).join('')}
+                        data.data.map(mapItem =>
+                            $("#searchUserUlId").append(`
+                                <ul>
+                                    <li>
+                                        <a href="#">${mapItem.user_details.user_name}</a>
+                                        <ul>
+                                            ${mapItem.masters.map(master => `<li><a href="#">${master.master_user_details.user_name}</a>
+                                                                            <ul>
+                                                                                ${master.clients.map(child => `<li>${child.client_user_details.user_name}</li>`).join('')}
+                                                                            </ul></li>`)
+                                            .join('')}
+                                        </ul>
+                                        <ul>
+                                            ${mapItem.clients.map(child => `<li>${child.client_user_details.user_name}</li>`).join('')}
+                                        </ul>
+                                    </li>
+                                </ul>`)
+                        );
+                    }
                 },
                 error: function (error) {
                     console.log(error);

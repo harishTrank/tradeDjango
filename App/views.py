@@ -863,18 +863,12 @@ class SearchUserAPI(APIView):
             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
             master_models = MastrModel.objects.filter(id__in=all_masters)
             serializer = MasterSerializer(master_models, many=True)
-            print(serializer.data)
         elif request.user.user_type == "Admin":
-            admin_models = AdminModel.objects.filter(admin_user=request.user).values_list('id', flat=True)
-            print(admin_models)
-            # all_masters = admin_models.admin_user.all().values_list('id', flat=True)
-            # admin_master_models = MastrModel.objects.filter(id__in=all_masters)
-            # serializer = MasterSerializer(admin_master_models, many=True)
-            serializer = []
+            master_models = MastrModel.objects.filter(admin_user=request.user.admin_user.id)
+            serializer = MasterSerializer(master_models, many=True)
         elif request.user.user_type == "SuperAdmin":
-            all_users_except_current = MyUser.objects.exclude(id=request.user.id)
-            serializer = MyUserSerializerParticularDetails(all_users_except_current, many=True)
-            print(serializer.data)
+            all_users_except_current = AdminModel.objects.filter(user__id__in=MyUser.objects.exclude(id=request.user.id).filter(role=request.user.role, user_type="Admin").values_list('id', flat=True))
+            serializer = AdminSerializer(all_users_except_current, many=True)
         return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
 
