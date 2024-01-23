@@ -430,6 +430,7 @@ class ListUserView(View):
             response_user = MyUser.objects.filter(id__in=list(master_ids) + list(client_ids))
         elif user.user_type == "SuperAdmin":
             response_user = MyUser.objects.exclude(id=user.id).order_by("user_name")
+            print(response_user)
 
         if requested_user_type == "Master":
             response_user = response_user.filter(user_type="Master")
@@ -545,6 +546,17 @@ class UserDeatilsViewById(View):
         exchange_obj = ExchangeModel.objects.filter(user=user).values("symbol_name","exchange")
         return render(request, "components/user/user-deatils.html", {"id":id,"user":user, "exchange_obj":exchange_obj})
 
+
+class OpenPositionView(View):
+    def get(self, request):
+        result = (
+                AccountSummaryModal.objects.filter(user_summary__id=request.GET.get("id"), particular=request.GET.get("coin"))
+                .values('particular','quantity', 'buy_sell_type','price','average','summary_flg','amount','closing','open_qty','user_summary__user_name')
+        )
+        print(result)
+        return render(request, "components/user/open-position.html")
+
+ 
 class UserDeatilsView(View):
     def get(self, request):
         return render(request, "components/user/user-deatils.html")

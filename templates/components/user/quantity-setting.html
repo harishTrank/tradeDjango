@@ -1,9 +1,31 @@
 {% include "components/new-tab/user-header.html" %}
 {% load static %}{% block newtab %}
 
-<div class="tab-content" id="quantitysetting">
-    <div class="trade-btm">
-        <div class="mb-10">
+<div class="tab-content" id="trademargin">
+  <div class="flex">
+    <div class="trade-download">
+      <div style="transform: rotate(90deg); padding-left: 10px; cursor:pointer;">
+        <p id="qunatityFilterId">Filter</p>
+      </div>
+      {% comment %} <span>
+        <a href=""><i class="fa-solid fa-file-csv"></i></a>
+      </span> {% endcomment %}
+    </div>
+    <div class="trades-side">
+      <div class="trade-top">
+        <div class="flex space-bw">
+          <div>
+            <p>Filter</p>
+          </div>
+          <div class="closeBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </div>
+        </div>
+      </div>
+      <form method="get">
+        {% csrf_token %}
+      <div class="trade-btm">
+        <div class="flex space-bw">
             <label for="">Exchange:</label>
             <select name="exchange_name" id="selectedExchangeId" style="width: 250px;" class="form-control">
               {% for i in exchange %}
@@ -16,25 +38,64 @@
                   {% endif %}
               {% endfor %}
             </select>
-            <input type="submit" value="Edit" class="form-btn mr" style="border: 1px solid white;">
         </div>
+        <div class="flex space-bw">
+          <label for="">Lot</label>
+          <input style="width: 95px !important;" id="tradepriceValueId" value="1" type="number" name="price" class="form_control" />
+          <input style="width: 95px !important;" id="tradepriceValueId" value="1" type="number" name="price" class="form_control" />
+        </div>
+        <div style="display: flex">
+          <button
+          type="button"
+          value="Apply"
+          class="form-btn mr"
+          style="border: 1px solid white"
+          id="applyFilterId"
+          onclick="updateTradeMarginValue()"
+        >
+          Apply
+        </button>
+          <button
+            type="submit"
+            value="Update"
+            class="cancel-btn"
+            style="border: 1px solid white"
+            onClick="tradeMarginOnclick(event)"
+            >Update
+          </button>
+          <button
+            style="
+              width: 100%;
+              color: white;
+              background-color: rgb(89, 89, 229);
+              border: 1px solid white;
+              padding: 4px;"
+              onClick="updateAllUsers(event)"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+    </form>
     </div>
-    <div class="user-table col-100" style="width: 55%;">
+    <div class="trades-body user-table">
+      <div class="pos-relate">
         <table style="width: 100%;">
-            <tr>
-                <th>Script</th>
-                <th>Lot Size</th>
-                <th>Lot Max</th>
-                <th>Breakup Qty</th>
-                <th>Breakup Lot</th>
-                <th>Last Updated</th>
-            </tr>
+          <tr>
+              <th>Script</th>
+              <th>Lot Size</th>
+              <th>Lot Max</th>
+              <th>Breakup Lot</th>
+              <th>Last Updated</th>
+          </tr>
 
-            <tbody id="quantityTableBody">
-             
-            </tbody>
-        </table>
+          <tbody id="quantityTableBody">
+           
+          </tbody>
+      </table>
+      </div>
     </div>
+  </div>
 </div>
 
 
@@ -58,7 +119,6 @@
               <td>${item.identifier}</td>
               <td>${item.max_qty}</td>
               <td>${item.max_lot}</td>
-              <td>${item.breakup_qty}</td>
               <td>${item.breakup_lot}</td>
               <td>${formattedDate}</td>
             </tr>
@@ -73,7 +133,7 @@
   }
   
   $('#selectedExchangeId').on('change', function() {
-    apiCallForAllExchange(); // Trigger API call when the selection changes
+    apiCallForAllExchange(); 
   });
   
   apiCallForAllExchange();

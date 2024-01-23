@@ -23,6 +23,7 @@ urlpatterns = [
     
     path("user-deatils",UserDeatilsView.as_view(),name="user-deatils"),
     path("user-deatils-by-id/<str:id>",UserDeatilsViewById.as_view(),name="user-deatils-by-id"),
+    path("tab-open-position/",OpenPositionView.as_view(),name="tab-open-position"),
     path("user-script/<str:id>",UserScriptMaster.as_view(),name="user-script"),
     
     path("group-setting",GropuSettingView.as_view(),name="group-setting"),

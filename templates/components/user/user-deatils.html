@@ -131,7 +131,6 @@
       <div class="pos-relate">
         <table style="width: 100%">
           <tr>
-            <th>View</th>
             <th>Exchange</th>
             <th>Symbol</th>
             <th>Position</th>
@@ -265,13 +264,13 @@ $('#deatilsFilterOpenId').click(function () {
 
           socket.on("filterDataSend", (data) => {
             $("#totalPriceId").html(`P/L: ${updateTotalPrice(data, res.response).toFixed(2)}`);
+            console.log("=====>",data)
             $("#positionLiveDataid").empty();
             data.map(item => {
               const current_data = res.response.find(findItem => findItem.identifer === item.InstrumentIdentifier)
               const profitLossValue = profitLossHandler(current_data, item);
               $("#positionLiveDataid").append(`
                 <tr>
-                  <td>View</td>
                   <td>${item.Exchange}</td>
                   <td>${item.InstrumentIdentifier}</td>
                   <td style="color: ${current_data.total_quantity < 0 ? 'red' : 'blue'};">${current_data.total_quantity > 0 ? "BUY" : "SELL"}</td>
@@ -311,6 +310,9 @@ $('#deatilsFilterOpenId').click(function () {
             }
         })
     })
+    {% comment %} <td onclick="openPositionss('${window.location.href.split("/")[window.location.href.split("/").length - 1]}', '${item?.InstrumentIdentifier}')">
+      <i class="fa-solid fa-eye"></i>
+    </td> {% endcomment %}
 
     $("#scriptNameId").change((event) => {
         socket.on("connect", () => {
@@ -416,7 +418,19 @@ $('#deatilsFilterOpenId').click(function () {
             })
         }
     })
+
+
+
+  
+    {% comment %} const openPositionss = (id="", coin="") => {
+      var left = (screen.width/2)-(1200/2);
+      var top = (screen.height/2)-(600/2);
+      window.open(`/tab-open-position?id=${id}&coin=${coin}`, 'NewWindow', `width=1200,height=600,left=${left},top=${top}`);
+      localStorage.setItem("currentUserID");
+  } {% endcomment %}
     
+
+
 </script>
 
 {% endblock newtab %}
