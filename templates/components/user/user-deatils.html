@@ -136,6 +136,7 @@
             <th>Symbol</th>
             <th>Position</th>
             <th>Quantity</th>
+            <th>LOT</th>
             <th>Average Rate</th>
             <th>CMP</th>
             <th>Profit / Loss</th>
@@ -275,6 +276,7 @@ $('.user-deatils').click(function () {
                   <td>${item.InstrumentIdentifier}</td>
                   <td style="color: ${current_data.total_quantity < 0 ? 'red' : 'blue'};">${current_data.total_quantity > 0 ? "BUY" : "SELL"}</td>
                   <td>${current_data.total_quantity > 0 ? current_data.total_quantity : -current_data.total_quantity}</td>
+                  <td>${item.QuotationLot}</td>
                   <td>${current_data.total_quantity > 0 ? Math.round(current_data.avg_buy_price * 100) / 100 : Math.round(current_data.avg_sell_price * 100) / 100}</td>
                   <td>${current_data.total_quantity > 0 ? item.BuyPrice : item.SellPrice}</td>
                   ${profitLossValue && profitLossValue > 0 ? `<td style="color: blue">${profitLossValue}</td>` : `<td style="color: red">${profitLossValue}</td>`}
