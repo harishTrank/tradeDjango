@@ -196,7 +196,53 @@
     const intradaySquare = () =>{
       $("#intradayId").css("display", "block")
       $('.action_dropdown').toggle();
-    }
-    
+     
+    axios.get(`{% url "intraday-squareoff-check" %}?user_id=${$("#current_selected_userId").val()}`, {
+      headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+      }
+    })
+    .then(response => {
+        console.log("res ==", response);
+        $("#mcxId").prop("checked", response.data.data.mcx);
+        $("#nseId").prop("checked", response.data.data.nse);
+        $("#miniId").prop("checked", response.data.data.mini);
+    })
+    .catch(error => {
+        console.log("err", error);
+    });
+  }
+
+
+  const intradayHandler = (event) => {
+    event.preventDefault();
+  
+    const selectedUserId = $("#current_selected_userId").val();
+  
+    axios
+      .post(
+        `{% url "intraday-squareoff-check" %}?user_id=${selectedUserId}`,
+        {
+          nse: $("#nseId").prop("checked"),
+          mcx: $("#mcxId").prop("checked"),
+          mini: $("#miniId").prop("checked"),
+        },
+        { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+      )
+      .then((response) => {
+        console.log("Response:", response.data);
+        toastMixin.fire({
+          animation: true,
+          title: response.data.message,
+          icon: "success",
+        });
+        setTimeout(() => window.location.reload(), 2800);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  
   </script>
 </html>

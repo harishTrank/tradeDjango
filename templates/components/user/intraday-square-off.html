@@ -1,74 +1,62 @@
 <div class="create-profile" id="intradayId">
     <div class="change-pass">
-      <div class="create-profile-inside" style="width: 20%;">
-        <div class="top-body flex align-center space-bw align-center">
-          <div class="flex admin-right">
-            <p>Indraday Square Off</p>
-          </div>
-          <div>
-            <i class="fa-solid fa-x closeAccountLimit"></i>
-          </div>
+        <div class="create-profile-inside" style="width: 20%;">
+            <div class="top-body flex align-center space-bw align-center">
+                <div class="flex admin-right">
+                    <p>Indraday Square Off</p>
+                </div>
+                <div>
+                    <i class="fa-solid fa-x closeAccountLimit"></i>
+                </div>
+            </div>
+            <div class="middle-body">
+                <div class="inner-middle-body">
+                    <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
+                        <p>MCX:</p>
+                        <label class="switch">
+                            <input id="mcxId" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
+                        <p>NSE:</p>
+                        <label class="switch">
+                            <input id="nseId" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
+                        <p>MINI:</p>
+                        <label class="switch">
+                            <input id="miniId" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="save-cancel-btn flex space-bw mrg-tb">
+                    <div class="btns">
+                        <button onClick="intradayHandler(event)" style="padding: 5px 10px" type="button" id="saveButton">Save</button>
+                        <button style="padding: 5px 10px" type="button" id="cancelButton">Cancel</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="middle-body">
-          <div class="inner-middle-body">
-            <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
-                <p>MCX:</p>
-                <label class="switch">
-                  <input id="mcxId" type="checkbox" />
-                  <span class="slider round"></span>
-                </label>
-              </div>
-              <p>NSE:</p>
-              <label class="switch">
-                <input id="nseId" type="checkbox" />
-                <span class="slider round"></span>
-              </label>
-            </div>
-            </div>
-            <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
-                <p>MINI:</p>
-                <label class="switch">
-                  <input id="miniId" type="checkbox" />
-                  <span class="slider round"></span>
-                </label>
-              </div>
-            </div>
-            <div class="save-cancel-btn flex space-bw mrg-tb">
-              <div class="btns">
-                <button style="padding: 5px 10px" type="submit">Save</button>
-                {% comment %} <button style="padding: 5px 10px" type="submit">Cancel</button> {% endcomment %}
-              </div>
-            </div>
-        </div>
-      </div>
     </div>
-  </div>
-  
-  <style>
+</div>
+
+<style>
     #intradayId {
-      display: none;
+        display: none;
     }
-  
+</style>
 
-  </style>
-  
-  <script>
-    const selectedUserId = $("#current_selected_userId").val();
-    console.log("==========", selectedUserId);
-    
-      $("#intradayId").click(()=>{
-        axios.get(`{% url "intraday-squareoff-check" %}?user_id=${$("#current_selected_userId").val()}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-        .then(res => {
-            console.log("res ==", res);
-          $("#mcxId").prop("checked",response.data.data.trade_right);
-          $("#nseId").prop("checked",response.data.data.trade_right);
-          $("#miniId").prop("checked",response.data.data.trade_right);
-        })
-        .catch(err => {
-            console.log("err", err);
-        });
-      })
-    
+<script>
 
-  </script>
-  
+    $("#cancelButton").click(() => {
+        $("#intradayId").css("display","none")
+    });
+
+    $(".closeAccountLimit").click(() => {
+        $("#intradayId").css("display","none")
+    });
+</script>
