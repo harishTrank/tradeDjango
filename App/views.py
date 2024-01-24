@@ -863,18 +863,12 @@ class SearchUserAPI(APIView):
             all_masters = [request.user.master_user.id] + list(total_parent_master) + list(MastrModel.objects.filter(master_link__id__in=list(total_parent_master)).values_list('id', flat=True))
             master_models = MastrModel.objects.filter(id__in=all_masters)
             serializer = MasterSerializer(master_models, many=True)
-            print(serializer.data)
         elif request.user.user_type == "Admin":
-            admin_models = AdminModel.objects.filter(admin_user=request.user).values_list('id', flat=True)
-            print(admin_models)
-            # all_masters = admin_models.admin_user.all().values_list('id', flat=True)
-            # admin_master_models = MastrModel.objects.filter(id__in=all_masters)
-            # serializer = MasterSerializer(admin_master_models, many=True)
-            serializer = []
+            master_models = MastrModel.objects.filter(admin_user=request.user.admin_user.id)
+            serializer = MasterSerializer(master_models, many=True)
         elif request.user.user_type == "SuperAdmin":
-            all_users_except_current = MyUser.objects.exclude(id=request.user.id)
-            serializer = MyUserSerializerParticularDetails(all_users_except_current, many=True)
-            print(serializer.data)
+            all_users_except_current = AdminModel.objects.filter(user__id__in=MyUser.objects.exclude(id=request.user.id).filter(role=request.user.role, user_type="Admin").values_list('id', flat=True))
+            serializer = AdminSerializer(all_users_except_current, many=True)
         return Response({"success":True, "message": "Data getting successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -1453,6 +1447,7 @@ class PieChartHandlerApi(APIView):
                 totalQuantity = totalQuantity.order_by('-coin_name')[:limit]
             
             tableResult = []
+            new_result = []
             for obj in totalQuantity:
                 currentRow = {}
                 currentRow["coin_name"] = obj["coin_name"]
@@ -1462,8 +1457,9 @@ class PieChartHandlerApi(APIView):
                 sellRecord = currentResult.filter(coin_name=obj["coin_name"], action="SELL").values('coin_name').annotate(total_quantity=Sum('quantity'))
                 currentRow["sell"] = -sellRecord[0]["total_quantity"] if len(sellRecord) > 0 else  0
                 tableResult.append(currentRow)
+                new_result.append({"x": obj["coin_name"], "value": obj["total_quantity"]})
                 
-            return Response({"success": True, "message": "Pie chart data fetch successfully.", "labels": totalQuantity.values_list("coin_name", flat=True), "chartValue": totalQuantity.values_list("total_quantity", flat=True), "tableResult": tableResult}, status=status.HTTP_200_OK)
+            return Response({"success": True, "message": "Pie chart data fetch successfully.", "tableResult": tableResult, "new_result": new_result}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e, "eeeeee")
             return Response({"success": False, "message": "No record found"}, status=status.HTTP_404_NOT_FOUND)

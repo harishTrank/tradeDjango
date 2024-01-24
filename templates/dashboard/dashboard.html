@@ -37,7 +37,7 @@
               {% if symbol.symbol_name == "NSE" and symbol.exchange %}
                 <div><input id="nseBarCheckedId" type="checkbox" checked />NSE</div>
               {% elif symbol.symbol_name == "MCX" and symbol.exchange %}
-                <div><input id="mcxPieChartId" type="checkbox" checked />MCX</div>
+                <div><input id="mcxBarCheckedId" type="checkbox" checked />MCX</div>
               {% elif symbol.symbol_name == "MINI" and symbol.exchange %}
                 <div>
                   <input id="miniBarCheckedId" type="checkbox" checked />MINI
@@ -161,9 +161,9 @@
               <div
                 id="secChartID"
                 class="chart-container"
-                style="height: 44.5vh; width: 45vh"
+                style="height: 44.8vh; width: 70vh"
               >
-                <canvas id="secondChart"></canvas>
+                <div id="containerPieChart" style="width: 100%; height: 100%"></div>
               </div>
               <div>
                 <div
@@ -191,6 +191,7 @@
   </div>
 
   <script>
+
     function chartViewId() {
         $("#myChartId").css('display','block');
         $("#chartTableId").css('display','none');
@@ -227,6 +228,7 @@
 
     // first chart js
     var barChart;
+
     const barChartCreator = (user_id="{{request.user.id}}") => {
         let currentCoin = [];
         $("#mcxBarCheckedId").is(":checked") ? currentCoin.push("MCX") : currentCoin = currentCoin.filter(item => item !== "MCX");
@@ -302,26 +304,17 @@
             currentCoin
         }, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
         .then(res => {
-          console.log("--------res",res)
-            pieChart = new Chart($("#secondChart"), {
-                type: 'pie',
-                data: {
-                    labels: res.data.labels,
-                    datasets: [{
-                      label: 'My First Dataset',
-                      data: res.data.chartValue,
-                      hoverOffset: 4
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                        }
-                    }
-                }
-            });
+            if (pieChart) {
+              pieChart.dispose();
+            }
+            pieChart = anychart.pie();
+            pieChart.data(res?.data?.new_result);
+            pieChart.container('containerPieChart');
+            pieChart.legend().position("right");
+            pieChart.legend().itemsLayout("vertical");
+            pieChart.draw();
 
+            $(".anychart-credits").css("display", "none");
             $("#piechartTableId").empty();
             res.data.tableResult.map(item => {
                 $("#piechartTableId").append(`
@@ -337,7 +330,6 @@
     }
 
   $("#submitPieChartFilterBtn").click(() => {
-      pieChart && pieChart.destroy();
       pieChartCreateHandler();
   })
   pieChartCreateHandler();
