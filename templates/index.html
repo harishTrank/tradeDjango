@@ -169,6 +169,27 @@
     const parentLimitInfo = () =>{
       $("#parentLimitInfoId").css("display", "block")
       $('.action_dropdown').toggle();
+      axios
+      .get(
+        `{% url "account-limit" %}?user_id=${$(
+          "#current_selected_userId"
+        ).val()}`,
+        { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+      )
+      .then((res) => {
+        $("#parentmasterlimit").text(res.data.master_limit);
+        $("#parentclientlimit").text(res.data.client_limit);
+        $("#parentmasterOccId").text(res.data.master_occupied);
+        $("#parentmasterRemId").text(res.data.master_remaining);
+        $("#parentclientOccId").text(res.data.client_occupied);
+        $("#parentclientRemId").text(res.data.client_remaining);
+        $("#parentmasterCreatedId").text(res.data.master_created);
+        $("#parentclientCreatedId").text(res.data.client_created);
+        console.log("parentLimitInfo ==", res);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
     }
     
   </script>
