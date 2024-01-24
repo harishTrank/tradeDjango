@@ -2,9 +2,11 @@
 
 <style>
     
-    .new-table{
-        width: calc(100% - 290px);
+  
+    .new-table {
+        width: calc(100% - 240px);
     }
+    
         .switch {
           position: relative;
           display: inline-block;
@@ -114,7 +116,7 @@
                 <a href="{% url 'Admin:download-csv' %}"><i class="fa-solid fa-file-csv"></i></a>
             </span>
         </div>
-        <div class="trades-side">
+        <div class="trades-side" style="width: 200px">
             <div class="trade-top">
                 <div class="flex space-bw">
                     <div>
@@ -140,6 +142,7 @@
                     <div>
                         <label for="">User Type:</label>
                         <select name="user_type" id="">
+                            <option value="">All</option>
                             <option value="Client">Client</option>
                             <option value="Master">Master</option>
                         </select>
@@ -257,7 +260,11 @@
                     {% endif %}
                     <td>{{i.created_at}}</td>
                         <td>{{ i.user_history.first.ip_address }}</td>
-                    <td>{{i.last_login }}</td>
+                    {% if i.last_login != None %}  
+                        <td>{{i.last_login }}</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </table>

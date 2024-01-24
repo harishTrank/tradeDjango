@@ -5,7 +5,7 @@
   <div class="flex">
     <div class="trade-download">
       <div style="transform: rotate(90deg); padding-left: 10px; cursor:pointer;">
-        <p id="qunatityFilterId">Filter</p>
+        <p id="quantityFilterId">Filter</p>
       </div>
       {% comment %} <span>
         <a href=""><i class="fa-solid fa-file-csv"></i></a>
@@ -15,7 +15,7 @@
       <div class="trade-top">
         <div class="flex space-bw">
           <div>
-            <p>Filter</p>
+            <p></p>
           </div>
           <div class="closeBtn">
             <i class="fa-solid fa-xmark"></i>
@@ -41,8 +41,14 @@
         </div>
         <div class="flex space-bw">
           <label for="">Lot</label>
-          <input style="width: 95px !important;" id="tradepriceValueId" value="1" type="number" name="price" class="form_control" />
-          <input style="width: 95px !important;" id="tradepriceValueId" value="1" type="number" name="price" class="form_control" />
+          <div>
+            <label for="">Max</label>
+            <input style="width: 95px !important;" id="maxLotId" value="1" type="number" name="price" class="form_control" />
+            </div>
+          <div>
+          <label for="">Breakup</label>
+          <input style="width: 95px !important;" id="breakUpId" value="1" type="number" name="price" class="form_control" />
+          </div>
         </div>
         <div style="display: flex">
           <button
@@ -51,7 +57,7 @@
           class="form-btn mr"
           style="border: 1px solid white"
           id="applyFilterId"
-          onclick="updateTradeMarginValue()"
+          onclick="applyOnclcik()"
         >
           Apply
         </button>
@@ -60,7 +66,7 @@
             value="Update"
             class="cancel-btn"
             style="border: 1px solid white"
-            onClick="tradeMarginOnclick(event)"
+            onClick="quantityUpdateOnclick(event)"
             >Update
           </button>
           <button
@@ -70,7 +76,7 @@
               background-color: rgb(89, 89, 229);
               border: 1px solid white;
               padding: 4px;"
-              onClick="updateAllUsers(event)"
+             
           >
             Clear
           </button>
@@ -82,6 +88,7 @@
       <div class="pos-relate">
         <table style="width: 100%;">
           <tr>
+            <th><input id="qunatityCheckBoxId" type="checkbox" /></th>
               <th>Script</th>
               <th>Lot Size</th>
               <th>Lot Max</th>
@@ -101,9 +108,72 @@
 
 <script>
 
+  $('.closeBtn').click(function () {
+    $(".trades-side").hide();
+    $(".trades-body").css("width", "95%");
+});
+
+$('#quantityFilterId').click(function () {
+  $(".trades-side").show();
+  $(".trades-body").css("width", "66%");
+});
+
+  $("#qunatityCheckBoxId").click(function(){
+    $('input:checkbox').not(this).prop('checked', this.checked);
+  });
+
+  const qunatityvalidateCheckbox = () => {
+    const checkboxes = $("#quantityTableBody input:checkbox:checked");
+  
+    if (checkboxes.length === 0) {
+      alert("Please select at least one checkbox.");
+      return false;
+    }
+    return true;
+  };
+
+  let tradeMarginIds = []; 
+$("#qunatityCheckBoxId").click(function() {
+  $('#quantityTableBody input:checkbox').prop('checked', this.checked);
+
+  if ($(this).is(':checked')) {
+    tradeMarginIds = [];
+    $('.brkCheckAllClass').each(function() {
+      if (!(tradeMarginIds.includes($(this).val()))) {
+        tradeMarginIds.push($(this).val());
+      }
+    });
+    console.log('All checked item IDs:', tradeMarginIds);
+  } else {
+    tradeMarginIds = []
+  }
+});
+
+
+$(document).on('change', '.brkCheckAllClass', function() {
+  if ($(this).is(':checked')) {
+    tradeMarginIds.push($(this).val()); 
+  } else if (!$(this).is(':checked')) {
+    tradeMarginIds = tradeMarginIds.filter(itm => itm !== $(this).val());
+  } else {
+    if (!$("#quantityTableBody").is(':checked')) {
+      tradeMarginIds = [];
+      console.log('All items unchecked. Emptying tradeMarginIds array.');
+    } else {
+      const index = tradeMarginIds.indexOf($(this).val());
+      if (index !== -1) {
+        tradeMarginIds.splice(index, 1); 
+      }
+      console.log('Selected item IDs:', tradeMarginIds);
+    }
+  }
+  console.log('Selected item IDs:', tradeMarginIds);
+});
+
+
+
   const apiCallForAllExchange = () => {
     const selectedExchange = $("#selectedExchangeId").val(); 
-   
   
     $.ajax({
       type: "GET",
@@ -116,10 +186,11 @@
           const formattedDate = `${createdAt.getMonth() + 1}/${createdAt.getDate()}/${createdAt.getFullYear()} ${createdAt.getHours()}:${createdAt.getMinutes()}:${createdAt.getSeconds()}`;
           $("#quantityTableBody").append(`
             <tr>
+              <td><input class="brkCheckAllClass" value="${item.id}" type="checkbox"></td>
               <td>${item.identifier}</td>
-              <td>${item.max_qty}</td>
-              <td>${item.max_lot}</td>
-              <td>${item.breakup_lot}</td>
+              <td>${item.lot_size}</td>
+              <td class="lotValueCell">${item.max_lot}</td>
+              <td class="breakupValueCell">${item.breakup_lot}</td>
               <td>${formattedDate}</td>
             </tr>
           `);
@@ -137,6 +208,60 @@
   });
   
   apiCallForAllExchange();
+
+
+
+  function applyOnclcik() {
+    const maxLotvalue = $("#maxLotId").val();
+    const inputValue = $("#breakUpId").val();
+    const checkedCheckboxes = $('#quantityTableBody input:checkbox:checked');
+    if (checkedCheckboxes.length === 0) {
+      alert('Please select at least one checkbox.');
+      return;
+    }
+    checkedCheckboxes.each(function() {
+      const row = $(this).closest('tr');
+      const cell1 = row.find('.lotValueCell');
+      const cell2 = row.find('.breakupValueCell');
+      cell1.text(maxLotvalue);
+      cell2.text(inputValue);
+      
+    });
+  }
+
+
+  const quantityUpdateOnclick = (event) => {
+    event.preventDefault();
+    if (!qunatityvalidateCheckbox()) {
+      return;
+    }
+    const body = {
+      max_lot: $("#maxLotId").val(),
+      breakup_lot: $("#breakUpId").val(),
+      object_list: tradeMarginIds 
+    };
+  
+    axios
+      .post(
+        '{% url "quantity-setting-api" %}',
+        body,
+        { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+      )
+      .then((response) => {
+        console.log("Response:", response.data);
+        toastMixin.fire({
+          animation:true,
+          title:response.data.message,
+          icon: "success",
+        });
+        setTimeout(()=>
+        window.location.reload(),2800
+        )
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 </script> 
 
 

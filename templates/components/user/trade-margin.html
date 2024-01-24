@@ -203,6 +203,8 @@ $(document).on('change', '.brkCheckAllClass', function() {
   if ($(this).is(':checked')) {
     tradeMarginIds.push($(this).val()); 
     console.log('Selected item IDs:', tradeMarginIds);
+  }else if (!$(this).is(':checked')) {
+    tradeMarginIds = tradeMarginIds.filter(itm => itm !== $(this).val());
   } else {
     if (!$("#radeMarginTableId").is(':checked')) {
       tradeMarginIds = [];
@@ -216,6 +218,7 @@ $(document).on('change', '.brkCheckAllClass', function() {
     }
   }
 });
+
 
 const tradeMarginOnclick = (event) => {
   event.preventDefault();

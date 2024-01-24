@@ -41,6 +41,7 @@ urlpatterns = [
     
     path("account-limit/", AccountLimitApi.as_view(), name="account-limit"),
     path("user-details-api/", UserDetailsAPIView.as_view(), name="user-details-api"),
+    path("quantity-setting-api/", QuanityUpdateAllApi.as_view(), name="quantity-setting-api"),
     path("brk-setting-api/", BrokrageSettings.as_view(), name="brk-setting-api"),
     path("trademargin-setting-api/", TradeMarginSetting.as_view(), name="trademargin-setting-api"),
     path("trademargin-all-setting-api/", TradeMarginUpdateAllApi.as_view(), name="trademargin-all-setting-api"),

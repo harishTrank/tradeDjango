@@ -42,7 +42,10 @@
             <input id="clientRemId" readonly type="text" placeholder="1 Remaining" />
           </div>
           <div class="save-cancel-btn flex space-bw mrg-tb">
-            <div style="cursor:pointer;"><a onClick="parentLimitInfo()">Parent Limit Info</a></div>
+            <div style="cursor:pointer; text-decoration: underline;">
+              <a style="color: blue !important; cursor: pointer;" onclick="parentLimitInfo()">Parent Limit Info</a>
+            </div>
+            
             <div class="btns">
               <button
                 style="padding: 5px 10px"
@@ -189,6 +192,19 @@
 </style>
 
 <script>
+
+  var checkbox = document.querySelector("#limitId");
+  var input = document.querySelector("#master_limit");
+  var input2 = document.querySelector("#client_limit");
+
+  var toogleInput = function(e){
+    input.disabled = !e.target.checked;
+    input2.disabled = !e.target.checked;
+  };
+
+  toogleInput({target: checkbox});
+  checkbox.addEventListener("change", toogleInput);
+  
 
 
   

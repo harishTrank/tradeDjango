@@ -1032,6 +1032,21 @@ class WeeklyAdminListApi(APIView):
             print(e)
             return Response({"success": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 
+
+class QuanityUpdateAllApi(APIView):
+    def post(self, request):
+        try:
+            max_lot = request.data.get("max_lot")
+            breakup_lot = request.data.get("breakup_lot")
+            object_list = request.data.get("object_list")
+            records = AdminCoinWithCaseModal.objects.filter(id__in=object_list)
+            records.update(max_lot=float(max_lot),breakup_lot=float(breakup_lot))
+            return Response({"status": True, "message": "Data update successfully."})
+        except Exception as e:
+            print(e)
+            return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+
+
 class BrokrageSettings(APIView):
     def get(self, request):
         try:

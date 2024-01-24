@@ -425,11 +425,11 @@ class ListUserView(View):
             response_user = MyUser.objects.filter(id__in=list(master_ids) + list(client_ids))
         elif user.user_type == "SuperAdmin":
             response_user = MyUser.objects.exclude(id=user.id).order_by("user_name")
-            print(response_user)
+            # print(response_user)
 
         if requested_user_type == "Master":
             response_user = response_user.filter(user_type="Master")
-        else:
+        elif requested_user_type == "Client":
             response_user = response_user.filter(user_type="Client")
 
         if user_status == "In Active":
