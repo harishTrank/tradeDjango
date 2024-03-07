@@ -343,7 +343,6 @@ class EditUserView(View):
 
     def post(self, request, id):
         user = MyUser.objects.get(id=id)
-            
         user_data = {
             "full_name": request.POST.get("full_name"),
             "user_name": request.POST.get("user_name"),
@@ -425,7 +424,6 @@ class ListUserView(View):
             response_user = MyUser.objects.filter(id__in=list(master_ids) + list(client_ids))
         elif user.user_type == "SuperAdmin":
             response_user = MyUser.objects.exclude(id=user.id).order_by("user_name")
-            # print(response_user)
 
         if requested_user_type == "Master":
             response_user = response_user.filter(user_type="Master")

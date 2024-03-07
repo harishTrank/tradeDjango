@@ -50,7 +50,7 @@
           </div>
           <div class="col-25">
             <label for="">Credit*</label>
-            <input id="creditId" type="number" name="credit" class="form-group" />
+            <input id="creditId" type="number" min="0" value="0" name="credit" class="form-group" />
           </div>
           <div class="col-25">
             <label for="">Remark</label>
@@ -311,6 +311,14 @@ input:checked+.slider:before {
 
 
 <script>
+  $(document).ready(function(){
+    $("#creditId").keydown(function(e){
+    
+         if (e.key == "." || e.key=="-" || e.key=="0") {
+             e.preventDefault();
+         }
+ });
+ });
 
 function validateInput() {
   var userNameInput = document.getElementById("userNameId");
@@ -353,6 +361,7 @@ function validateInput() {
       document.getElementById('loader').style.display = 'none'; 
       return;
     }
+  
     if (password.length < 6 || confirmPassword.length < 6) {
       event.preventDefault(); // Prevent form submission
       alert('Password should be at least 6 characters long.');
