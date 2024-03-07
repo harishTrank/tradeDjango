@@ -280,17 +280,17 @@ class AddUserView(View):
                 turnover=exchange_data['turnover']
             )
         
-        if create_user.user_type == "Master" or create_user.user_type == "Client":
-                    response = requests.post(f"http://{NODEIP}/api/tradeCoin/coins", json={
-                        "coinList": exchangeList
-                    })
-                    if response.status_code // 100 == 2 and response.json()['success']:
-                        for obj in response.json()['response']:
-                            if "_" in obj['InstrumentIdentifier']:
-                                obj['InstrumentIdentifier'] = obj['InstrumentIdentifier'].split("_")[1]
+        # if create_user.user_type == "Master" or create_user.user_type == "Client":
+        #             response = requests.post(f"http://{NODEIP}/api/tradeCoin/coins", json={
+        #                 "coinList": exchangeList
+        #             })
+        #             if response.status_code // 100 == 2 and response.json()['success']:
+        #                 for obj in response.json()['response']:
+        #                     if "_" in obj['InstrumentIdentifier']:
+        #                         obj['InstrumentIdentifier'] = obj['InstrumentIdentifier'].split("_")[1]
                                 
-                            if AdminCoinWithCaseModal.objects.filter(master_coins=create_user, identifier=obj['InstrumentIdentifier'], ex_change=obj['Exchange']).count() == 0:
-                                AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
+        #                     if AdminCoinWithCaseModal.objects.filter(master_coins=create_user, identifier=obj['InstrumentIdentifier'], ex_change=obj['Exchange']).count() == 0:
+        #                         AdminCoinWithCaseModal.objects.create(master_coins=create_user, ex_change=obj['Exchange'], identifier=obj['InstrumentIdentifier'], lot_size=obj["QuotationLot"])
         return render(request, "User/add-user.html")
 
 
