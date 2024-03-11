@@ -1,6 +1,6 @@
 import requests
 
-NODEIP = '15.206.82.36:5000'
+NODEIP = '3.108.218.24:5000'
 # NODEIP = 'localhost:5000'
 
 def send_hello():

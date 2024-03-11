@@ -181,57 +181,56 @@
     }
   </style>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
-        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer">
-</script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+            integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+            crossorigin="anonymous" referrerpolicy="no-referrer">
+        </script>
 
 <script>
-    const BASE_URL = "http://15.206.82.36:5000";
+    const BASE_URL = "http://3.108.218.24:5000";
     
-
-    $(document).ready(function () {
+    $(document).ready(function ( ) {
         // Function to handle tab clicks
         $('.tab-head li').click(function () {
             var tabId = $(this).attr('data-id');
             $('#' + tabId).show().siblings().hide();
             $(this).addClass('active').siblings().removeClass('active');
 
-            // Store the active tab in local storage
+           
             localStorage.setItem('activeTab', tabId);
         });
 
-        // Function to show the stored active tab on page load
+        
         var activeTabId = localStorage.getItem('activeTab');
         if (activeTabId) {
             $('#' + activeTabId).show().siblings().hide();
             $('[data-id="' + activeTabId + '"]').addClass('active').siblings().removeClass('active');
         }
 
-        // Dropdown toggle functionality for Users
+       
         $('.user-view-dropdown').click(function () {
             var $dropdown = $("#user-dropdown");
-            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $('.view-dropdown').not($dropdown).hide(); 
             $dropdown.toggle();
         });
 
         // Dropdown toggle functionality for View
         $('.open-view-menu').click(function () {
             var $dropdown = $("#view-dropdown");
-            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $('.view-dropdown').not($dropdown).hide(); 
             $dropdown.toggle();
         });
 
         // Dropdown toggle functionality for Report
         $('.open-report-menu').click(function () {
             var $dropdown = $("#report-dropdown");
-            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $('.view-dropdown').not($dropdown).hide(); 
             $dropdown.toggle();
         });
 
         $('.open-tools-menu').click(function () {
             var $dropdown = $("#tools-dropdown");
-            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $('.view-dropdown').not($dropdown).hide(); 
             $dropdown.toggle();
         });
 
@@ -239,7 +238,7 @@
         $('.open-file-menu').click(function () {
             var $dropdown = $("#file-dropdown");
             $("#user_name_id").val("{{request.user.user_name}}");
-            $('.view-dropdown').not($dropdown).hide(); // Hide other dropdowns
+            $('.view-dropdown').not($dropdown).hide(); 
             $dropdown.toggle();
         });
 
