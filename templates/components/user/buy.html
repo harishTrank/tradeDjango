@@ -1,0 +1,165 @@
+<div class="create-account" id="buyWatchId">
+    <div class="change-password">
+      <div class="create-account-inside">
+        <div class="top-section flex align-center space-bw align-center">
+          <div class="flex admin-section">
+            <p>Purchase Orders</p>
+          </div>
+          <div id="buycloseId">
+            <i class="fa-solid fa-x closeAccountLimit"></i>
+          </div>
+        </div>
+        <div class="middle-section">
+          <div class="inner-middle-section flex space-bw">
+           <div class="client-info">
+            <label for="">Client Name</label>
+            <select name="" id="">
+                <option value=""></option>
+            </select>
+           </div>
+           <div class="client-info">
+            <label for="">Order Type</label>
+            <select name="" id="">
+                <option value=""></option>
+            </select>
+           </div>
+           <div class="client-info">
+            <label for="">Quantity</label>
+           <input type="text">
+           </div>
+           <div class="client-info">
+            <label for="">Sell Price</label>
+            <input type="number">
+           </div>
+           <div class="submit-btn ">
+           <label for="" style="color: #fff;">Submit</label>
+            <input type="submit">
+           </div>
+              
+              
+            </div>
+            <div class="inner-middle-section flex space-bw">
+                <div class="client-info">
+                 <label for="">Exchange</label>
+                 <select name="" id="">
+                     <option value="">MCX</option>
+                 </select>
+                </div>
+                <div class="client-info">
+                 <label for="">Symbol</label>
+                 <select name="" id="">
+                     <option value="">Gold 05 Apr 2024</option>
+                 </select>
+                </div>
+                <div class="client-info">
+                 <label for="">LotSize</label>
+                <input type="text">
+                </div>
+                <div class="client-info">
+                 <label for="">Remark</label>
+                 <input type="number">
+                </div>
+                <div class="submit-btn ">
+                    <label for="" style="color: #fff;">Cancel</label>
+                     <input type="submit">
+                 </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+<style>
+    .create-account {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5);
+        width: 100%;
+        height: 50%;
+        z-index: 99;
+      }
+      
+      .create-account-inside {
+        width: 44%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 999;
+        background: #e7e7e7;
+        border-radius: 10px;
+      }
+      
+      .admin-section i {
+        margin-right: 8px;
+        color: #ff0000;
+        font-size: 10px;
+        margin-top: 2px;
+      }
+      
+      .top-section {
+        background-color: #c9c9c9;
+        padding: 8px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+      }
+      
+      .middle-section {
+        background-color: #fff;
+        padding: 15px;
+      }
+      
+      .inner-middle-section {
+        padding: 6px;
+      }
+      
+      .client-info {
+        display: flex;
+        flex-direction: column;
+        width: 19%;
+      }
+      
+      .client-info select,
+      .client-info input {
+        margin-top: 5px;
+        padding: 7px;
+        border: 1px solid #000;
+      }
+      
+      .submit-btn {
+        display: flex;
+        flex-direction: column;
+        width: 19%;
+      }
+      
+      .submit-btn input {
+        margin-top: 5px;
+        padding: 7px;
+        background: #008000;
+        color: #fff;
+        border: 1px solid #fff;
+        font-weight: bold;
+      }
+      
+      .cancel-btn input {
+        margin-top: 5px;
+        padding: 7px;
+        background: #000;
+        color: #fff;
+        border: 1px solid #fff;
+        font-weight: bold;
+      }
+      
+      .cancel-btn {
+        display: flex;
+        flex-direction: column;
+        width: 19%;
+      }
+      
+</style>
+
+<script>
+    $(".buycloseId").click(() =>
+    $("#buyWatchId").css("display", "none")
+  );
+</script>

@@ -43,8 +43,23 @@
                         <option>Select</option>
                     </select>
                 </div>
-                {% comment %} <input id="" type="text" class="form-group"> {% endcomment %}
+                
             </div>
+            <div style='position:relative;' > 
+                <input style=" width: 260px;" id="inputWatchId" type="text" class="">
+                <div id="inputWatchDropDown" style="display: none;position: absolute;
+                z-index: 99;
+                background: #fff;
+                height: 200px;
+                overflow-y: scroll;
+                width: 260px;
+                padding: 5px;
+                overflow-x: hidden;" class='active'>
+                    <ul id="symbolList" class="form-group symbol"></ul>
+                </div>
+            </div>
+           
+            
         </div>
         <table style="width: 100%;">
             <div id="loader" style="display: none;"></div>
@@ -63,13 +78,81 @@
                 <th>Low</th>
                 <th>Close</th>
             </tr>
-            <tbody id="data-table-body">
-               
-            </tbody>
+            <p class="tbody">
+                <tbody id="data-table-body" style="background: #000; color: #fff;">
+                
+                </tbody>
+            </p>
         </table>
     </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 <script>
+
+ // Function to show the dropdown
+const showDropDown = () => {
+    $("#inputWatchDropDown").show();
+};
+
+// Function to hide the dropdown
+const hideDropDown = () => {
+    $("#inputWatchDropDown").hide();
+};
+
+// Function to handle input and show dropdown
+const selectCoinHandler = (val) => {
+    $("#inputWatchId").val(val);
+    hideDropDown();
+    $.ajax({
+        type:'POST',
+        url:'{% url "add-market-coin" %}',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {
+            trade_coin_id: val
+        },
+        success:function(res){
+            window.location.reload();
+        },
+        error:function(res){
+          alert(res?.responseJSON.message);
+        }
+    })
+}
+const watchSearchHandler = () => {
+    console.log("event", $("#inputWatchId").val());
+    setTimeout(() => {
+        if ($("#inputWatchId").val().length > 0) {
+            axios.get(`${BASE_URL}/api/tradeCoin?search=${$("#inputWatchId").val()}`)
+                .then(res => {
+                    console.log("res ==", res);
+                    const symbolList = $("#symbolList");
+                    symbolList.empty(); // Clear existing list items
+                    res.data.response.forEach(item => {
+                        symbolList.append($(`<li onClick="selectCoinHandler('${item.InstrumentIdentifier}')" style="cursor: pointer;">${item.InstrumentIdentifier}</li>`));
+                    });
+                    showDropDown(); // Show dropdown after populating
+                })
+                .catch(err => {
+                    console.log("err", err);
+                });
+        } else {
+            hideDropDown(); // Hide dropdown if input is empty
+        }
+    }, 500);
+};
+
+// Event listeners
+$("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
+
+    
+    
+
+
+    {% comment %} const toggleMenuOption = (identifier) => {
+        console.log("kya dekh raha lode", identifier)
+        
+    } {% endcomment %}
     const baseNodeURL = BASE_URL
     const socket = io(baseNodeURL);  
 
@@ -90,13 +173,10 @@
         socket.emit("filterDataGet", {"identifier": identifier });
         let previousResult = [];
         socket.on("filterDataSend", (data) => {
-        const tableBody = document.getElementById('data-table-body');
-        tableBody.innerHTML = '';
-
-
+        $("#data-table-body").empty();
         data.forEach((item) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+            $("#data-table-body").append( `
+            <tr style="cursor: pointer;" onClick="toggleMenuOption('${item.InstrumentIdentifier}')">
                 <td>${item.Exchange}</td>
                 <td>${item.InstrumentIdentifier}</td>
                 <td>${item.BuyQty}</td>
@@ -110,8 +190,8 @@
                 <td>${item.LastTradeTime}</td>
                 <td>${item.Low}</td>
                 <td>${item.Close}</td>
-            `;
-            tableBody.appendChild(row);
+            </tr>
+            `);
             if (item.BuyPrice && previousResult.find(findItem => findItem.identifier === item.InstrumentIdentifier)?.buyPrice !== item.BuyPrice) {
                 $(`#b${item.InstrumentIdentifier}`).css("background", item.buyColor);
                 setTimeout(() => $(`#b${item.InstrumentIdentifier}`).css("background", "transparent"), 500);
@@ -166,9 +246,10 @@
     }
   });
 
+
+
   const selectSymbolHandler = () => {
     let result = $(".symbol").val();
-    console.log("result", result, '{% url "add-market-coin" %}');
 
     $.ajax({
         type:'POST',

@@ -424,6 +424,8 @@ class ListUserView(View):
             response_user = MyUser.objects.filter(id__in=list(master_ids) + list(client_ids))
         elif user.user_type == "SuperAdmin":
             response_user = MyUser.objects.exclude(id=user.id).order_by("user_name")
+        if user.user_type == "Client":
+            response_user = MyUser.objects.filter(id=request.user.id).order_by("user_name")
 
         if requested_user_type == "Master":
             response_user = response_user.filter(user_type="Master")
@@ -1073,6 +1075,7 @@ class PositionsView(View):
             response = response.filter(buy_sell_user__id__in=user_keys)
         elif request.user.user_type == "Client":
             user_list = []
+            user_keys = []
             response = response.filter(buy_sell_user__id=request.user)
         else:
             user_keys = [request.user.id]

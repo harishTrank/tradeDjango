@@ -97,12 +97,9 @@
     {% include "components/password-popup.html" %}
     {% include "components/user/parent-limit-info.html" %}
     {% include "components/user/intraday-square-off.html" %}
-    {% comment %} <script
-      src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
-      integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script> {% endcomment %}
+    {% comment %} {% include "components/user/w-popup.html" %}
+    {% include "components/user/buy.html" %} {% endcomment %}
+    
 
   </body>
   <script>
@@ -167,6 +164,15 @@
       $("#tradeRightId").css("display", "block");
       $('.action_dropdown').toggle();
     }
+    const toggleMenuOption = () => {
+      $("#watchPopUpId").css("display", "block")
+      $('.action_dropdown').toggle();
+    }
+    {% comment %} const watchBuyId = () => {
+      $("#buyWatchId").css("display","block")
+      $(".action_dropdown").toggle();
+    } {% endcomment %}
+
     const parentLimitInfo = () =>{
       $("#parentLimitInfoId").css("display", "block")
       $('.action_dropdown').toggle();

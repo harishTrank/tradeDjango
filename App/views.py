@@ -1584,5 +1584,13 @@ class UserScriptPositionTrack(APIView):
         except Exception as e:
             print(e)
             return Response({"status": False}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class DeleteIndentifer(APIView):
+    def post(self, request):
+        user = request.user
+        market_watch_objects = MarketWatchModel.objects.filter(market_user=user)
+        market_watch_objects.delete()
+        return Response({"status": True})
 
 # ------------------------------------------------
