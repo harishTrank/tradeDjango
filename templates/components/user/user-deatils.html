@@ -36,8 +36,7 @@
             required
             name="exchangeSelect"
             id="exchangeSelectId"
-            class="form_control flex"
-          >
+            class="form_control flex">
           <option value="">Select</option>
           {% for symbol in exchange_obj %}
             {% if symbol.symbol_name == "NSE" and symbol.exchange %}
@@ -146,7 +145,7 @@
           </tbody>
         </table>
       </div>
-      <div class="totalPL">
+      {% comment %} <div class="totalPL">
         <div style="background-color: grey; width: 100%"></div>
         <table border="1">
           <tr>
@@ -158,7 +157,7 @@
             <td id="totalPriceId">Total P/L:200.00</td>
           </tr>
         </table>
-      </div>
+      </div> {% endcomment %}
     </div>
   </div>
 </div>
@@ -388,10 +387,10 @@ $('#deatilsFilterOpenId').click(function () {
             if (currentButtonState === "LIMIT") {
               body.price = currentPrice;
               if (actionType === "SELL" && currentPrice <= data.SellPrice) {
-                setModalizeMessage("Sell price must higher than high price.");
+                alert("Sell price must higher than high price.");
                 return;
               } else if (actionType === "BUY" && currentPrice >= data.BuyPrice) {
-                setModalizeMessage("Buy price must lower than low price.");
+                alert("Buy price must lower than low price.");
                 return;
               }
             }

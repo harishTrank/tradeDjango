@@ -1,0 +1,224 @@
+ <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .flex{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .align-center{
+            align-items: center;
+        }
+        .space-bw{
+            justify-content: space-between;
+        }
+
+        .pop-up-top{
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0.5);
+            width: 100%;
+            height: 100%;
+            z-index: 99;
+        }
+        .pop-up-top-inside{
+            width: 30%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .market-pic{
+            padding: 10px 0;
+            font-size: 15px;
+        }
+        .market-pic p i{
+            margin-right: 5px;
+            color: #a11616;
+        }
+        .col-50{
+            width: 49%;
+        }
+        .exchange-symbol {
+            padding: 15px 0;
+        }
+        .exchange-symbol .col-50 div{
+            margin: 5px 0;
+            font-weight: 500;
+        }
+        .exchange-symbol .col-50 select {
+            padding: 5px 15px;
+            outline: none;
+            width: 100%;
+            border: 1px solid #000;
+            border-radius: 5px;
+        }
+        li{
+            list-style: none;
+        }
+        .mcx-table-1 ul, .mcx-table-2 ul{
+            padding: 0 20px;
+        }
+        .mcx-table-1 ul li{
+            font-size: 15px;
+            color: rgb(38, 38, 233);
+            padding: 3px 0;
+        }
+        .mcx-table-1 {
+    border-right: 2px solid #000;
+}
+        .mcx-table-2 ul li{
+            font-size: 15px;
+            color: #ec3d3d;
+            padding: 3px 0;
+        }
+        .mcx-table-head {
+          border-top: 2px solid #000;
+}
+        .mcx-total {
+            padding: 5px 14px;
+            border-bottom: 1px solid #000;
+        }
+        .mcx-total p{
+            font-size: 15px;
+        }
+        .mcx-total-inner{
+            margin-right: 10px;
+        }
+        .mcx-bottom-table ul li {
+            font-size: 14px;
+            padding: 5px 0;
+        }
+        .mcx-bottom-table{
+            padding: 5px 0;
+        }
+    
+        .mcx-ltp-inner{
+            font-weight: 600;
+            margin-right: 16px;
+        }
+        #marketpictureId{
+            display:none
+        }
+    </style>
+   <section>
+    <div class="pop-up-top" id="marketpictureId">
+        <div class="pop-up-top-inside">
+            <div class="flex align-center space-bw market-pic">
+                <p><i class="fa-brands fa-opera"></i>Market Picture For (MCX - Gold 05 Apr 2024)</p>
+                <div id="marketpicId"><i class="fa-solid fa-x"></i></div>
+            </div>
+            <div class="flex align-center space-bw exchange-symbol">
+                <div class="col-50">
+                    <div><b>Exchange</b></div>
+                    <select name="" id="">
+                        <option value="">MCX</option>
+                        <option value="">MCX</option>
+                        <option value="">MCX</option>
+                    </select>
+                </div>
+                <div class="col-50">
+                    <div><b>Symbol</b></div>
+                    <select name="" id="">
+                        <option value="">Gold 05 Apr 2024</option>
+                        <option value="">Gold 05 Apr 2024</option>
+                        <option value="">Gold 05 Apr 2024</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex align-center mcx-table-head">
+                <div class="flex col-50 align-center space-bw mcx-table-1">
+                    <ul>
+                        <li>2</li>
+                        <li>1</li>
+                        <li>1</li>
+                        <li>1</li>
+                        <li>1</li>
+                    </ul>
+                    
+                     <ul>
+                        <li>65985</li>
+                        <li>65985</li>
+                        <li>65985</li>
+                        <li>65985</li>
+                        <li>65985</li>
+                    </ul>
+                </div>
+                <div class="flex col-50 align-center space-bw mcx-table-2">
+                     <ul>
+                        <li>65985</li>
+                        <li>65985</li>
+                        <li>65985</li>
+                        <li>65985</li>
+                        <li>65985</li>
+                    </ul>
+                    <ul>
+                        <li>2</li>
+                        <li>1</li>
+                        <li>1</li>
+                        <li>1</li>
+                        <li>1</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="flex align-center space-bw mcx-total">
+                <p>283</p>
+                <p class="mcx-total-inner">315</p>
+            </div>
+            <div class="flex align-center space-bw">
+                <div class="col-50 flex align-center mcx-bottom-table">
+                    <ul class="mcx-ltp-inner">
+                        <li>LTP:</li>
+                        <li>LTQ:</li>
+                        <li>Net Change:</li>
+                        <li>% Change:</li>
+                        <li>LUT:</li>
+                        <li>Volume:</li>
+                        <li>ATP:</li>
+                    </ul>
+                    <ul>
+                        <li>65985</li>
+                        <li>0.00</li>
+                        <li>-38</li>
+                        <li>-0.06</li>
+                        <li>11-03-2024</li>
+                        <li>2443</li>
+                        <li>66006.46</li>
+                    </ul>
+                </div>
+                <div class="col-50 flex align-center mcx-bottom-table">
+                    <ul class="mcx-ltp-inner">
+                        <li>OPEN:</li>
+                        <li>CLOSE:</li>
+                        <li>HIGH:</li>
+                        <li>LOW:</li>
+                        <li>L. CRKT:</li>
+                        <li>U. CRKT:</li>
+                        <li>OD:</li>
+                    </ul>
+                    <ul>
+                        <li>66023</li>
+                        <li>66023</li>
+                        <li>66023</li>
+                        <li>66023</li>
+                        <li>66023</li>
+                        <li>66023</li>
+                        <li>0.46</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    
+    $("#marketpicId").click(() =>
+    $("#marketpictureId").css("display", "none")
+  );
+</script>

@@ -96,12 +96,10 @@
     </div>
     {% include "components/password-popup.html" %}
     {% include "components/user/parent-limit-info.html" %}
-    {% comment %} <script
-      src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
-      integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script> {% endcomment %}
+    {% include "components/user/intraday-square-off.html" %}
+    {% include "components/user/buy.html" %}
+    {% include "components/user/market-picture.html" %}
+    
 
   </body>
   <script>
@@ -166,6 +164,12 @@
       $("#tradeRightId").css("display", "block");
       $('.action_dropdown').toggle();
     }
+
+    const watchBuyId = () => {
+      $("#buyWatchId").css("display","block")
+      $(".action_dropdown").toggle();
+    }
+
     const parentLimitInfo = () =>{
       $("#parentLimitInfoId").css("display", "block")
       $('.action_dropdown').toggle();
@@ -191,6 +195,57 @@
         console.log("err", err);
       });
     }
-    
+
+    const intradaySquare = () =>{
+      $("#intradayId").css("display", "block")
+      $('.action_dropdown').toggle();
+     
+    axios.get(`{% url "intraday-squareoff-check" %}?user_id=${$("#current_selected_userId").val()}`, {
+      headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+      }
+    })
+    .then(response => {
+        console.log("res ==", response);
+        $("#mcxId").prop("checked", response.data.data.mcx);
+        $("#nseId").prop("checked", response.data.data.nse);
+        $("#miniId").prop("checked", response.data.data.mini);
+    })
+    .catch(error => {
+        console.log("err", error);
+    });
+  }
+
+
+  const intradayHandler = (event) => {
+    event.preventDefault();
+  
+    const selectedUserId = $("#current_selected_userId").val();
+  
+    axios
+      .post(
+        `{% url "intraday-squareoff-check" %}?user_id=${selectedUserId}`,
+        {
+          nse: $("#nseId").prop("checked"),
+          mcx: $("#mcxId").prop("checked"),
+          mini: $("#miniId").prop("checked"),
+        },
+        { headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+      )
+      .then((response) => {
+        console.log("Response:", response.data);
+        toastMixin.fire({
+          animation: true,
+          title: response.data.message,
+          icon: "success",
+        });
+        setTimeout(() => window.location.reload(), 2800);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  
   </script>
 </html>

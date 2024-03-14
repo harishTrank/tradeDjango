@@ -1,5 +1,4 @@
 {% extends "index.html" %} {% block content %}
-
 <style>
     
   
@@ -198,8 +197,7 @@
                         <li><a onClick="adminRights()" id="adminRightuserId">Master Rights</a></li>
                         {% endif %}
                         <li><a onClick="tradeRights()" id="marketTradeRightBtnId">Market Trade Right</a></li>
-                        {% comment %} <li><a href="{% url 'Admin:add-user' %}">Create User</a></li> {% endcomment %}
-                        {% comment %} <li><a href="#">Set Readonly</a></li> {% endcomment %}
+                        <li><a onClick="intradaySquare()" id="intradaySquareBtnId">Indraday Square Off</a></li>
                     </ul>
                 </div>
            {% for i in client %}

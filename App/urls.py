@@ -48,4 +48,5 @@ urlpatterns = [
     path("intraday-squareoff-check/", IntradaySquareoffCheck.as_view(), name="intraday-squareoff-check"),
     path("weekly-admin-api/", WeeklyAdminListApi.as_view(), name="weekly-admin-api"),
     path("user-script-position-track/", UserScriptPositionTrack.as_view(), name="user-script-position-track"),
+    path("delete-indentifer/", DeleteIndentifer.as_view(), name="delete-indentifer"),
 ]

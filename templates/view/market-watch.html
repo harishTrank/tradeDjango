@@ -25,6 +25,41 @@
             transform: rotate(360deg);
         }
         } 
+
+
+        .fit-to-size {
+            position: absolute;
+            background: #fff;
+            z-index: 99;
+            top: 180px;
+            left: 270px;
+        }
+    .buy-card{
+        box-shadow: 0 0  10px #d9d9d9;
+        width: 200px;
+    }
+    .fit-to-size li{
+        list-style: none;
+    }
+    .fit-to-size li a{
+        display: flex;
+        flex-wrap: wrap;
+        padding: 5px;
+    }
+    .fit-to-size li a{
+        color: #000;
+        text-decoration: none;
+    }
+    .fit-to-size li a p{
+        margin-left: 10px;
+    }
+    .fit-to-size li a:hover{
+        background: #d6ebf3;
+    }
+    #watchPopUpId{
+        display:none;
+    }
+            
 </style>
 <div class="tab-content" id="marketwatch">
     <div class="user-table col-100">
@@ -43,8 +78,23 @@
                         <option>Select</option>
                     </select>
                 </div>
-                {% comment %} <input id="" type="text" class="form-group"> {% endcomment %}
+                
             </div>
+            <div style='position:relative;' > 
+                <input style=" width: 260px;" id="inputWatchId" type="text" class="">
+                <div id="inputWatchDropDown" style="display: none;position: absolute;
+                z-index: 99;
+                background: #fff;
+                height: 200px;
+                overflow-y: scroll;
+                width: 260px;
+                padding: 5px;
+                overflow-x: hidden;" class='active'>
+                    <ul id="symbolList" class="form-group symbol"></ul>
+                </div>
+            </div>
+           
+            
         </div>
         <table style="width: 100%;">
             <div id="loader" style="display: none;"></div>
@@ -63,13 +113,209 @@
                 <th>Low</th>
                 <th>Close</th>
             </tr>
-            <tbody id="data-table-body">
-               
-            </tbody>
+            <p class="tbody">
+                <tbody id="data-table-body" style="background: #000; color: #fff; position:relative;">
+                    <div class="buy-card" id="watchPopUpId">
+                        <div class="fit-to-size">
+                            <li>
+                                <a>
+                                    <div>
+                                        <i class="fa-solid fa-money-bill"></i>
+                                    </div>
+                                    <div onClick="watchbuyhandler()" id="watchBuyId">
+                                        <p>Buy</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <div>
+                                        <i class="fa-solid fa-money-bill"></i>
+                                    </div>
+                                    <div>
+                                        <p>Sell</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <div>
+                                        <i class="fa-solid fa-chart-line"></i>
+                                    </div>
+                                    <div>
+                                        <p>View Chart</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <div>
+                                        <i class="fa-solid fa-expand"></i>
+                                    </div>
+                                    <div>
+                                        <p>Fit to Size</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <div>
+                                        <i class="fa-solid fa-scroll"></i>
+                                    </div>
+                                    <div>
+                                        <p>Script Info</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <div>
+                                        <i class="fa-solid fa-table-columns"></i>
+                                    </div>
+                                    <div>
+                                        <p>Manage Columns</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a>
+                                    <div>
+                                        <i class="fa-solid fa-chart-simple"></i>
+                                    </div>
+                                    <div onClick="marketPicture()">
+                                        <p>Market Picture</p>
+                                    </div>
+                                </a>
+                                
+                            </li>
+                        </div>
+                    </div>
+                </tbody>
+            </p>
         </table>
     </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 <script>
+ 
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var popup = document.getElementById("watchPopUpId");
+    
+        // Attach click event listeners to cells with the "popup-trigger" class
+        var triggers = document.querySelectorAll(".popup-trigger");
+    
+        triggers.forEach(function(trigger) {
+            trigger.addEventListener("click", function(event) {
+                // Find the closest table row
+                var row = event.target.closest("tr");
+                if (row) {
+                    // Find the index of the clicked cell within the row
+                    var columnIndex = Array.from(row.cells).indexOf(event.target);
+                    // Get the bounding rectangle of the clicked cell
+                    var rect = event.target.getBoundingClientRect();
+                    // Calculate the position of the popup relative to the clicked cell
+                    var popupLeft = rect.left + window.scrollX;
+                    var popupTop = rect.bottom + window.scrollY;
+                    // Adjust the position based on the column index
+                    if (columnIndex > 0) {
+                        popupLeft += rect.width * columnIndex;
+                    }
+                    // Set the position of the popup
+                    popup.style.display = "block";
+                    popup.style.top = popupTop + "px";
+                    popup.style.left = popupLeft + "px";
+                }
+            });
+        });
+    
+        // Close the popup when clicking outside of it
+        document.addEventListener("click", function(event) {
+            if (!event.target.closest("#watchPopUpId") && !event.target.closest(".popup-trigger")) {
+                popup.style.display = "none";
+            }
+        });
+    });
+    
+    const toggleMenuOption = () => {
+        $("#watchPopUpId").css("display", "block")
+        $('.action_dropdown').toggle();
+    }
+
+    const watchbuyhandler = () => {
+        $("#buyWatchId").css("display", "block")
+        $('.action_dropdown').toggle();
+        $("#watchPopUpId").css("display", "none")
+        }
+
+    const marketPicture = () => {
+        $("#marketpictureId").css("display", "block")
+        $('.action_dropdown').toggle();
+        $("#watchPopUpId").css("display", "none")
+    }
+
+      
+
+const showDropDown = () => {
+    $("#inputWatchDropDown").show();
+};
+
+const hideDropDown = () => {
+    $("#inputWatchDropDown").hide();
+};
+
+// Function to handle input and show dropdown
+const selectCoinHandler = (val) => {
+    $("#inputWatchId").val(val);
+    hideDropDown();
+    $.ajax({
+        type:'POST',
+        url:'{% url "add-market-coin" %}',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {
+            trade_coin_id: val
+        },
+        success:function(res){
+            window.location.reload();
+        },
+        error:function(res){
+          alert(res?.responseJSON.message);
+        }
+    })
+}
+const currentExchange =  JSON.parse("{{coin_type|safe}}".replaceAll(`'`, `"`))
+
+const watchSearchHandler = () => {
+ 
+    setTimeout(() => {
+        if ($("#inputWatchId").val().length > 0) {
+            axios.post(`${BASE_URL}/api/tradeCoin/coins?search=${$("#inputWatchId").val()}`, {
+                coinList: currentExchange
+            })
+                .then(res => {
+                    const symbolList = $("#symbolList");
+                    symbolList.empty(); // Clear existing list items
+                    res.data.response.forEach(item => {
+                        symbolList.append($(`<li onClick="selectCoinHandler('${item.InstrumentIdentifier}')" style="cursor: pointer;">${item.InstrumentIdentifier}</li>`));
+                    });
+                    showDropDown(); 
+                })
+                .catch(err => {
+                });
+        } else {
+            hideDropDown();
+        }
+    }, 500);
+};
+
+// Event listeners
+$("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
+
+    {% comment %} const toggleMenuOption = (identifier) => {
+        console.log("kya dekh raha lode", identifier)
+        
+    } {% endcomment %}
     const baseNodeURL = BASE_URL
     const socket = io(baseNodeURL);  
 
@@ -90,28 +336,25 @@
         socket.emit("filterDataGet", {"identifier": identifier });
         let previousResult = [];
         socket.on("filterDataSend", (data) => {
-        const tableBody = document.getElementById('data-table-body');
-        tableBody.innerHTML = '';
-
-
+        $("#data-table-body").empty();
         data.forEach((item) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${item.Exchange}</td>
-                <td>${item.InstrumentIdentifier}</td>
-                <td>${item.BuyQty}</td>
-                <td id="b${item.InstrumentIdentifier}">${item.BuyPrice?.toFixed(2)}</td>
-                <td id="s${item.InstrumentIdentifier}">${item.SellPrice?.toFixed(2)}</td>
-                <td>${item.SellQty}</td>
-                <td>${item.LastTradePrice}</td>
-                <td>${item.PriceChange}</td>
-                <td>${item.Open}</td>
-                <td>${item.High}</td>
-                <td>${item.LastTradeTime}</td>
-                <td>${item.Low}</td>
-                <td>${item.Close}</td>
-            `;
-            tableBody.appendChild(row);
+            $("#data-table-body").append( `
+            <tr style="cursor: pointer; " onClick="toggleMenuOption('${item.InstrumentIdentifier}')">
+                <td class="popup-trigger">${item.Exchange}</td>
+                <td class="popup-trigger">${item.InstrumentIdentifier}</td>
+                <td class="popup-trigger">${item.BuyQty}</td>
+                <td class="popup-trigger" id="b${item.InstrumentIdentifier}">${item.BuyPrice?.toFixed(2)}</td>
+                <td class="popup-trigger" id="s${item.InstrumentIdentifier}">${item.SellPrice?.toFixed(2)}</td>
+                <td class="popup-trigger">${item.SellQty}</td>
+                <td class="popup-trigger">${item.LastTradePrice}</td>
+                <td class="popup-trigger">${item.PriceChange}</td>
+                <td class="popup-trigger">${item.Open}</td>
+                <td class="popup-trigger">${item.High}</td>
+                <td class="popup-trigger">${item.LastTradeTime}</td>
+                <td class="popup-trigger">${item.Low}</td>
+                <td class="popup-trigger">${item.Close}</td>
+            </tr>
+            `);
             if (item.BuyPrice && previousResult.find(findItem => findItem.identifier === item.InstrumentIdentifier)?.buyPrice !== item.BuyPrice) {
                 $(`#b${item.InstrumentIdentifier}`).css("background", item.buyColor);
                 setTimeout(() => $(`#b${item.InstrumentIdentifier}`).css("background", "transparent"), 500);
@@ -144,10 +387,13 @@
   {% comment %}  api to ftach all coin  {% endcomment %}
   let response;
   $.ajax({
-    type: "GET",
-    url: `${BASE_URL}/api/tradeCoin`,
+    type: "POST",
+    url: `${BASE_URL}/api/tradeCoin/coins`,
+    data: JSON.stringify({
+        coinList: currentExchange
+    }),
+    contentType: 'application/json',
     success: function (data) {
-      console.log(data); 
       let symbolKey = $(".symbolKey").val();
       if (symbolKey === "Select") {
         symbolKey = "";
@@ -166,9 +412,10 @@
     }
   });
 
+
+
   const selectSymbolHandler = () => {
     let result = $(".symbol").val();
-    console.log("result", result, '{% url "add-market-coin" %}');
 
     $.ajax({
         type:'POST',
@@ -178,7 +425,6 @@
             trade_coin_id: result
         },
         success:function(res){
-            //identifier.push(result);
             window.location.reload();
         },
         error:function(res){

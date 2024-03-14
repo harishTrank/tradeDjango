@@ -1,0 +1,62 @@
+<div class="create-profile" id="intradayId">
+    <div class="change-pass">
+        <div class="create-profile-inside" style="width: 20%;">
+            <div class="top-body flex align-center space-bw align-center">
+                <div class="flex admin-right">
+                    <p>Indraday Square Off</p>
+                </div>
+                <div>
+                    <i class="fa-solid fa-x closeAccountLimit"></i>
+                </div>
+            </div>
+            <div class="middle-body">
+                <div class="inner-middle-body">
+                    <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
+                        <p>MCX:</p>
+                        <label class="switch">
+                            <input id="mcxId" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
+                        <p>NSE:</p>
+                        <label class="switch">
+                            <input id="nseId" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex mrg-tb pop-up-text limit" style="margin-left: 24px">
+                        <p>MINI:</p>
+                        <label class="switch">
+                            <input id="miniId" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="save-cancel-btn flex space-bw mrg-tb">
+                    <div class="btns">
+                        <button onClick="intradayHandler(event)" style="padding: 5px 10px" type="button" id="saveButton">Save</button>
+                        <button style="padding: 5px 10px" type="button" id="cancelButton">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #intradayId {
+        display: none;
+    }
+</style>
+
+<script>
+
+    $("#cancelButton").click(() => {
+        $("#intradayId").css("display","none")
+    });
+
+    $(".closeAccountLimit").click(() => {
+        $("#intradayId").css("display","none")
+    });
+</script>

@@ -16,8 +16,9 @@ from django.http import JsonResponse
 from django.db.models.functions import Coalesce
 from django.db.models import Sum, Avg, Case, When, F, Value, FloatField
 import requests
+import datetime
+import pytz  
 from App.scheduler import NODEIP
-
 class LoginApi(APIView):
     def post(self, request):
         try:
@@ -358,8 +359,7 @@ def accountSummaryService(data, user, pandL, summary_flag, admin=""):
             else:
                 AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
           
-import datetime
-import pytz  
+
 class BuySellSellApi(APIView):
     # permission_classes = [IsAuthenticated]
     def post(self, request):
@@ -438,7 +438,7 @@ class BuySellSellApi(APIView):
                 ex_change=request.data.get('ex_change'),
                 is_pending=request.data.get('is_pending'),
                 identifer=request.data.get("identifer"),
-                ip_address=request.data.get("ip_address"),
+                ip_address=request.data.get("ip_address") if request.data.get("ip_address") else request.META.get('REMOTE_ADDR'),
                 order_method=request.data.get("order_method"),
                 stop_loss=request.data.get("stop_loss"),
                 message=message,
@@ -457,7 +457,7 @@ class BuySellSellApi(APIView):
             ex_change=request.data.get('ex_change'),
             is_pending=request.data.get('is_pending'),
             identifer=request.data.get("identifer"),
-            ip_address=request.data.get("ip_address"),
+            ip_address=request.data.get("ip_address") if request.data.get("ip_address") else request.META.get('REMOTE_ADDR'),
             order_method=request.data.get("order_method"),
             stop_loss=request.data.get("stop_loss"),
             message= 'Buy order successfully' if action =="BUY" else 'Sell order successfully'
@@ -1580,5 +1580,13 @@ class UserScriptPositionTrack(APIView):
         except Exception as e:
             print(e)
             return Response({"status": False}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class DeleteIndentifer(APIView):
+    def post(self, request):
+        user = request.user
+        market_watch_objects = MarketWatchModel.objects.filter(market_user=user)
+        market_watch_objects.delete()
+        return Response({"status": True})
 
 # ------------------------------------------------

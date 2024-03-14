@@ -343,7 +343,6 @@ class EditUserView(View):
 
     def post(self, request, id):
         user = MyUser.objects.get(id=id)
-            
         user_data = {
             "full_name": request.POST.get("full_name"),
             "user_name": request.POST.get("user_name"),
@@ -425,7 +424,8 @@ class ListUserView(View):
             response_user = MyUser.objects.filter(id__in=list(master_ids) + list(client_ids))
         elif user.user_type == "SuperAdmin":
             response_user = MyUser.objects.exclude(id=user.id).order_by("user_name")
-            # print(response_user)
+        if user.user_type == "Client":
+            response_user = MyUser.objects.filter(id=request.user.id).order_by("user_name")
 
         if requested_user_type == "Master":
             response_user = response_user.filter(user_type="Master")
@@ -850,7 +850,7 @@ class MarketWatchView(View):
         user = request.user
         trade_coin_id = user.market_user.filter(trade_coin_id__isnull=False).values_list('trade_coin_id', flat=True)
         coin_type = user.user.filter(exchange=True).values_list("symbol_name", flat=True)
-        return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id))), "coin_type":coin_type})
+        return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id))), "coin_type":list(coin_type)})
     
 
 class TradesView(View):
@@ -1075,6 +1075,7 @@ class PositionsView(View):
             response = response.filter(buy_sell_user__id__in=user_keys)
         elif request.user.user_type == "Client":
             user_list = []
+            user_keys = []
             response = response.filter(buy_sell_user__id=request.user)
         else:
             user_keys = [request.user.id]

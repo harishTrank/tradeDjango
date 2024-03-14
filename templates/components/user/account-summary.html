@@ -88,8 +88,13 @@
                     <td>{{i.created_at}}</td>
                     <td>{{i.user_summary__user_name}}</td>
                     <td>{{i.particular}}</td>
-                    <td>{{i.quantity}}</td>
-                    <td>{{i.buy_sell_type}}</td>
+                    {% if i.buy_sell_type == "BUY" %}
+                        <td style="color: blue;">{{i.quantity}}</td>
+                        <td style="color: blue;">{{i.buy_sell_type}}</td>
+                    {% else %}
+                        <td style="color: red;">{{i.quantity}}</td>
+                        <td style="color: red;">{{i.buy_sell_type}}</td>
+                    {% endif %}
                     <td>{{i.price}}</td>
                     <td>{{i.average|floatformat:2}}</td>
                     <td>{{i.summary_flg}}</td>
