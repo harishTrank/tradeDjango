@@ -61,6 +61,8 @@
     }
             
 </style>
+
+
 <div class="tab-content" id="marketwatch">
     <div class="user-table col-100">
         <div class="market-top flex" style="margin:15px 0;">
@@ -88,7 +90,7 @@
                 height: 200px;
                 overflow-y: scroll;
                 width: 260px;
-                padding: 5px;
+                padding: 2px;
                 overflow-x: hidden;" class='active'>
                     <ul id="symbolList" class="form-group symbol"></ul>
                 </div>
@@ -117,18 +119,18 @@
                 <tbody id="data-table-body" style="background: #000; color: #fff; position:relative;">
                     <div class="buy-card" id="watchPopUpId">
                         <div class="fit-to-size">
-                            <li>
+                            <li onClick="watchbuyhandler()">
                                 <a>
                                     <div>
                                         <i class="fa-solid fa-money-bill"></i>
                                     </div>
-                                    <div onClick="watchbuyhandler()" id="watchBuyId">
+                                    <div id="watchBuyId">
                                         <p>Buy</p>
                                     </div>
                                 </a>
                             </li>
-                            <li>
-                                <a href="">
+                            <li onClick="sellhandler()">
+                                <a>
                                     <div>
                                         <i class="fa-solid fa-money-bill"></i>
                                     </div>
@@ -137,8 +139,8 @@
                                     </div>
                                 </a>
                             </li>
-                            <li>
-                                <a href="">
+                            <li onClick="chartview()">
+                                <a>
                                     <div>
                                         <i class="fa-solid fa-chart-line"></i>
                                     </div>
@@ -147,18 +149,8 @@
                                     </div>
                                 </a>
                             </li>
-                            <li>
-                                <a href="">
-                                    <div>
-                                        <i class="fa-solid fa-expand"></i>
-                                    </div>
-                                    <div>
-                                        <p>Fit to Size</p>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="">
+                            <li onClick="scripthandler()">
+                                <a>
                                     <div>
                                         <i class="fa-solid fa-scroll"></i>
                                     </div>
@@ -168,7 +160,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="">
+                                <a>
                                     <div>
                                         <i class="fa-solid fa-table-columns"></i>
                                     </div>
@@ -177,16 +169,15 @@
                                     </div>
                                 </a>
                             </li>
-                            <li>
+                            <li onClick="marketPicture()">
                                 <a>
                                     <div>
                                         <i class="fa-solid fa-chart-simple"></i>
                                     </div>
-                                    <div onClick="marketPicture()">
+                                    <div>
                                         <p>Market Picture</p>
                                     </div>
                                 </a>
-                                
                             </li>
                         </div>
                     </div>
@@ -255,6 +246,23 @@
         $("#watchPopUpId").css("display", "none")
     }
 
+    const scripthandler = () => {
+        $("#scriptINfoId").css("display", "block")
+        $('.action_dropdown').toggle();
+        $("#watchPopUpId").css("display", "none")
+    }
+    const sellhandler = () => {
+        $("#sellWatchId").css("display", "block")
+        $('.action_dropdown').toggle();
+        $("#watchPopUpId").css("display", "none")
+    }
+    const chartview = () => {
+        $("#chartviewID").css("display", "block")
+        $('.action_dropdown').toggle();
+        $("#watchPopUpId").css("display", "none")
+    }
+    
+
       
 
 const showDropDown = () => {
@@ -315,7 +323,7 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
     {% comment %} const toggleMenuOption = (identifier) => {
         console.log("kya dekh raha lode", identifier)
         
-    } {% endcomment %}
+    }  {% endcomment %}
     const baseNodeURL = BASE_URL
     const socket = io(baseNodeURL);  
 

@@ -9,7 +9,7 @@
           color: blue;
         }
         
-        #buyWatchId {
+        #sellWatchId {
           display: none;
         }
       
@@ -69,7 +69,7 @@
         }
         .admin-right i {
           margin-right: 8px;
-          color: #0000FF;
+          color: #ff0000;
           font-size: 10px;
           margin-top: 2px;
         }
@@ -80,6 +80,7 @@
           border-top-right-radius: 10px;
         }
         .middle-body {
+          background-color: #FF0000;
           padding: 15px;
         }
         .inner-middle-body {
@@ -177,18 +178,18 @@
       </style>
 </head>
 <body>
-    <div class="create-profile" id="buyWatchId">
+    <div class="create-profile" id="sellWatchId">
         <div class="change-pass">
           <div class="create-profile-inside">
             <div class="top-body flex align-center space-bw align-center">
               <div class="flex admin-right">
-                <p>Buy Orders</p>
+                <p>Sell Orders</p>
               </div>
-              <div id="buysellId">
+              <div id="sellcloseId">
                 <i class="fa-solid fa-x closeAccountLimit"></i>
               </div>
             </div>
-            <div class="middle-body" style="background-color: #0000FF;">
+            <div class="middle-body">
               <div class="inner-middle-body flex space-bw">
                <div class="client-name">
                 <label for="">Client Name</label>
@@ -211,7 +212,7 @@
                 <input type="number">
                </div>
                <div class="submit-btn ">
-               <label for="" style="color: #0000FF;">Submit</label>
+               <label for="" style="color: #FF0000;">Submit</label>
                 <input type="submit">
                </div>
                   
@@ -239,7 +240,7 @@
                      <input type="text">
                     </div>
                     <div class="cancel-finalbtn ">
-                    <label for="" style="color: #0000FF">Cancel</label>
+                    <label for="" style="color: #FF0000">Cancel</label>
                      <input type="submit" value="Cancel">
 
                     </div>
@@ -256,7 +257,7 @@
         
        <script>
         $(".closeAccountLimit").click(() =>
-          $("#buyWatchId").css("display", "none")
+          $("#sellWatchId").css("display", "none")
         );
       
         {% comment %} var checkbox = document.querySelector("#limitId");
