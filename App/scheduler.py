@@ -1,7 +1,7 @@
 import requests
 
-NODEIP = '65.2.177.164:5000'
-# NODEIP = 'localhost:5000'
+# NODEIP = '65.2.177.164:5000'
+NODEIP = 'localhost:5000'
 
 def send_hello():
     print("---------------i am working schedular ----------------")

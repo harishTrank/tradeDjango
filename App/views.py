@@ -694,7 +694,6 @@ class TradeHistoryApi(APIView):
         is_pending = request.query_params.get("is_pending")
         is_cancel = request.query_params.get("is_cancel")
         user_name = request.query_params.get("user_name")
-        print("user.user_type", user.user_type)
         if user.user_type == "Client":          
             exchange_data = user.buy_sell_user.values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change","created_at","is_pending","identifer", "message") 
             
@@ -1241,9 +1240,6 @@ class GetMasterApiView(APIView):
             return Response({"success": True, "response": list(response)}, status=status.HTTP_200_OK)
         except:
             return Response({"success": False}, status=status.HTTP_404_NOT_FOUND)
-        
-        
-        
         
 class LimitUserCreation(APIView):
     def post(self, request):
