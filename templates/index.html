@@ -71,6 +71,30 @@
         background: lightblue;
         color: #000;
       }
+
+      .footer-head{
+        padding: 5px 20px;
+        border: 1px solid #8d8989;
+    }
+    .footer-head p{
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .footer-inner p{
+        padding: 0 5px;
+        border-right: 1px solid #8d8989;
+    }
+    .footer-marquee{
+        padding: 10px 20px;
+        font-size: 16px;
+        color: #e91515;
+    }
+    .footer-top{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+    }
     </style>
   </head>
   <body>
@@ -99,10 +123,33 @@
     {% include "components/user/intraday-square-off.html" %}
     {% include "components/user/buy.html" %}
     {% include "components/user/market-picture.html" %}
+
+    <div class="footer-top">
+      <div class="flex align-center space-bw footer-head">
+          <p id="currentLiveTime"></p>
+          <div class="flex align-center footer-inner">
+             <p> PL : -52 812.30</p>
+             <p>BK : 1 173.57</p>
+             <p>BAL : -51 638.73</p>
+             <p>CRE : 2 99 70 000.00</p>
+          </div>
+      </div>
+      <div class="footer-marquee">
+          <marquee><p>(Mar 11 2024 3:52PM) Us Daylight -MCX Change time will be from Monday ( TODAY ) 11-03-2024 from 9-00 AM to 11-30 PM.</p></marquee>
+      </div>
+     </div>
     
 
   </body>
   <script>
+    const currentLiveTimeHandler = () => {
+      $("#currentLiveTime").text(dayjs().format('DD-MM-YYYY HH:mm:ss'))
+    }
+
+    setInterval(currentLiveTimeHandler, 1000)
+    currentLiveTimeHandler()
+
+
     var toastMixin = Swal.mixin({
       toast: true,
       title: "General Title",
