@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
   </head>
   <body>
+    <div class="main-box-head">
+        <img class="head-logo" src="{% static 'images/arex.png' %}" alt="app icon">
+        <label>Quick Trade [{{request.user.user_name}}-{{request.user.user_type}}]</label>
+    </div>
     <div class="tab-head">
         <li class="active open-file-menu" data-id="users">File
             <ul class="view-dropdown" id="file-dropdown">
@@ -18,13 +22,15 @@
             </ul>
         </li>
     <li data-id="dashboard"><a href="{% url 'Admin:dashboard' %}">Dashboard</a></li>
-    <li data-id="users" class="user-view-dropdown">Users
-        <ul class="view-dropdown" id="user-dropdown">
-            <li data-id="create-user"><a href="{% url 'Admin:add-user' %}"><i class="fa-solid fa-user"></i>Create User</a></li>
-            <li data-id="user-list"><a href="{% url 'Admin:list-user' %}"><i class="fa-solid fa-list"></i>User List</a></li>
-            <li data-id="search-user"><a href="{% url 'Admin:search-user' %}"><i class="fa-solid fa-magnifying-glass"></i>Search User</a></li>
-        </ul>
-    </li>
+    {% comment %} {% if request.user.user_type != "Client" %} {% endcomment %}
+        <li data-id="users" class="user-view-dropdown">Users
+            <ul class="view-dropdown" id="user-dropdown">
+                <li data-id="create-user"><a href="{% url 'Admin:add-user' %}"><i class="fa-solid fa-user"></i>Create User</a></li>
+                <li data-id="user-list"><a href="{% url 'Admin:list-user' %}"><i class="fa-solid fa-list"></i>User List</a></li>
+                <li data-id="search-user"><a href="{% url 'Admin:search-user' %}"><i class="fa-solid fa-magnifying-glass"></i>Search User</a></li>
+            </ul>
+        </li>
+    {% comment %} {% endif %} {% endcomment %}
       <li data-id="View" class="open-view-menu">View</i>
         <ul class="view-dropdown" id="view-dropdown">
             <li data-id="marketwatch"><a href="{% url 'Admin:market-watch' %}"><i class="fa-solid fa-right-left fa-rotate-90"></i>Market Watch</a></li>
@@ -64,12 +70,32 @@
       </li><br>
 
       <div style="margin-left: 1%; display: flex; justify-content: flex-left;">
-        <a href="{% url 'Admin:market-watch' %}"><img src="{% static 'images/watch.png' %}" alt="Arrow Image"></a>
-        <a href="{% url 'Admin:trades' %}"><img src="{% static 'images/trade.png' %}" alt="Solid Book Image"></a>
-        <a href="{% url 'Admin:orders' %}"><img src="{% static 'images/order.png' %}" alt="Chart Image"></a>
-        <a href="{% url 'Admin:positions' %}"><img src="{% static 'images/position.png' %}" alt="Regular Book Image"></a>
-        <a href="{% url 'Admin:add-user' %}"><img src="{% static 'images/adduser.png' %}" alt="User Plus Image"></a>
-        <a href="{% url 'Admin:search-user' %}"><img src="{% static 'images/searchuser.png' %}" alt="User Plus Image"></a>
+        <div style='position:relative;' class='icon-container'>
+            <a href="{% url 'Admin:market-watch' %}"><img src="{% static 'images/watch.png' %}" alt="Arrow Image"></a>
+            <span class='tooltip'>Market Watch</span>
+        </div>
+        <div style='position:relative;' class='icon-container'>
+            <a href="{% url 'Admin:trades' %}"><img src="{% static 'images/trade.png' %}" alt="Solid Book Image"></a>
+            <span class='tooltip' style="right: -20px;">Trades</span>
+        </div>
+        <div style='position:relative;' class='icon-container'>
+            <a href="{% url 'Admin:orders' %}"><img src="{% static 'images/order.png' %}" alt="Chart Image"></a>
+            <span class='tooltip' style="right: -25px;">Orders</span>
+        </div>
+        <div style='position:relative;' class='icon-container'>
+            <a href="{% url 'Admin:positions' %}"><img src="{% static 'images/position.png' %}" alt="Regular Book Image"></a>
+            <span class='tooltip' style="right: -25px;">Positions</span>
+        </div>
+        {% if request.user.user_type != "Client" %}
+        <div style='position:relative;' class='icon-container'>
+            <a href="{% url 'Admin:add-user' %}"><img src="{% static 'images/adduser.png' %}" alt="User Plus Image"></a>
+            <span class='tooltip' style="right: -30px;">Add User</span>
+        </div>
+        <div style='position:relative;' class='icon-container'>
+            <a href="{% url 'Admin:search-user' %}"><img src="{% static 'images/searchuser.png' %}" alt="User Plus Image"></a>
+            <span class='tooltip' style="right: -40px;">Search User</span>
+        </div>
+        {% endif %}
       </div>
     </div>
   </body>
@@ -87,6 +113,15 @@
         border-bottom: 1px solid #D3D3D3;
     }
 
+    .head-logo {
+        height: 25px;
+        padding-right: 5px;
+    }
+    .main-box-head {
+        display: flex;
+        align-item: center;
+        padding-left: 10px;
+    }
     .tab-head li {
         display: inline-block;
         padding: 5px 15px;
@@ -186,6 +221,21 @@
     .pannel-body {
         width: calc(100% - 100px);
     }
+    .tooltip{
+        position: absolute;
+    top: 65%;
+    right: -77px;
+    background: #F9F9F9;
+    color: #8D8D8D;
+    padding: 3px 3px;
+    border-radius: 5px;
+    display: none;
+    font-size: 13px;
+    z-index:999;
+    }
+    .icon-container:hover .tooltip{
+        display:block;
+    }
   </style>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
@@ -194,7 +244,7 @@
         </script>
 
 <script>
-    const BASE_URL = "http://65.0.30.73:5000";
+    const BASE_URL = "http://localhost:5000";
     
     $(document).ready(function ( ) {
         // Function to handle tab clicks

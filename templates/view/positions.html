@@ -72,6 +72,7 @@
                     <th>Average Rate</th>
                     <th>CMP</th>
                     <th>Profit / Loss</th>
+                    <th>% P&L</th>
                 </tr>
                 {% for i in response %}
                 <tr>
@@ -90,6 +91,7 @@
                     {% endif %}
                     <td id="cmp{{i.identifer}}"></td>
                     <td id="{{i.identifer}}"></td>
+                    <td id="pandl{{i.identifer}}"></td>
                 </tr>
                 {% endfor %}
             </table>
@@ -162,11 +164,24 @@
         data.map(itemObj =>{ 
             //console.log("itemObj.BuyPrice",itemObj.BuyPrice)
             //console.log("itemObj.SellPrice",itemObj.SellPrice)
-            
-            $(`#cmp${itemObj.InstrumentIdentifier}`).html(current_user_result.find(findObj => findObj.identifer === itemObj.InstrumentIdentifier)?.total_quantity > 0 ? itemObj.BuyPrice : itemObj.SellPrice);
+            const currentCoin = current_user_result.find(findObj => findObj.identifer === itemObj.InstrumentIdentifier);
+            const currentAvg = currentCoin?.total_quantity > 0 ? currentCoin.avg_buy_price : currentCoin.avg_sell_price;
+            const currentCmp = currentCoin?.total_quantity > 0 ? itemObj.BuyPrice : itemObj.SellPrice;
+
+            $(`#cmp${itemObj.InstrumentIdentifier}`).html(currentCmp);
             $(`#ex${itemObj.InstrumentIdentifier}`).html(itemObj.Exchange);
-            const result = profitLossHandler(current_user_result.find(findObj => findObj.identifer === itemObj.InstrumentIdentifier), itemObj);
+            const result = profitLossHandler(currentCoin, itemObj);
+
             $(`#${itemObj.InstrumentIdentifier}`).html(result);
+            const pandlPercent = currentCoin?.total_quantity > 0 ?  ((currentCmp - currentAvg)*100/currentAvg).toFixed(2) : ((currentAvg - currentCmp)*100/currentCmp).toFixed(2);
+            $(`#pandl${itemObj.InstrumentIdentifier}`).html(`${pandlPercent}%`);
+
+            if (pandlPercent && pandlPercent > 0) {
+                $(`#pandl${itemObj.InstrumentIdentifier}`).css("color","blue")
+            }else{
+                $(`#pandl${itemObj.InstrumentIdentifier}`).css("color","red")
+            }
+
             if (result && result > 0 ){
                 $(`#${itemObj.InstrumentIdentifier}`).css("color","blue")
             }else{
