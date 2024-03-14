@@ -115,7 +115,7 @@
                 <th>Low</th>
                 <th>Close</th>
             </tr>
-            <p class="tbody">
+           
                 <tbody id="data-table-body" style="background: #000; color: #fff; position:relative;">
                     <div class="buy-card" id="watchPopUpId">
                         <div class="fit-to-size">
@@ -182,57 +182,23 @@
                         </div>
                     </div>
                 </tbody>
-            </p>
+         
         </table>
     </div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <script>
- 
 
-    document.addEventListener("DOMContentLoaded", function() {
-        var popup = document.getElementById("watchPopUpId");
-    
-        // Attach click event listeners to cells with the "popup-trigger" class
-        var triggers = document.querySelectorAll(".popup-trigger");
-    
-        triggers.forEach(function(trigger) {
-            trigger.addEventListener("click", function(event) {
-                // Find the closest table row
-                var row = event.target.closest("tr");
-                if (row) {
-                    // Find the index of the clicked cell within the row
-                    var columnIndex = Array.from(row.cells).indexOf(event.target);
-                    // Get the bounding rectangle of the clicked cell
-                    var rect = event.target.getBoundingClientRect();
-                    // Calculate the position of the popup relative to the clicked cell
-                    var popupLeft = rect.left + window.scrollX;
-                    var popupTop = rect.bottom + window.scrollY;
-                    // Adjust the position based on the column index
-                    if (columnIndex > 0) {
-                        popupLeft += rect.width * columnIndex;
-                    }
-                    // Set the position of the popup
-                    popup.style.display = "block";
-                    popup.style.top = popupTop + "px";
-                    popup.style.left = popupLeft + "px";
-                }
-            });
-        });
-    
-        // Close the popup when clicking outside of it
-        document.addEventListener("click", function(event) {
-            if (!event.target.closest("#watchPopUpId") && !event.target.closest(".popup-trigger")) {
-                popup.style.display = "none";
-            }
-        });
-    });
-    
-    const toggleMenuOption = () => {
+
+
+    {% comment %} const toggleMenuOption = (identifier) => {
         $("#watchPopUpId").css("display", "block")
         $('.action_dropdown').toggle();
-    }
+        console.log("=========",identifier)
+
+       
+    }  {% endcomment %}
 
     const watchbuyhandler = () => {
         $("#buyWatchId").css("display", "block")
@@ -257,7 +223,17 @@
         $("#watchPopUpId").css("display", "none")
     }
     const chartview = () => {
-        $("#chartviewID").css("display", "block")
+        var left = (screen.width/2)-(1200/2);
+        var top = (screen.height/2)-(600/2);
+        const data = JSON.parse(sessionStorage.getItem("currentCoin"));
+        console.log("data?.InstrumentIdentifier", data?.InstrumentIdentifier)
+        let currentCoin = data?.InstrumentIdentifier
+        if (data.Exchange?.toUpperCase() !== "NSE") {
+              currentCoin = `${
+                data?.InstrumentIdentifier?.split("_")?.[1]
+              }1!`
+        } 
+        window.open(`https://www.tradingview.com/chart/?symbol=${currentCoin}&theme=dark`, 'chartwindow',  `width=1200,height=600,left=${left},top=${top}`);
         $('.action_dropdown').toggle();
         $("#watchPopUpId").css("display", "none")
     }
@@ -320,10 +296,7 @@ const watchSearchHandler = () => {
 // Event listeners
 $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
 
-    {% comment %} const toggleMenuOption = (identifier) => {
-        console.log("kya dekh raha lode", identifier)
-        
-    }  {% endcomment %}
+
     const baseNodeURL = BASE_URL
     const socket = io(baseNodeURL);  
 
@@ -347,7 +320,7 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
         $("#data-table-body").empty();
         data.forEach((item) => {
             $("#data-table-body").append( `
-            <tr style="cursor: pointer; " onClick="toggleMenuOption('${item.InstrumentIdentifier}')">
+            <tr style="cursor: pointer;" onclick="toggleMenuOption('${escape(JSON.stringify(item))}')">
                 <td class="popup-trigger">${item.Exchange}</td>
                 <td class="popup-trigger">${item.InstrumentIdentifier}</td>
                 <td class="popup-trigger">${item.BuyQty}</td>

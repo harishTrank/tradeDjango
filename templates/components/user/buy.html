@@ -259,81 +259,32 @@
           $("#buyWatchId").css("display", "none")
         );
       
-        {% comment %} var checkbox = document.querySelector("#limitId");
-        var input = document.querySelector("#master_limit");
-        var input2 = document.querySelector("#client_limit");
-      
-        var toogleInput = function(e){
-          input.disabled = !e.target.checked;
-          input2.disabled = !e.target.checked;
-        };
-      
-        toogleInput({target: checkbox});
-        checkbox.addEventListener("change", toogleInput);
-        
-      
-      
-        
-        const accountLimitHandler = (event) => {
-          const selectedUserId = $("#current_selected_userId").val();
-          if (
-            $("#current_selected_userId").val() !== "" &&
-            $("#master_limit").val() !== "" &&
-            $("#client_limit").val() !== ""
             
-          ) {
-            event.preventDefault();
-            $.ajax({
-              type: "POST",
-              url: `{% url "limit-user-creation" %}?id=${$(
-                "#current_selected_userId"
-              ).val()}`,
-              headers: { "X-CSRFToken": "{{ csrf_token }}" },
-              data: {
-                limit: $("#limitId").prop("checked"),
-                master_limit: $("#master_limit").val(),
-                client_limit: $("#client_limit").val(),
-              },
-              success: function (data) {
-                $("#accountLimitid").css("display", "none");
-                $("#limitId").prop("checked", false);
-                $("#master_limit").val();
-                $("#client_limit").val();
-                toastMixin.fire({
-                  animation: true,
-                  title: data.message,
-                  icon: "success",
-                });
-              },
-              error: function (error) {
-                toastMixin.fire({
-                  animation: true,
-                  title: error.responseJSON.message,
-                  icon: "error",
-                });
-              },
-            });
+    const toggleMenuOption = (itemString) => {
+      const item = JSON.parse(unescape(itemString));
+      sessionStorage.setItem("currentCoin", JSON.stringify(item));
+      $("#watchPopUpId").css("display", "block");
+      $('.action_dropdown').toggle();
+      console.log("=========", item);
+    /*  $.ajax({
+          type:'POST',
+          url:'{% url "buy-sell-coin" %}',
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          data: {
+              action: "Buy",
+              quantity: val,
+              lot_size: item.QuotationLot,
+              is_cancel: true
+          },
+          success:function(res){
+              window.location.reload();
+          },
+          error:function(res){
+            alert(res?.responseJSON.message);
           }
-        };
-      
-      
-        $("#accountLimitId").click(()=>{
-          axios.get(`{% url "account-limit" %}?user_id=${$("#current_selected_userId").val()}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-          .then(res => {
-            $("#master_limit").val(res.data.master_limit);
-            $("#client_limit").val(res.data.client_limit);
-            $("#masterOccId").val(res.data.master_occupied);
-            $("#masterRemId").val(res.data.master_remaining);
-            $("#clientOccId").val(res.data.client_occupied);
-            $("#clientRemId").val(res.data.client_remaining);
-              console.log("res ==", res);
-      
-          })
-          .catch(err => {
-              console.log("err", err);
-          });
-        }) {% endcomment %}
-        {% comment %} account limit  {% endcomment %}
+      })*/
+  }
+  
       
       </script> 
 </body>
