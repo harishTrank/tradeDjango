@@ -118,18 +118,15 @@
             <div class="flex align-center space-bw exchange-symbol">
                 <div class="col-50">
                     <div><b>Exchange</b></div>
-                    <select name="" id="">
-                        <option value="">MCX</option>
-                        <option value="">MCX</option>
-                        <option value="">MCX</option>
+                    <select onChange={cointype()} name="" id="">
+                        <option value="MCX">MCX</option>
+                        <option value="NSE">NSE</option>
                     </select>
                 </div>
                 <div class="col-50">
                     <div><b>Symbol</b></div>
-                    <select name="" id="">
-                        <option value="">Gold 05 Apr 2024</option>
-                        <option value="">Gold 05 Apr 2024</option>
-                        <option value="">Gold 05 Apr 2024</option>
+                    <select onChange={selectsymbol()} name="" id="" class="symbol">
+                        <option value="">Select</option>
                     </select>
                 </div>
             </div>
@@ -221,4 +218,38 @@
     $("#marketpicId").click(() =>
     $("#marketpictureId").css("display", "none")
   );
+
+  const selectsymbol = () => {
+    let result = $(".symbol").val();
+
+    $.ajax({
+        type:'POST',
+        url:'{% url "add-market-coin" %}',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {
+            trade_coin_id: result
+        },
+        success:function(res){
+            window.location.reload();
+        },
+        error:function(res){
+          alert(res?.responseJSON.message);
+        }
+    })
+  }
+
+  const cointype = () => {
+    let symbolKey = $(".symbolKey").val();
+    if (symbolKey === "Select") {
+        symbolKey = "";    
+    }
+    $(".symbol").empty();
+    $(".symbol").html("<option>Select</option>");
+    response
+      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
+      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
+      .map(item => {
+        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
+    })
+  }
 </script>
