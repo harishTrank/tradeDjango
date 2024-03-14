@@ -387,10 +387,10 @@ $('#deatilsFilterOpenId').click(function () {
             if (currentButtonState === "LIMIT") {
               body.price = currentPrice;
               if (actionType === "SELL" && currentPrice <= data.SellPrice) {
-                setModalizeMessage("Sell price must higher than high price.");
+                alert("Sell price must higher than high price.");
                 return;
               } else if (actionType === "BUY" && currentPrice >= data.BuyPrice) {
-                setModalizeMessage("Buy price must lower than low price.");
+                alert("Buy price must lower than low price.");
                 return;
               }
             }

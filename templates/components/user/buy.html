@@ -1,165 +1,341 @@
-<div class="create-account" id="buyWatchId">
-    <div class="change-password">
-      <div class="create-account-inside">
-        <div class="top-section flex align-center space-bw align-center">
-          <div class="flex admin-section">
-            <p>Purchase Orders</p>
-          </div>
-          <div id="buycloseId">
-            <i class="fa-solid fa-x closeAccountLimit"></i>
-          </div>
-        </div>
-        <div class="middle-section">
-          <div class="inner-middle-section flex space-bw">
-           <div class="client-info">
-            <label for="">Client Name</label>
-            <select name="" id="">
-                <option value=""></option>
-            </select>
-           </div>
-           <div class="client-info">
-            <label for="">Order Type</label>
-            <select name="" id="">
-                <option value=""></option>
-            </select>
-           </div>
-           <div class="client-info">
-            <label for="">Quantity</label>
-           <input type="text">
-           </div>
-           <div class="client-info">
-            <label for="">Sell Price</label>
-            <input type="number">
-           </div>
-           <div class="submit-btn ">
-           <label for="" style="color: #fff;">Submit</label>
-            <input type="submit">
-           </div>
-              
-              
-            </div>
-            <div class="inner-middle-section flex space-bw">
-                <div class="client-info">
-                 <label for="">Exchange</label>
-                 <select name="" id="">
-                     <option value="">MCX</option>
-                 </select>
-                </div>
-                <div class="client-info">
-                 <label for="">Symbol</label>
-                 <select name="" id="">
-                     <option value="">Gold 05 Apr 2024</option>
-                 </select>
-                </div>
-                <div class="client-info">
-                 <label for="">LotSize</label>
-                <input type="text">
-                </div>
-                <div class="client-info">
-                 <label for="">Remark</label>
-                 <input type="number">
-                </div>
-                <div class="submit-btn ">
-                    <label for="" style="color: #fff;">Cancel</label>
-                     <input type="submit">
-                 </div>
-          </div>
-        </div>
-      </div>
-    </div>
-</div>
-<style>
-    .create-account {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background: rgba(0, 0, 0, 0.5);
-        width: 100%;
-        height: 50%;
-        z-index: 99;
-      }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        a:active {
+          color: blue;
+        }
+        
+        #buyWatchId {
+          display: none;
+        }
       
-      .create-account-inside {
-        width: 44%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 999;
-        background: #e7e7e7;
-        border-radius: 10px;
-      }
+        .change-pass {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+        }
       
-      .admin-section i {
-        margin-right: 8px;
-        color: #ff0000;
-        font-size: 10px;
-        margin-top: 2px;
-      }
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        .spaceclass {
+          justify-content: space-evenly;
+        }
+        .flex {
+          display: flex;
+          flex-wrap: wrap;
+        }
+        .space-bw {
+          justify-content: space-between;
+        }
+        .align-center {
+          align-items: center;
+        }
+        .text-center {
+          text-align: center;
+        }
+        .white-back {
+          background: #fff;
+          box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
+        }
       
-      .top-section {
-        background-color: #c9c9c9;
-        padding: 8px;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-      }
+        .create-profile {
+          position: fixed;
+          top: 0;
+          left: 0;
+          background: rgba(0, 0, 0, 0.5);
+          width: 100%;
+          height: 100%;
+          z-index: 99;
+        }
+        .create-profile-inside {
+          width: 80%;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 999;
+          background: #e7e7e7;
+          border-radius: 10px;
+        }
+        .admin-right i {
+          margin-right: 8px;
+          color: #ff0000;
+          font-size: 10px;
+          margin-top: 2px;
+        }
+        .top-body {
+          background-color: #fff;
+          padding: 8px;
+          border-top-left-radius: 10px;
+          border-top-right-radius: 10px;
+        }
+        .middle-body {
+          background-color: #702963		;
+          padding: 15px;
+        }
+        .inner-middle-body {
+          padding: 6px;
+          border:none;
       
-      .middle-section {
-        background-color: #fff;
-        padding: 15px;
-      }
+          
+        }
       
-      .inner-middle-section {
-        padding: 6px;
-      }
-      
-      .client-info {
-        display: flex;
-        flex-direction: column;
-        width: 19%;
-      }
-      
-      .client-info select,
-      .client-info input {
+        .save-cancel-btn {
+          padding: 0px 75px;
+        }
+        .save-cancel-btn button:first-child {
+          background-color: #008000;
+          padding: 2px 10px;
+          color: #fff;
+          border: none;
+        }
+        .save-cancel-btn button:last-child {
+          background-color: #221b1b;
+          padding: 10px 20px;
+          color: #fff;
+          border: none;
+        }
+        .input-tags input {
+          padding: 3px 6px;
+          margin: 0px 6px;
+          border: 1px solid black;
+          background-color: #e7e7e7;
+          border-radius: 4px;
+        }
+        .mrg-tb {
+          margin: 8px 0px;
+        }
+        .pop-up-text p {
+          font-size: 16px;
+          font-weight: 600;
+        }
+        .limit p {
+          margin-right: 25px;
+        }
+        .limit div:first-child {
+          margin-right: 20px;
+        }
+        .clients p {
+          margin-right: 8px;
+        }
+        .btns button:first-child {
+          margin-right: 10px;
+          padding: 10px 20px;
+        }
+        .client-name{
+            display: flex;
+            flex-direction: column;
+            width: 19%;
+       
+           
+        }
+        .client-name select,input{
+            margin-top: 5px;
+            padding: 4px;
+            border: 1px solid #000;
+        }
+        .submit-btn{
+           
+            display: flex;
+            flex-direction: column;
+            width: 19%;
+           
+        }
+       .submit-btn input{
         margin-top: 5px;
-        padding: 7px;
-        border: 1px solid #000;
-      }
-      
-      .submit-btn {
-        display: flex;
-        flex-direction: column;
-        width: 19%;
-      }
-      
-      .submit-btn input {
-        margin-top: 5px;
-        padding: 7px;
+        padding: 4px;
         background: #008000;
-        color: #fff;
-        border: 1px solid #fff;
-        font-weight: bold;
-      }
-      
-      .cancel-btn input {
+            color: #fff;
+            border: 1px solid #fff;
+            font-weight: bold;
+       }
+       .cancel-finalbtn input{
         margin-top: 5px;
-        padding: 7px;
+        padding: 4px;
         background: #000;
-        color: #fff;
-        border: 1px solid #fff;
-        font-weight: bold;
-      }
-      
-      .cancel-btn {
+            color: #fff;
+            border: 1px solid #fff;
+            font-weight: bold;
+       }
+       .cancel-finalbtn{
         display: flex;
-        flex-direction: column;
-        width: 19%;
-      }
-      
-</style>
+            flex-direction: column;
+            width: 19%;
+       }
+       .client-name label{
+        color: #fff;
+       }
+      </style>
+</head>
+<body>
+    <div class="create-profile" id="buyWatchId">
+        <div class="change-pass">
+          <div class="create-profile-inside">
+            <div class="top-body flex align-center space-bw align-center">
+              <div class="flex admin-right">
+                <p>Buy Orders</p>
+              </div>
+              <div id="buysellId">
+                <i class="fa-solid fa-x closeAccountLimit"></i>
+              </div>
+            </div>
+            <div class="middle-body">
+              <div class="inner-middle-body flex space-bw">
+               <div class="client-name">
+                <label for="">Client Name</label>
+                <select name="" id="">
+                    <option value=""></option>
+                </select>
+               </div>
+               <div class="client-name">
+                <label for="">Order Type</label>
+                <select name="" id="">
+                    <option value=""></option>
+                </select>
+               </div>
+               <div class="client-name">
+                <label for="">Quantity</label>
+               <input type="text">
+               </div>
+               <div class="client-name">
+                <label for="">Sell Price</label>
+                <input type="number">
+               </div>
+               <div class="submit-btn ">
+               <label for="" style="color: #702963	;">Submit</label>
+                <input type="submit">
+               </div>
+                  
+                  
+                </div>
+                <div class="inner-middle-body flex space-bw">
+                    <div class="client-name">
+                     <label for="">Exchange</label>
+                     <select name="" id="">
+                         <option value="">MCX</option>
+                     </select>
+                    </div>
+                    <div class="client-name">
+                     <label for="">Symbol</label>
+                     <select name="" id="">
+                         <option value="">Gold 05 Apr 2024</option>
+                     </select>
+                    </div>
+                    <div class="client-name">
+                     <label for="">LotSize</label>
+                    <input type="text">
+                    </div>
+                    <div class="client-name">
+                     <label for="">Remark</label>
+                     <input type="text">
+                    </div>
+                    <div class="cancel-finalbtn ">
+                    <label for="" style="color: #702963	">Cancel</label>
+                     <input type="submit" value="Cancel">
 
-<script>
-    $(".buycloseId").click(() =>
-    $("#buyWatchId").css("display", "none")
-  );
-</script>
+                    </div>
+                       
+                       
+                     </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+        
+        
+       <script>
+        $(".closeAccountLimit").click(() =>
+          $("#buyWatchId").css("display", "none")
+        );
+      
+        {% comment %} var checkbox = document.querySelector("#limitId");
+        var input = document.querySelector("#master_limit");
+        var input2 = document.querySelector("#client_limit");
+      
+        var toogleInput = function(e){
+          input.disabled = !e.target.checked;
+          input2.disabled = !e.target.checked;
+        };
+      
+        toogleInput({target: checkbox});
+        checkbox.addEventListener("change", toogleInput);
+        
+      
+      
+        
+        const accountLimitHandler = (event) => {
+          const selectedUserId = $("#current_selected_userId").val();
+          if (
+            $("#current_selected_userId").val() !== "" &&
+            $("#master_limit").val() !== "" &&
+            $("#client_limit").val() !== ""
+            
+          ) {
+            event.preventDefault();
+            $.ajax({
+              type: "POST",
+              url: `{% url "limit-user-creation" %}?id=${$(
+                "#current_selected_userId"
+              ).val()}`,
+              headers: { "X-CSRFToken": "{{ csrf_token }}" },
+              data: {
+                limit: $("#limitId").prop("checked"),
+                master_limit: $("#master_limit").val(),
+                client_limit: $("#client_limit").val(),
+              },
+              success: function (data) {
+                $("#accountLimitid").css("display", "none");
+                $("#limitId").prop("checked", false);
+                $("#master_limit").val();
+                $("#client_limit").val();
+                toastMixin.fire({
+                  animation: true,
+                  title: data.message,
+                  icon: "success",
+                });
+              },
+              error: function (error) {
+                toastMixin.fire({
+                  animation: true,
+                  title: error.responseJSON.message,
+                  icon: "error",
+                });
+              },
+            });
+          }
+        };
+      
+      
+        $("#accountLimitId").click(()=>{
+          axios.get(`{% url "account-limit" %}?user_id=${$("#current_selected_userId").val()}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+          .then(res => {
+            $("#master_limit").val(res.data.master_limit);
+            $("#client_limit").val(res.data.client_limit);
+            $("#masterOccId").val(res.data.master_occupied);
+            $("#masterRemId").val(res.data.master_remaining);
+            $("#clientOccId").val(res.data.client_occupied);
+            $("#clientRemId").val(res.data.client_remaining);
+              console.log("res ==", res);
+      
+          })
+          .catch(err => {
+              console.log("err", err);
+          });
+        }) {% endcomment %}
+        {% comment %} account limit  {% endcomment %}
+      
+      </script> 
+</body>
+</html>

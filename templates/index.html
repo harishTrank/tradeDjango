@@ -97,8 +97,8 @@
     {% include "components/password-popup.html" %}
     {% include "components/user/parent-limit-info.html" %}
     {% include "components/user/intraday-square-off.html" %}
-    {% comment %} {% include "components/user/w-popup.html" %}
-    {% include "components/user/buy.html" %} {% endcomment %}
+    {% include "components/user/buy.html" %}
+    {% include "components/user/market-picture.html" %}
     
 
   </body>
@@ -164,14 +164,11 @@
       $("#tradeRightId").css("display", "block");
       $('.action_dropdown').toggle();
     }
-    const toggleMenuOption = () => {
-      $("#watchPopUpId").css("display", "block")
-      $('.action_dropdown').toggle();
-    }
-    {% comment %} const watchBuyId = () => {
+
+    const watchBuyId = () => {
       $("#buyWatchId").css("display","block")
       $(".action_dropdown").toggle();
-    } {% endcomment %}
+    }
 
     const parentLimitInfo = () =>{
       $("#parentLimitInfoId").css("display", "block")

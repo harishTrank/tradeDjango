@@ -850,7 +850,7 @@ class MarketWatchView(View):
         user = request.user
         trade_coin_id = user.market_user.filter(trade_coin_id__isnull=False).values_list('trade_coin_id', flat=True)
         coin_type = user.user.filter(exchange=True).values_list("symbol_name", flat=True)
-        return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id))), "coin_type":coin_type})
+        return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id))), "coin_type":list(coin_type)})
     
 
 class TradesView(View):
