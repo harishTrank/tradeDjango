@@ -412,8 +412,30 @@ class BuySellSellApi(APIView):
             user.balance += currentProfitLoss
             accountSummaryService(request.data, user, currentProfitLoss, "Profit/Loss")
             quantity -= total_quantity
-            
+
         total_cost = lot_size * quantity * request.data.get('price')
+        if request.data.get('trade_type') != "MARKET" and request.data.get('high') >= request.data.get('price') and request.data.get('low') <= request.data.get('price') and not request.data.get('auto'):
+            if (user.mini and request.data.get('ex_change') == "MINI") or (user.mcx and request.data.get('ex_change') == "MCX") or (user.nse and request.data.get('ex_change') == "NSE"):
+                message = "Your should trade in between high and low."
+                buy_sell_instance = BuyAndSellModel(
+                    buy_sell_user=user,
+                    quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
+                    trade_type=request.data.get('trade_type'),
+                    action=request.data.get('action'),
+                    price=request.data.get('price'),
+                    coin_name=request.data.get('coin_name'),
+                    ex_change=request.data.get('ex_change'),
+                    is_pending=request.data.get('is_pending'),
+                    identifer=request.data.get("identifer"),
+                    ip_address=request.data.get("ip_address") if request.data.get("ip_address") else request.META.get('REMOTE_ADDR'),
+                    order_method=request.data.get("order_method"),
+                    stop_loss=request.data.get("stop_loss"),
+                    message=message,
+                    is_cancel=True
+                )
+                buy_sell_instance.save()
+                return Response({'message': message}, status=status.HTTP_400_BAD_REQUEST)
+
         if (totalCount.count() > 0 and (total_quantity == quantity)) and not is_cancel:
             if action == "SELL":
                 currentProfitLoss = ( request.data.get('price') -totalCount[0]["avg_price"] ) * quantity * lot_size
@@ -466,15 +488,16 @@ class BuySellSellApi(APIView):
         if total_cost > 100000:
             brk_obj = AdminCoinWithCaseModal.objects.filter(master_coins=user)
             symbols = request.data.get('identifer').split("_")
+            turnover_brk_value = 0
             if len(symbols) >= 2:
                 result = symbols[1]
                 matching_objects = brk_obj.filter(identifier=result)
                 if matching_objects.exists():
                     selected_object = matching_objects.first()
                     turnover_brk_value = selected_object.turnover_brk
-                    print(turnover_brk_value)
                 else:
                     print(f"No object found for identifier: {result}")
+
             admin_brk = total_cost/100000 * turnover_brk_value
             if (admin_brk != 0):
                 accountSummaryService(request.data, user, -(abs(admin_brk)), "Brokerage")
@@ -1607,14 +1630,44 @@ class CreditSubmitHandler(APIView):
         data = request.data
         try:
             user_obj = MyUser.objects.get(id=data["user_id"])
-            if ("amount" in data and data["amount"]!= ""):
+            if (data["amount"] == 0):
                 return Response({"status": False, "message": "Amount is requied."}, status=status.HTTP_404_NOT_FOUND)
-            if (data["user_type"] == "SuperAdmin"):
+            if user_obj.user_type == "Admin":
                 if (data["option"] == "credit"):
                     UserCreditModal.objects.create(user_credit=user_obj, opening=user_obj.balance, credit=data["amount"], debit=0.0, closing=user_obj.balance + data["amount"], message=data["message"], transection=request.user)
+                    user_obj.balance += data["amount"]
+                    user_obj.save()
                 else:
-                    UserCreditModal.objects.create(user_credit=user_obj, opening=user_obj.balance, credit=0.0, debit=data["amount"], closing=user_obj.balance - data["amount"], message=data["message"], transection=request.user)
-                return Response({"status": True, "message": "Operation performed successfully."})
+                    if user_obj.balance >= data["amount"]:
+                        UserCreditModal.objects.create(user_credit=user_obj, opening=user_obj.balance, credit=0.0, debit=data["amount"], closing=user_obj.balance - data["amount"], message=data["message"], transection=request.user)
+                        user_obj.balance -= data["amount"]
+                        user_obj.save()
+                    else:
+                        return Response({"status": False, "message": "Not enough money for debit."}, status=status.HTTP_404_NOT_FOUND)
+                    
+            else:
+                parent = MyUser.objects.get(user_name=user_obj.parent)
+                if (data["option"] == "credit"):
+                    if (parent.balance >= data["amount"]):
+                        UserCreditModal.objects.create(user_credit=user_obj, opening=user_obj.balance, credit=data["amount"], debit=0.0, closing=user_obj.balance + data["amount"], message=data["message"], transection=request.user)
+                        user_obj.balance += data["amount"]
+                        parent.balance -= data["amount"]
+                        user_obj.save()
+                        parent.save()
+                    else:
+                        return Response({"status": False, "message": "Parent doesn't have enough money."}, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    if user_obj.balance >= data["amount"]:
+                        UserCreditModal.objects.create(user_credit=user_obj, opening=user_obj.balance, credit=0.0, debit=data["amount"], closing=user_obj.balance - data["amount"], message=data["message"], transection=request.user)
+                        user_obj.balance -= data["amount"]
+                        parent.balance += data["amount"]
+                        user_obj.save()
+                        parent.save()
+                    else:
+                        return Response({"status": False, "message": "Not enough money for debit."}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({"status": True, "message": "Operation performed successfully."})
+
         except Exception as e:
             return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 # ------------------------------------------------

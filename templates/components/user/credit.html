@@ -24,11 +24,7 @@
       <div class="trade-btm">
         <div class="flex space-bw">
           <label for="">Credit Ref:</label>
-          {% if request.user.user_type == "SuperAdmin" %}
-            <input name="currentCredit" class="form_control" disabled value="SuperAdmin"/>
-          {% else %}
-            <input name="currentCredit" type="number" class="form_control" disabled value="{{request.user.balance}}" />
-          {% endif %}
+            <input name="currentCredit" type="number" class="form_control" disabled value="{{balance}}" />
         </div>
         <div class="flex space-bw">
           <label for="">Operation:</label>
@@ -178,12 +174,11 @@
     });
   });
 
-  {% comment %} $("#submithandlerId").click(() => {
+  $("#submithandlerId").click(() => {
     const body = {
       user_id: localStorage.getItem("currentUserID"),
-      user_type: "{{request.user.user_type}}",
       option: $('#creditRadio').is(':checked') ? "credit" : "debit",
-      amount: $('#positiveInput').val(),
+      amount: Number($('#positiveInput').val()),
       message: $('#commentId').val(),
     }
     axios.post(`{% url "credit-submit" %}`, body, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
@@ -204,7 +199,7 @@
         icon: "error",
       });
     })
-  }) {% endcomment %}
+  })
 </script>
 
 {% endblock newtab %}

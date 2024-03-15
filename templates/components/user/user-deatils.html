@@ -269,7 +269,6 @@ $('#deatilsFilterOpenId').click(function () {
 
           socket.on("filterDataSend", (data) => {
             $("#totalPriceId").html(`P/L: ${updateTotalPrice(data, res.response).toFixed(2)}`);
-            console.log("=====>",data)
             $("#positionLiveDataid").empty();
             data.map(item => {
               const current_data = res.response.find(findItem => findItem.identifer === item.InstrumentIdentifier)
@@ -388,6 +387,8 @@ $('#deatilsFilterOpenId').click(function () {
                 type: "WEB",
                 stop_loss: currentPrice,
                 is_cancel: false,
+                high: data.High,
+                low: data.Low
             }
 
             if (currentButtonState === "LIMIT") {

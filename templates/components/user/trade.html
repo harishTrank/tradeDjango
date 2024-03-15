@@ -109,10 +109,12 @@
                     {% endif %}
                     <td>{{i.ip_address}}</td>
                     <td>{{i.order_method}}</td>
-                    {% if i.is_cancel %}
-                    <td style="color: red">Cancelled</td>
+                    {% if i.is_pending %}
+                      <td style="color: red">Pending</td>
+                    {% elif i.is_cancel %}
+                      <td style="color: red">Cancelled</td>
                     {% else %}
-                    <td style="color: blue">Complete</td>
+                      <td style="color: blue">Complete</td>
                     {% endif %}
                 </tr>
             {% endfor %}

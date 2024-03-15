@@ -344,6 +344,8 @@ class EditUserView(View):
 
     def post(self, request, id):
         user = MyUser.objects.get(id=id)
+        if request.POST.get("user_name") != user.user_name:
+            MyUser.objects.filter(parent=user.user_name).update(parent=request.POST.get("user_name"))
         user_data = {
             "full_name": request.POST.get("full_name"),
             "user_name": request.POST.get("user_name"),
@@ -574,7 +576,7 @@ class TabTrades(View):
         if exchange:
             response = response.filter(ex_change=exchange)
         if status == "Successful":
-            response = response.filter(is_cancel=False)
+            response = response.filter(is_cancel=False, is_pending=False)
         if status == "Pending":
             response = response.filter(is_pending=True)
         if status == "Cancelled":
@@ -671,7 +673,7 @@ class CreditView(View):
             account_summary = account_summary.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
         if coin_name:
             account_summary = account_summary.filter(particular__icontains=coin_name)
-        return render(request, "components/user/credit.html",{"account_summary":account_summary,"id":user.id})
+        return render(request, "components/user/credit.html",{"account_summary":account_summary,"id":user.id, "balance": user.balance})
 
 
 

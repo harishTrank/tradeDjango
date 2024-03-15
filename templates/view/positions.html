@@ -161,8 +161,6 @@
     socket.emit("filterDataGet", {"identifier": identifer });
     socket.on("filterDataSend", (data) => {
         data.map(itemObj =>{ 
-            //console.log("itemObj.BuyPrice",itemObj.BuyPrice)
-            //console.log("itemObj.SellPrice",itemObj.SellPrice)
             const currentCoin = current_user_result.find(findObj => findObj.identifer === itemObj.InstrumentIdentifier);
             const currentAvg = currentCoin?.total_quantity > 0 ? currentCoin.avg_buy_price : currentCoin.avg_sell_price;
             const currentCmp = currentCoin?.total_quantity > 0 ? itemObj.BuyPrice : itemObj.SellPrice;
