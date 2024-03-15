@@ -39,7 +39,7 @@
             <li data-id="position"><a href="{% url 'Admin:positions' %}"><i class="fa-solid fa-map"></i>Positions</a></li>
             <li data-id="pnl"><a href="{% url 'Admin:profit-and-loss' %}"><i class="fa-solid fa-chart-line"></i>Profit and Loss</a></li>
             <li data-id="m2mpnl"><a href="{% url 'Admin:m2m-profit-and-loss' %}"><i class="fa-solid fa-chart-line"></i>M2M Profit and Loss</a></li>
-            <li data-id="intraday"><a href="{% url 'Admin:intraday-history' %}"><i class="fa-solid fa-file-circle-xmark"></i>Intraday History</a></li>
+            {% comment %} <li data-id="intraday"><a href="{% url 'Admin:intraday-history' %}"><i class="fa-solid fa-file-circle-xmark"></i>Intraday History</a></li> {% endcomment %}
             <li data-id="rejection"><a href="{% url 'Admin:rejection-log' %}"><i class="fa-solid fa-file-circle-xmark"></i>Rejection Log</a></li>
             <li data-id="login"><a href="{% url 'Admin:login-history' %}"><i class="fa-solid fa-file-circle-question"></i>Login History</a></li>
         </ul>
@@ -51,7 +51,7 @@
             <li data-id="tradeaccount"><a href="{% url 'Admin:trade-account' %}"><i class="fa-solid fa-file-invoice"></i>Trade Account</a></li>
             <li data-id="settlement"><a href="{% url 'Admin:settlement' %}"><i class="fa-solid fa-handshake"></i>Settlement</a></li>
             <li data-id="accountsummary"><a href="{% url 'Admin:account-summary' %}"><i class="fa-solid fa-window-maximize"></i>Account Summary</a></li>
-            <li data-id="billgenerate"><a href="{% url 'Admin:bill-generate' %}"><i class="fa-solid fa-money-bill-1-wave"></i>Bill Generate</a></li>
+            {% comment %} <li data-id="billgenerate"><a href="{% url 'Admin:bill-generate' %}"><i class="fa-solid fa-money-bill-1-wave"></i>Bill Generate</a></li> {% endcomment %}
             <li data-id="billgenerate"><a href="{% url 'Admin:weekly-admin' %}"><i class="fa-solid fa-gear"></i>Weekly Admin</a></li>
             <li data-id="trades-margins"><a href="{% url 'Admin:trades-margins' %}"><i class="fa-brands fa-stack-overflow"></i>Trade Margin</a></li>
             <li data-id="trades-margins"><a href="{% url 'Admin:script-master' %}"><i class="fa-solid fa-money-bill-1-wave"></i>Script Master</a></li>
@@ -245,7 +245,7 @@
         </script>
 
 <script>
-    const BASE_URL = "http://localhost:5000";
+    const BASE_URL = "http://192.168.0.72:5000";
     
     $(document).ready(function ( ) {
         // Function to handle tab clicks

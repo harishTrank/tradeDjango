@@ -1,27 +1,38 @@
-{% extends "index.html" %} {% block content %}
+{% extends "index.html" %} 
+{% block content %}
 
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <div class="tab-content" id="accountsummary">
+    {% if request.user.user_type == "SuperAdmin" %}
+    <div style="padding:15px;">
+        <form method="post" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="exampleFormControlTextarea1"><b>Message</b></label>
+                <textarea name="message" style="width:50%;" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    {% else %}
+    {% endif %}
+    
     <div class="flex">
         <div class="trades-body user-table" style="margin-top:1%;width: 100%;">
-            {% comment %} {% if account_summary %} {% endcomment %}
             <table style="width: 100%;">
                 <tr>
                     <th>Index</th>
                     <th>Massage</th>
                     <th>ReceivedOn</th>
                 </tr>
+                {% for i in message %}
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ i.message }}</td>
+                    <td>{{ i.created_at }}</td>
                 </tr>
-            </table>
-            {% comment %} {% else %}
-            <div style="display: flex;justify-content: center;margin-top: 14%;">
-              <p>No data found</p>
-            </div>
-        {% endif %} {% endcomment %}
+                {% endfor %}
+            </table> 
         </div>
     </div>
 </div>
@@ -36,6 +47,15 @@
         $(".trades-side").show();
         $(".trades-body").css("width", "79%");
     });
-  </script>
+
+    function validateForm() {
+        var textareaValue = document.getElementById("exampleFormControlTextarea1").value.trim();
+        if (textareaValue === "") {
+            alert("Please enter a message.");
+            return false; // Prevent form submission
+        }
+        return true; // Allow form submission
+    }
+</script>
 
 {% endblock content %}

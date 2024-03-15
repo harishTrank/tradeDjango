@@ -118,18 +118,17 @@
             <div class="flex align-center space-bw exchange-symbol">
                 <div class="col-50">
                     <div><b>Exchange</b></div>
-                    <select name="" id="">
-                        <option value="">MCX</option>
-                        <option value="">MCX</option>
-                        <option value="">MCX</option>
+                    <select id="cointypeId" class="symbolKey">
+                    <option>Select</option>
+                        {% for i in coin_type %}
+                            <option>{{i}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-50">
                     <div><b>Symbol</b></div>
-                    <select name="" id="">
-                        <option value="">Gold 05 Apr 2024</option>
-                        <option value="">Gold 05 Apr 2024</option>
-                        <option value="">Gold 05 Apr 2024</option>
+                    <select id="selectsymbolId" name="" id="" class="symbol">
+                        <option value="">Select</option>
                     </select>
                 </div>
             </div>
@@ -221,4 +220,68 @@
     $("#marketpicId").click(() =>
     $("#marketpictureId").css("display", "none")
   );
+
+  let response;
+  $.ajax({
+    type: "POST",
+    url: `${BASE_URL}/api/tradeCoin/coins`,
+    data: JSON.stringify({
+        coinList: currentExchange
+    }),
+    contentType: 'application/json',
+    success: function (data) {
+      let symbolKey = $(".symbolKey").val();
+      if (symbolKey === "Select") {
+        symbolKey = "";
+      }
+      response = data.response;
+      response
+      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
+      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
+      .map(item => {
+        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
+      })
+
+    },
+    error: function (xhr, status, error) {
+      console.error('Error:', error);
+    }
+  });
+
+
+  $("#selectsymbolId").change(()=>{
+    let result = $(".symbol").val();
+    $.ajax({
+        type:'POST',
+        url:'{% url "add-market-coin" %}',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {
+            trade_coin_id: result
+        },
+        success:function(res){
+            window.location.reload();
+        },
+        error:function(res){
+          alert(res?.responseJSON.message);
+        }
+    })
+})
+  
+
+  $("#cointypeId").change(()=>{
+
+    let symbolKey = $(".symbolKey").val();
+    if (symbolKey === "Select") {
+        symbolKey = "";    
+    }
+    $(".symbol").empty();
+    $(".symbol").html("<option>Select</option>");
+    response
+      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
+      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
+      .map(item => {
+        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
+    })
+
+  })
 </script>

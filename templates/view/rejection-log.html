@@ -84,10 +84,9 @@
                     <th>Type</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Reference Price</th>
+                   
                     <th>IP Address</th>
-                    <th>Device ID</th>
-                    <th>Trade by</th>
+                    
                 </tr>
                 {% for i in rejection %}
                 <tr>
@@ -105,10 +104,9 @@
                       <td style="color: red">{{i.price}}</td>
                     {% endif %}
 
-                    <td>Reference Price</td>
+                    
                     <td>{{i.ip_address}}</td>
-                    <td>Device ID</td>
-                    <td>Trade by</td>
+                    
                 </tr>
                 {% endfor %}
             </table>

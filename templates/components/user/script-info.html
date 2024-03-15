@@ -1,0 +1,123 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .flex {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .align-center {
+    align-items: center;
+  }
+  .space-bw {
+    justify-content: space-between;
+  }
+
+  .pop-up-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    z-index: 99;
+  }
+  .pop-up-top-inside {
+    width: 30%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  .market-pic {
+    padding: 10px 0;
+    font-size: 15px;
+  }
+  .market-pic p i {
+    margin-right: 5px;
+    color: #a11616;
+  }
+  .col-50 {
+    width: 49%;
+  }
+  .exchange-symbol {
+    padding: 15px 0;
+  }
+
+  #scriptINfoId {
+    display: none;
+  }
+  .e table td{
+    padding:3px;
+  }
+</style>
+<section>
+  <div class="pop-up-top" id="scriptINfoId">
+    <div class="pop-up-top-inside">
+      <div class="flex align-center space-bw market-pic">
+        <p><i class="fa-brands fa-opera"></i>Script Info</p>
+        <div id="scriptcloseId"><i class="fa-solid fa-x"></i></div>
+      </div>
+
+      <div style='width:100%' class='e'>
+        <table border='1'style="width:100%;">
+          <tr>
+            <td>ExchangeName</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>Script</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>ExpairyDate</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>LotSize</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>TradeMargin</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>TradeAttribute</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>OddLotTrade</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>MaxLot</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>BreakUpQty</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>MaxLot</td>
+            <td>65985</td>
+          </tr>
+          <tr>
+            <td>BreakUpLot</td>
+            <td>65985</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <script>
+      $("#scriptcloseId").click(() =>
+        $("#scriptINfoId").css("display", "none")
+      );
+    </script>
+  </div>
+</section>

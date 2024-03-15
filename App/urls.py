@@ -50,4 +50,5 @@ urlpatterns = [
     path("user-script-position-track/", UserScriptPositionTrack.as_view(), name="user-script-position-track"),
     path("delete-indentifer/", DeleteIndentifer.as_view(), name="delete-indentifer"),
     path("credit-submit/", CreditSubmitHandler.as_view(), name="credit-submit"),
+    path("message-latest/", MessageGetLatest.as_view(), name="message-latest"),
 ]

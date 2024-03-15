@@ -761,6 +761,7 @@ class TabSettlement(View):
     
 class RejectionLogView(View):
     def get(self, request, id):
+        print("sdsddsdd")
         from_date = request.GET.get('from_date')
         to_date = request.GET.get('to_date')
         exchange = request.GET.get('exchange')
@@ -852,6 +853,14 @@ class MarketWatchView(View):
         trade_coin_id = user.market_user.filter(trade_coin_id__isnull=False).values_list('trade_coin_id', flat=True)
         coin_type = user.user.filter(exchange=True).values_list("symbol_name", flat=True)
         return render(request, "view/market-watch.html",{'identifiers': list(set(list(trade_coin_id))), "coin_type":list(coin_type)})
+    
+
+class SybolsView(View):
+    def get(self, request):
+        user = request.user
+        coin_type = user.user.filter(exchange=True).values_list("symbol_name", flat=True)
+        return render(request, "view/market-picture.html",{"coin_type":list(coin_type)})
+    
     
 
 class TradesView(View):
@@ -1077,7 +1086,7 @@ class PositionsView(View):
         elif request.user.user_type == "Client":
             user_list = []
             user_keys = []
-            response = response.filter(buy_sell_user__id=request.user)
+            response = response.filter(buy_sell_user__id=request.user.id)
         else:
             user_keys = [request.user.id]
             child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
@@ -1092,10 +1101,6 @@ class PositionsView(View):
         if user_name:
             response = response.filter(buy_sell_user__user_name=user_name)
             
-        # user_coin_names = list(set(list(user.buy_sell_user.filter(
-        #     buy_sell_user__id__in=[request.user.id] 
-        # ).values_list('coin_name', flat=True).distinct())))
-        
         identifer = list(set(list(response.values_list('identifer', flat=True))))
 
         if request.user.user_type == "SuperAdmin":
@@ -1559,7 +1564,12 @@ class ExchangeTimeSchedule(View):
 
 class MassageView(View):
     def get(self, request):
-        return render(request, "tools/message.html")
+        message = MessageModel.objects.all()
+        return render(request, "tools/message.html",{"message":message})
+    def post(self, request):
+        message  = MessageModel.objects.create(message=request.POST.get("message"))
+        messages.success(request, f"Message add successfully.")
+        return redirect("Admin:message")
     
     
     

@@ -123,7 +123,10 @@
     {% include "components/user/parent-limit-info.html" %}
     {% include "components/user/intraday-square-off.html" %}
     {% include "components/user/buy.html" %}
+    {% include "components/user/sell.html" %}
     {% include "components/user/market-picture.html" %}
+    {% include "components/user/script-info.html" %}
+    {% comment %} {% include "components/user/chart-view.html" %} {% endcomment %}
 
     <div class="footer-top">
       <div class="flex align-center space-bw footer-head">
@@ -136,7 +139,7 @@
           </div>
       </div>
       <div class="footer-marquee">
-          <marquee><p>(Mar 11 2024 3:52PM) Us Daylight -MCX Change time will be from Monday ( TODAY ) 11-03-2024 from 9-00 AM to 11-30 PM.</p></marquee>
+          <marquee><p></p></marquee>
       </div>
      </div> 
     
@@ -295,5 +298,20 @@
   };
 
   
+  axios.get(`{% url "message-latest" %}`, {
+    headers: {
+        "X-CSRFToken": "{{ csrf_token }}"
+    }
+  })
+  .then(response => {
+    const latestMessage = response.data.response;
+    const formattedDate = dayjs(latestMessage.created_at).format("MMM DD YYYY h:mma"); 
+    const marqueeElement = document.querySelector('.footer-marquee marquee');
+    marqueeElement.innerHTML = `<p>(${formattedDate}) ${latestMessage.message}</p>`;
+  })
+  .catch(error => {
+      console.log("err", error);
+  });
+
   </script>
 </html>
