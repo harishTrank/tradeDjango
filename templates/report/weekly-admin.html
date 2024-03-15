@@ -82,7 +82,7 @@
     });
 
     
-    const weeklyAdminHandler = (user_name="" ,user_id = "{{user.id}}") => {
+    const weeklyAdminHandler = (user_ ,user_id = "{{user.id}}") => {
 
         let m2mListUserWise = [];
         axios.get(`{% url "weekly-admin-api" %}?user_id=${user_id}&user_name=${user_name}`, { headers: { "X-CSRFToken": "{{ csrf_token }}" } })

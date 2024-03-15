@@ -99,9 +99,6 @@ li {
     margin: 10px 0;
 }
 
-.tab-content {
-    display: none;
-}
 
 .tab-content:first-of-type {
     display: block;
@@ -208,10 +205,6 @@ ul.view-dropdown li i {
 
 .pannel-body {
     width: calc(100% - 100px);
-
-    .user-table {
-        padding: 0 10px;
-    }
 }
 
 .user-table {

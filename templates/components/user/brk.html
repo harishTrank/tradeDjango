@@ -34,7 +34,7 @@
                    
                         <div class="flex space-bw">
                             <label for="" >Exchange:</label>
-                            <select name="" class="form_control flex" id="" onchange="exchangeOnchange(this.value)" >
+                            <select  class="form_control flex"  onchange="exchangeOnchange(this.value)" >
                               {% for i in exchange %}
                                 <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
                               {% endfor %}

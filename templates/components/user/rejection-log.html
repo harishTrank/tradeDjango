@@ -39,7 +39,7 @@
 
         <div class="flex space-bw">
           <label for="">Exchange:</label>
-          <select name="exchange" id="" class="form_control">
+          <select name="exchange"  class="form_control">
             <option value="">All Exchange</option>
             {% for symbol in exchange_obj %}
               {% if symbol.symbol_name == "NSE" and symbol.exchange %}
@@ -54,7 +54,7 @@
         </div>
         <div class="flex space-bw">
           <label for="">Symbol:</label>
-          <select name="symbol" id="" class="form_control">
+          <select name="symbol"  class="form_control">
             <option value="">Select</option>
             {% for i in response %}
               <option value="{{i.coin_name}}">{{i.coin_name}}</option>

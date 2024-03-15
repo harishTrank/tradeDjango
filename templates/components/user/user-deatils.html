@@ -25,7 +25,7 @@
       <div class="trade-btm">
         <div class="flex space-bw">
           <label for="">User:</label>&nbsp;
-          <select name="" id="" class="form_control">
+          <select   class="form_control">
             <option value="{{request.user.id}}">
               {{user.user_name}}
             </option>
@@ -52,7 +52,7 @@
         </div>
         <div class="flex space-bw">
           <label for="">Script Name:</label>
-          <select required name="" id="scriptNameId" class="form_control">
+          <select required  id="scriptNameId" class="form_control">
             <option value="">Select</option>
           </select>
         </div>
@@ -78,14 +78,14 @@
         </div>
         <div class="flex space-bw">
           <label for="">Buy/Sell:</label>
-          <select name="" id="selectActionTypeId" class="form_control">
+          <select  id="selectActionTypeId" class="form_control">
             <option value="Sell">Sell</option>
             <option value="Buy">Buy</option>
           </select>
         </div>
         <div class="flex space-bw">
           <label for="">Order Type:</label>
-          <select name="" id="orderTypeID" class="form_control">
+          <select  id="orderTypeID" class="form_control">
             <option value="market">Market</option>
             <option value="limit">Limit</option>
             <option value="sl">SL</option>
@@ -427,7 +427,7 @@ $('#deatilsFilterOpenId').click(function () {
 
 
   
-    {% comment %} const openPositionss = (id="", coin="") => {
+    {% comment %} const openPositionss = (, coin="") => {
       var left = (screen.width/2)-(1200/2);
       var top = (screen.height/2)-(600/2);
       window.open(`/tab-open-position?id=${id}&coin=${coin}`, 'NewWindow', `width=1200,height=600,left=${left},top=${top}`);

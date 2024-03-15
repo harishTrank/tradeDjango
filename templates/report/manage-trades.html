@@ -29,15 +29,15 @@
                 <div class="trade-btm">
                     <div>
                         <label for="">From:</label>
-                        <input type="date" name="from_date" id="">
+                        <input type="date" name="from_date" >
                     </div>
                     <div>
                         <label for="">To:</label>
-                        <input type="date" name="to_date" id="">
+                        <input type="date" name="to_date" >
                     </div>
                     <div>
                         <label for="">Username:</label>
-                        <select name="user_name" id="">
+                        <select name="user_name" >
                             <option value="">All</option>
                             {% for i in user %}
                                 <option value="{{ i.user_name }}">{{ i.user_name }}</option>
@@ -47,7 +47,7 @@
                     </div>
                     <div>
                         <label for="">Status:</label>
-                        <select name="status" id="">
+                        <select name="status" >
                             <option value="">All</option>
                             <option value="">Successful</option>
                             <option value="Pending">Pending</option>
@@ -55,7 +55,7 @@
                     </div>
                     <div>
                         <label for="">Exchange:</label>
-                        <select name="exchange" id="">
+                        <select name="exchange" >
                             <option value="">Select</option>
                             {% for i in symbol_name %}
                             <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
@@ -64,7 +64,7 @@
                     </div>
                     {% comment %} <div>
                         <label for="">Symbol:</label>
-                        <select name="" id="">
+                        <select  >
                             <option value="">Select</option>
                         </select>
                     </div> {% endcomment %}

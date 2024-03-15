@@ -1187,6 +1187,23 @@ class ChildUserFetchAPI(APIView):
         except:
             return Response({"success": False, "message": "This api only for admin and master user type."}, status=status.HTTP_404_NOT_FOUND)
         
+
+class GetAllClient(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        if request.user.user_type == "SuperAdmin":
+            user_client = MyUser.objects.filter(user_type="Client").values("id","user_name")
+        elif request.user.user_type == "Admin":
+            master_ids = MastrModel.objects.filter(admin_user=user.admin_user).values_list("master_user__id", flat=True)
+            client_ids = ClientModel.objects.filter(master_user_link__master_user__id__in=master_ids).values_list("client__id", flat=True)
+            user_client = MyUser.objects.filter(id__in=client_ids).values("user_name", "id")
+        elif request.user.user_type == "Master":
+            user_client = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True))).values("user_name", "id")
+        print("=-=-=-=-=",user_client)
+        return Response({"status":True,"user_client":list(user_client)},status=status.HTTP_200_OK)
+    
+        
 class MyUserPerissionToggle(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
