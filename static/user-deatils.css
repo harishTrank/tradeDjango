@@ -254,7 +254,7 @@ ul.view-dropdown li i {
 
 .outcome-user ul li {
     list-style: disc;
-    margin-bottom: 6px;
+    /* margin-bottom: 6px; */
 }
 
 .outcome-user ul li:last-of-type {

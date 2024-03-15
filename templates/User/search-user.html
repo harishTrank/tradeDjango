@@ -13,8 +13,27 @@
         </div>
     </div>
 </div>
+<style>
+    .plus-sign {
+        margin-right: 5px;
+        padding: 1px 3px;
+        border: 1px solid #808080;
+        color: #3d3de9;
+        background-color: #9c9696;
+        display: inline-block;
+        font-size: 10px;
+        text-decoration: none;
+    }
+</style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    const particularUserView = id => {
+        var left = (screen.width/2)-(1200/2);
+        var top = (screen.height/2)-(600/2);
+        window.open(`user-deatils-by-id/${id}`, 'NewWindow', `width=1200,height=600,left=${left},top=${top}`);
+        localStorage.setItem("currentUserID", id);
+    }
+
     const user_type = "{{request.user.user_type}}"
     $(document).ready(function () {
         function loadAllUsers() {
@@ -26,10 +45,10 @@
                         data.data.map(mapItem =>
                             $("#searchUserUlId").append(`
                                 <ul>
-                                    <li>
-                                        <a href="#">${mapItem.master_user_details.user_name}</a>
+                                    <li style="list-style-type: none;">
+                                        <a href="#" class="plus-sign">+</a> <a href="#" onclick="particularUserView('${master.master_user}')">${mapItem.master_user_details.user_name} (${mapItem.master_user_details.user_type})</a>
                                         <ul>
-                                            ${mapItem.clients.map(child => `<li>${child.client_user_details.user_name}</li>`).join('')}
+                                            ${mapItem.clients.map(child => `<li style="list-style-type: none;"><a href="#" onclick="particularUserView('${child.client}')">${child.client_user_details.user_name} (${child.master_user_details.user_type})</a></li>`).join('')}
                                         </ul>
                                     </li>
                                 </ul>`)
@@ -38,17 +57,17 @@
                         data.data.map(mapItem =>
                             $("#searchUserUlId").append(`
                                 <ul>
-                                    <li>
-                                        <a href="#">${mapItem.user_details.user_name}</a>
+                                    <li style="list-style-type: none;">
+                                        <a href="#" class="plus-sign">+</a> <a href="#" onclick="particularUserView('${mapItem.user}')">${mapItem.user_details.user_name} (${mapItem.user_details.user_type})</a>
                                         <ul>
-                                            ${mapItem.masters.map(master => `<li><a href="#">${master.master_user_details.user_name}</a>
+                                            ${mapItem.masters.map(master => `<li style="list-style-type: none;"> <a href="#" class="plus-sign">+</a> <a href="#" onclick="particularUserView('${master.master_user}')">${master.master_user_details.user_name} (${master.master_user_details.user_type})</a>
                                                                             <ul>
-                                                                                ${master.clients.map(child => `<li>${child.client_user_details.user_name}</li>`).join('')}
+                                                                                ${master.clients.map(child => `<li style="list-style-type: none;"><a href="#" onclick="particularUserView('${child.client}')">${child.client_user_details.user_name} (${child.client_user_details.user_type})</a></li>`).join('')}
                                                                             </ul></li>`)
                                             .join('')}
                                         </ul>
                                         <ul>
-                                            ${mapItem.clients.map(child => `<li>${child.client_user_details.user_name}</li>`).join('')}
+                                         ${mapItem.clients.map(child => `<li style="list-style-type: none;"><a href="#" onclick="particularUserView('${child.client}')">${child.client_user_details.user_name} (${child.client_user_details.user_type})</a></li>`).join('')}
                                         </ul>
                                     </li>
                                 </ul>`)
