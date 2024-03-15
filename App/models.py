@@ -276,3 +276,11 @@ class TradeMarginModel(CommonTimePicker):
     
     def __str__(self):
         return str(self.exchange) + " "+ str(self.script)
+    
+    
+class MessageModel(CommonTimePicker):
+    title = models.CharField("Title", max_length=200, null=True, blank=True)
+    message = models.TextField("Message", max_length=200, null=True, blank=True)
+    
+    def __str__(self) -> str:
+        return self.message

@@ -49,4 +49,5 @@ urlpatterns = [
     path("weekly-admin-api/", WeeklyAdminListApi.as_view(), name="weekly-admin-api"),
     path("user-script-position-track/", UserScriptPositionTrack.as_view(), name="user-script-position-track"),
     path("delete-indentifer/", DeleteIndentifer.as_view(), name="delete-indentifer"),
+    path("message-latest/", MessageGetLatest.as_view(), name="message-latest"),
 ]

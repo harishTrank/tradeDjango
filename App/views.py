@@ -1588,5 +1588,18 @@ class DeleteIndentifer(APIView):
         market_watch_objects = MarketWatchModel.objects.filter(market_user=user)
         market_watch_objects.delete()
         return Response({"status": True})
+    
+class MessageGetLatest(APIView):
+    def get(self, request):
+        latest_message = MessageModel.objects.latest('created_at')  
+        data = {
+            "status": True,
+            "response": {
+                "message": latest_message.message,  
+                "created_at": latest_message.created_at  
+            }
+        }
+        return Response(data)
+
 
 # ------------------------------------------------

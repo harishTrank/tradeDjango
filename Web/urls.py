@@ -43,6 +43,7 @@ urlpatterns = [
     
     
     path("market-watch",MarketWatchView.as_view(),name="market-watch"),
+    path("sybols-watch",SybolsView.as_view(),name="sybols-watch"),
     path("trades",TradesView.as_view(),name="trades"),
     path("orders",OrdersView.as_view(),name="orders"),
     path("positions",PositionsView.as_view(),name="positions"),

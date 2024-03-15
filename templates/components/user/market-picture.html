@@ -118,14 +118,16 @@
             <div class="flex align-center space-bw exchange-symbol">
                 <div class="col-50">
                     <div><b>Exchange</b></div>
-                    <select onChange={cointype()} name="" id="">
-                        <option value="MCX">MCX</option>
-                        <option value="NSE">NSE</option>
+                    <select id="cointypeId" class="symbolKey">
+                    <option>Select</option>
+                        {% for i in coin_type %}
+                            <option>{{i}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-50">
                     <div><b>Symbol</b></div>
-                    <select onChange={selectsymbol()} name="" id="" class="symbol">
+                    <select id="selectsymbolId" name="" id="" class="symbol">
                         <option value="">Select</option>
                     </select>
                 </div>
@@ -219,9 +221,36 @@
     $("#marketpictureId").css("display", "none")
   );
 
-  const selectsymbol = () => {
-    let result = $(".symbol").val();
+  let response;
+  $.ajax({
+    type: "POST",
+    url: `${BASE_URL}/api/tradeCoin/coins`,
+    data: JSON.stringify({
+        coinList: currentExchange
+    }),
+    contentType: 'application/json',
+    success: function (data) {
+      let symbolKey = $(".symbolKey").val();
+      if (symbolKey === "Select") {
+        symbolKey = "";
+      }
+      response = data.response;
+      response
+      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
+      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
+      .map(item => {
+        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
+      })
 
+    },
+    error: function (xhr, status, error) {
+      console.error('Error:', error);
+    }
+  });
+
+
+  $("#selectsymbolId").change(()=>{
+    let result = $(".symbol").val();
     $.ajax({
         type:'POST',
         url:'{% url "add-market-coin" %}',
@@ -236,9 +265,11 @@
           alert(res?.responseJSON.message);
         }
     })
-  }
+})
+  
 
-  const cointype = () => {
+  $("#cointypeId").change(()=>{
+
     let symbolKey = $(".symbolKey").val();
     if (symbolKey === "Select") {
         symbolKey = "";    
@@ -251,5 +282,6 @@
       .map(item => {
         $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
     })
-  }
+
+  })
 </script>
