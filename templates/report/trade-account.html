@@ -24,7 +24,7 @@
             <div class="trade-btm">
                 <div>
                     <label for="">Username:</label>
-                    <select name="" id="tradeUserNameId">
+                    <select  id="tradeUserNameId">
                         <option value="">All Users</option>
                         {% for i in user_obj %}
                             <option value="{{i.user_name}}">{{i.user_name}}</option>
@@ -81,7 +81,7 @@
         location.href="{% url 'Admin:trade-account' %}"
     }
 
-    const tradeAccountHandler = (user_name="", user_id="{{user.id}}") =>{
+    const tradeAccountHandler = (user_, user_id="{{user.id}}") =>{
 
         let m2mListUserWise = [];
         axios.get(`{% url "weekly-admin-api" %}?user_id=${user_id}&user_name=${user_name}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})

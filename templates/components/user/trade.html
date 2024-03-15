@@ -38,7 +38,7 @@
    
         <div class="flex space-bw">
             <label for="">User:</label>
-            <select name="user" id="" class="form_control">
+            <select name="user"  class="form_control">
                   <option value="{{user}}">{{user}}</option>
             </select>
         </div>
@@ -46,7 +46,7 @@
 
         <div class="flex space-bw">
         <label for="">Status:</label>
-        <select name="status" id="" class="form_control">
+        <select name="status"  class="form_control">
             <option value="">All</option>
                 <option value="Successful">Successful</option>
                 <option value="Pending">Pending</option>
@@ -56,7 +56,7 @@
 
         <div class="flex space-bw">
           <label for="">Exchange:</label>
-          <select name="exchange" id="" class="form_control">
+          <select name="exchange"  class="form_control">
             <option value="">All Exchange</option>
             {% for i in symbol_name %}
               <option value="{{i.symbol_name}}">{{i.symbol_name}}</option>
@@ -65,7 +65,7 @@
         </div>
         {% comment %} <div class="flex space-bw">
           <label for="">Symbol:</label>
-          <select name="symbol" id="" class="form_control">
+          <select name="symbol"  class="form_control">
             <option value="">Select</option>
               <option value="">NSE</option>
           </select>

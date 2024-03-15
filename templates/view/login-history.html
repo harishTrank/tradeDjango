@@ -27,16 +27,16 @@
                 <div class="trade-btm">
                     <div>
                         <label for="">From:</label>
-                        <input type="date" name="from_date" id="">
+                        <input type="date" name="from_date" >
                     </div>
                     <div>
                         <label for="">Date:</label>
-                        <input type="date" name="to_date" id="">
+                        <input type="date" name="to_date" >
                     </div>
                     <div>
                         <label for="">Username:</label>
 
-                        <select name="user_name" id="">
+                        <select name="user_name" >
                             {% for i in user_names %}
                             <option value="{{i.user_name}}">{{i.user_name}}</option>
                             {% endfor %}

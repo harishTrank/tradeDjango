@@ -24,11 +24,11 @@
             <div class="trade-btm">
                 <div>
                     <label for="">To:</label>
-                    <input type="date" name="" id="toDateId">
+                    <input type="date"  id="toDateId">
                 </div>
                 <div>
                     <label for="">Exchange:</label>
-                    <select name="" id="positionTrackId">
+                    <select  id="positionTrackId">
                         <option value="">All</option>
                         <option value="MCX">MCX</option>
                         <option value="NSE">NSE</option>
@@ -37,7 +37,7 @@
                 </div>
                 <div>
                     <label for="">Symbols:</label>
-                    <select name="" id="trackSymbolId">
+                    <select  id="trackSymbolId">
                        
                     </select>
                 </div>
@@ -86,7 +86,7 @@
     });
 
 
-    const UserScriptView = (id="", coin="") => {
+    const UserScriptView = (, coin="") => {
         var left = (screen.width/2)-(1200/2);
         var top = (screen.height/2)-(600/2);
         window.open(`position-track-view-orders?id=${id}&coin=${coin}`, 'NewWindow', `width=1200,height=600,left=${left},top=${top}`);
