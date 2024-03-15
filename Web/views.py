@@ -144,11 +144,11 @@ class AddUserView(View):
             return redirect("Admin:add-user") 
 
         if request.user.user_type == "SuperAdmin":
-            if (not request.POST.get("accountUser") == 'on'):
+            if (request.POST.get("currentUserType") == 'Admin'):
                 create_user = MyUser.objects.create(user_type="Admin", **user_data)
                 AdminModel.objects.create(user=create_user)
                 messages.success(request, f"Admin create successfully.")
-            elif request.POST.get("add_master") == 'on':
+            elif request.POST.get("currentUserType") == 'Master':
                 selected_admin = AdminModel.objects.get(user__id=request.POST.get("selectedAdminName"))
                 if selected_admin.user.balance <= int(request.POST.get("credit")):
                     messages.error(request, f"Insufficient balance.")
@@ -196,7 +196,7 @@ class AddUserView(View):
                     
         elif request.user.user_type == "Admin":
             selected_admin = AdminModel.objects.get(user__id=request.user.id)
-            if (request.POST.get("add_master") == 'on'):
+            if (request.POST.get("currentUserType") == 'Master'):
                 credit_amount = request.POST.get("credit")
                 if credit_amount is not None and credit_amount.isdigit():
                     credit_amount = int(credit_amount)
@@ -230,9 +230,10 @@ class AddUserView(View):
                     ClientModel.objects.create(client=create_user, admin_create_client=selected_admin)
                     messages.success(request, f"Client added successfully")
                 else:
-                    user = MyUser.objects.get(id=request.POST.get("selectedMasterName"))
+                    # user = MyUser.objects.get(id=request.POST.get("selectedMasterName"))
                     selected_master = MastrModel.objects.get(master_user__id=request.POST.get("selectedMasterName"))
                     ClientModel.objects.create(client=create_user, master_user_link=selected_master, admin_create_client=selected_admin)
+                    
         elif request.user.user_type == "Master":
             credit_amount = request.POST.get("credit")
             if credit_amount is not None and credit_amount.isdigit():
@@ -259,7 +260,7 @@ class AddUserView(View):
                     messages.error(request, f"Cannot create more Client users. Limit reached ({client_limit}).")
                     return redirect("Admin:add-user")
             current_master = ""
-            if (request.POST.get("add_master") == 'on'):
+            if (request.POST.get("currentUserType") == 'Master'):
                 current_master = MyUser.objects.get(id=request.user.id).master_user
                 create_user = MyUser.objects.create(user_type="Master", **user_data, parent=current_master)
                 MastrModel.objects.create(master_user=create_user, admin_user=request.user.master_user.admin_user,master_link=current_master)

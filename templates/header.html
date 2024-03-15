@@ -22,7 +22,7 @@
             </ul>
         </li>
     <li data-id="dashboard"><a href="{% url 'Admin:dashboard' %}">Dashboard</a></li>
-    {% comment %} {% if request.user.user_type != "Client" %} {% endcomment %}
+    {% if request.user.user_type != "Client" %}
         <li data-id="users" class="user-view-dropdown">Users
             <ul class="view-dropdown" id="user-dropdown">
                 <li data-id="create-user"><a href="{% url 'Admin:add-user' %}"><i class="fa-solid fa-user"></i>Create User</a></li>
@@ -30,7 +30,7 @@
                 <li data-id="search-user"><a href="{% url 'Admin:search-user' %}"><i class="fa-solid fa-magnifying-glass"></i>Search User</a></li>
             </ul>
         </li>
-    {% comment %} {% endif %} {% endcomment %}
+    {% endif %}
       <li data-id="View" class="open-view-menu">View</i>
         <ul class="view-dropdown" id="view-dropdown">
             <li data-id="marketwatch"><a href="{% url 'Admin:market-watch' %}"><i class="fa-solid fa-right-left fa-rotate-90"></i>Market Watch</a></li>

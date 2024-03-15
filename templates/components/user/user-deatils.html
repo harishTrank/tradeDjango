@@ -4,7 +4,8 @@
 <link rel="stylesheet" href="{% static 'user-deatils.css' %}">
 
 <div class="tab-content" id="users">
-  <div class="flex">
+  {% if user.user_type == "Client" %}
+    <div class="flex">
     <div class="trade-download">
       <div style="transform: rotate(90deg); padding-left: 10px; cursor:pointer;">
         <p id="deatilsFilterOpenId">Add&nbsp;Order</p>
@@ -126,6 +127,7 @@
         </div>
       </div>
     </div>
+  {% endif %}
     <div class="trades-body user-table">
       <div class="pos-relate">
         <table style="width: 100%">
@@ -185,6 +187,10 @@ $('.user-deatils').click(function () {
     $(".trades-side").hide();
     $(".trades-body").css("width", "95%");
 });
+
+if ("{{ user.user_type }}" !== "Client") {
+  $(".trades-body").css("width", "95%");
+}
 
 $('#deatilsFilterOpenId').click(function () {
   $(".trades-side").show();

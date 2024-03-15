@@ -119,7 +119,6 @@
 
 <script>
     const identifer = JSON.parse("{{identifer|safe}}".replaceAll(`'`, `"`));
-    console.log("====identifer",identifer)
     const current_user_result = JSON.parse("{{response|safe}}".replaceAll(`'`, `"`));
     const baseNodeURL = BASE_URL
     const socket = io(baseNodeURL); 

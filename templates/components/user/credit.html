@@ -24,21 +24,25 @@
       <div class="trade-btm">
         <div class="flex space-bw">
           <label for="">Credit Ref:</label>
-          <input type="number" class="form_control" />
+          {% if request.user.user_type == "SuperAdmin" %}
+            <input name="currentCredit" class="form_control" disabled value="SuperAdmin"/>
+          {% else %}
+            <input name="currentCredit" type="number" class="form_control" disabled value="{{request.user.balance}}" />
+          {% endif %}
         </div>
         <div class="flex space-bw">
           <label for="">Operation:</label>
-          <select name="" id="" class="form_control flex">
-            <option value=""></option>
+          <select class="form_control flex" disabled>
+            <option value="Credit Reference">Credit Reference</option>
           </select>
         </div>
         <div class="flex space-bw">
           <label for="">Amount:</label>
-          <input type="text" class="form_control" />
+          <input name="amount" type="number" class="form_control" id="positiveInput"/>
         </div>
         <div class="flex space-bw">
           <label for="">Comment:</label>
-          <input type="text" class="form_control" />
+          <input name='comment' type="text" class="form_control" id="commentId" />
         </div>
         <div class="mb-10 flex" style="gap: 10px">
           <label for="">Trans:</label>
@@ -46,22 +50,23 @@
             <div class="flex mr">
               <input
                 type="radio"
-                name=""
-                id=""
                 class="unset mb-0"
                 style="margin-right: 5px"
+                name="creditDebit"
+                id="creditRadio"
+                checked
               />
-              <p style="font-size: 14px">Cred</p>
+              <label for="creditRadio" style="font-size: 14px">Cred</label>
             </div>
             <div class="flex">
               <input
                 type="radio"
-                name=""
-                id=""
                 class="unset mb-0"
                 style="margin-right: 5px"
+                name="creditDebit"
+                id="debitRadio"
               />
-              <p style="font-size: 14px">Debi</p>
+              <label for="debitRadio" style="font-size: 14px">Debi</label>
             </div>
           </div>
         </div>
@@ -75,6 +80,7 @@
               padding: 4px;
               justify-content: center;
             "
+            id="submithandlerId"
           >
             Submit
           </button>
@@ -92,7 +98,7 @@
                 <label for=""><b>To Date:</b></label>
                 <input name="to_date" type="date" />
                 </div>
-                <div><button type="submit" class="delete-btn1">Search</button></div>
+                <div><button type="button" class="delete-btn1">Search</button></div>
             </div>
         </form>
     {% if account_summary %}
@@ -142,15 +148,63 @@
   $('.closeBtn').click(function () {
     $(".trades-side").hide();
     $(".trades-body").css("width", "95%");
-});
+  });
 
-$('#creditOpenFilerId').click(function () {
-  $(".trades-side").show();
-  $(".trades-body").css("width", "58%");
-});
+  $('#creditOpenFilerId').click(function () {
+    $(".trades-side").show();
+    $(".trades-body").css("width", "58%");
+  });
+
+  const inputElement = document.getElementById('positiveInput');
+  inputElement.addEventListener('input', function() {
+    let value = parseFloat(inputElement.value);
+    if (value < 0) {
+      inputElement.value = 0;
+    }
+  });
 
 
+  $(document).ready(function() {
+    $('#creditRadio').click(function() {
+      if ($('#debitRadio').is(':checked')) {
+        $('#debitRadio').prop('checked', false);
+      }
+    });
 
+    $('#debitRadio').click(function() {
+      if ($('#creditRadio').is(':checked')) {
+        $('#creditRadio').prop('checked', false);
+      }
+    });
+  });
+
+  {% comment %} $("#submithandlerId").click(() => {
+    const body = {
+      user_id: localStorage.getItem("currentUserID"),
+      user_type: "{{request.user.user_type}}",
+      option: $('#creditRadio').is(':checked') ? "credit" : "debit",
+      amount: $('#positiveInput').val(),
+      message: $('#commentId').val(),
+    }
+    axios.post(`{% url "credit-submit" %}`, body, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+    .then(function (response) {
+      toastMixin.fire({
+          animation: true,
+          title: response.data.message,
+          icon: "success",
+      });
+      setTimeout(()=>{
+          window.location.reload();
+      },1000)
+    }).catch(err => {
+      console.log("err",err)
+      toastMixin.fire({
+        animation: true,
+        title: err.response.data.message,
+        icon: "error",
+      });
+    })
+  }) {% endcomment %}
 </script>
 
 {% endblock newtab %}

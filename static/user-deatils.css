@@ -23,9 +23,11 @@ li {
 .align-center {
     align-items: center;
 }
-.flex-end{
+
+.flex-end {
     justify-content: flex-end;
 }
+
 .col-100 {
     width: 100%;
 }
@@ -78,12 +80,15 @@ li {
 .unset {
     width: unset !important;
 }
-.form_control{
+
+.form_control {
     width: 210px !important;
 }
-.small_width{
+
+.small_width {
     width: 100px !important;
 }
+
 .delete-btn {
     background: red;
     padding: 5px 10px;
@@ -94,7 +99,6 @@ li {
     margin: 10px 0;
 }
 
-/ main css  /
 .tab-content {
     display: none;
 }
@@ -187,7 +191,6 @@ ul.view-dropdown li i {
     width: 60px;
 }
 
-/  main body css   /
 .left-body,
 .left-top {
     border: 1px solid #d9d9d9;
@@ -205,11 +208,14 @@ ul.view-dropdown li i {
 
 .pannel-body {
     width: calc(100% - 100px);
+
+    .user-table {
+        padding: 0 10px;
+    }
 }
 
-/ user list /
 .user-table {
-    padding: 0 10px;
+    padding: 0 10px 70px;
 }
 
 .user-table h3 {
@@ -232,7 +238,6 @@ ul.view-dropdown li i {
     border-bottom: 1px solid #d9d9d9;
 }
 
-/ search user /
 .search-user input {
     outline: none;
     margin-left: 10px;
@@ -263,7 +268,6 @@ ul.view-dropdown li i {
     margin-bottom: 0;
 }
 
-/ create user /
 .top-user {
     background-color: #72c3ff;
     padding: 8px 10px;
@@ -373,7 +377,6 @@ input:checked+.slider:before {
     background: #646464;
 }
 
-/ view trades /
 .trade-top {
     background: #f0f0f0;
     padding: 0 10px;
@@ -433,7 +436,6 @@ input:checked+.slider:before {
     outline: none;
 }
 
-/ password change css /
 .change-pass {
     position: fixed;
     top: 0;
@@ -491,18 +493,21 @@ input:checked+.slider:before {
 .pass-top i {
     cursor: pointer;
 }
+
 /*down table css*/
-.totalPL{
+.totalPL {
     position: absolute;
     bottom: 0;
     width: calc(100% - 280px);
 }
-.totalPL table{
+
+.totalPL table {
     width: 100%;
-  
+
     border-collapse: collapse;
 
 }
-.pos-relate{
+
+.pos-relate {
     position: relative;
 }

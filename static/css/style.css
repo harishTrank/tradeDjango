@@ -202,7 +202,7 @@ ul.view-dropdown li i {
 
 /* user list */
 .user-table {
-    padding: 0 10px;
+    padding: 0 10px 100px;
 }
 
 .user-table h3 {
@@ -496,4 +496,3 @@ a {
 .tab-content:first-of-type {
     display: block;
 }
-

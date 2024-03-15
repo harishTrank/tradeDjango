@@ -1481,7 +1481,6 @@ class PieChartHandlerApi(APIView):
 class AccountLimitApi(APIView):
     def get(self, request):
         try:
-            print("==============",request.GET.get("user_id"))
             user = request.user
             if (request.GET.get("user_id") and request.GET.get("user_id") != ""):
                 user = MyUser.objects.get(id=request.GET.get("user_id"))
@@ -1589,4 +1588,20 @@ class DeleteIndentifer(APIView):
         market_watch_objects.delete()
         return Response({"status": True})
 
+class CreditSubmitHandler(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        data = request.data
+        try:
+            user_obj = MyUser.objects.get(id=data["user_id"])
+            if ("amount" in data and data["amount"]!= ""):
+                return Response({"status": False, "message": "Amount is requied."}, status=status.HTTP_404_NOT_FOUND)
+            if (data["user_type"] == "SuperAdmin"):
+                if (data["option"] == "credit"):
+                    UserCreditModal.objects.create(user_credit=user_obj, opening=user_obj.balance, credit=data["amount"], debit=0.0, closing=user_obj.balance + data["amount"], message=data["message"], transection=request.user)
+                else:
+                    UserCreditModal.objects.create(user_credit=user_obj, opening=user_obj.balance, credit=0.0, debit=data["amount"], closing=user_obj.balance - data["amount"], message=data["message"], transection=request.user)
+                return Response({"status": True, "message": "Operation performed successfully."})
+        except Exception as e:
+            return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
 # ------------------------------------------------

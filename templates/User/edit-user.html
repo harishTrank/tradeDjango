@@ -3,9 +3,16 @@
   {% csrf_token %}
   <div class="tab-content" id="create-user">
     <div class="create-account">
-      <div>
-       
+      {% if request.user.user_type != "Client" %}
+        <div class="flex" style="margin-top: 10px;">
+          <div class="mr">Please select a user type</div>
+          <select name="currentUserType" disabled id="userTypeSelect">
+              <option value="{{user.user_type}}">{{user.user_type}}</option>
+          </select>
+        </div>
+      {% endif %}
 
+      <div>
       </div>
       <div class="user-details">
         <h3>User Details</h3>

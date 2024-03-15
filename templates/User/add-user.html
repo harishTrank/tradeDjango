@@ -2,7 +2,7 @@
 <form id="userForm" method="post">
   {% csrf_token %}
   <div class="tab-content" id="create-user">
-    <div class="create-account">
+    <div class="create-account" style="padding-bottom: 60px;">
      <div>
         {% if request.user.user_type == "Admin" or request.user.user_type == "SuperAdmin" %}
           <div class="flex">
@@ -21,6 +21,23 @@
           </div>
         {% endif %}
       </div>
+
+      {% if request.user.user_type != "Client" %}
+        <div class="flex" style="margin-top: 10px;">
+          <div class="mr">Please select a user type</div>
+          <select name="currentUserType" required id="userTypeSelect">
+            <option value="">Select User Type</option>
+            {% if request.user.user_type == "SuperAdmin" %}
+              <option value="Admin">Admin</option>
+            {% endif %}
+            {% if request.user.user_type != "SuperAdmin" %}
+              <option value="Master">Master</option>
+              <option value="Client">Client</option>
+            {% endif %}
+          </select>
+        </div>
+      {% endif %}
+
       <div class="user-details">
         <h3>User Details</h3>
         <div class="create-form flex space-bw">
@@ -136,13 +153,6 @@
       <div class="flex">
         <div class="mr">
           <input type="checkbox" name="change_password" class="mr-5" />Change Password
-        </div>
-        <div class="flex" id="addMasterTagId" style="display:none;">
-          <label class="switch">
-            <input name="add_master" type="checkbox" id="addMasterCheckId"/>
-            <span class="slider round"></span>
-          </label>
-          <p>Add Master</p>
         </div>
         <div class="flex" id="" style="">
           <p>&nbsp Auto Square off &nbsp</p>
@@ -327,7 +337,9 @@ function validateInput() {
 }
 
   function showLoader() {
-    document.getElementById('loader').style.display = 'block';
+    if ($("#userTypeSelect").val() !== ""){
+      document.getElementById('loader').style.display = 'block';
+    }
   }
   document.getElementById('userForm').addEventListener('submit', function(event) {
     const password = document.getElementById('password').value;
@@ -406,12 +418,25 @@ function validateInput() {
 
 
 const checkAdmin = `{{request.user.user_name}}`;
-console.log("-=-=-=-=->",checkAdmin)
-
 
   $("#otherUserFlagId").change(() => $("#otherUserFlagId").prop("checked") &&   $("#selectedAdminId").prop("required", true) )
 
   const masterDisableHandler = () => {
+      if ("{{request.user.user_type}}" === "SuperAdmin" && $("#selectedAdminId").val()) {
+        $("#userTypeSelect").empty();
+        $("#userTypeSelect").html(
+          `<option value="">Select User Type</option>
+          <option value="Master">Master</option>
+          <option value="Client">Client</option>`
+        )
+      } else if ("{{request.user.user_type}}" === "SuperAdmin") {
+        $("#userTypeSelect").empty();
+        $("#userTypeSelect").html(
+          `<option value="">Select User Type</option>
+            <option value="Admin">Admin</option>
+          `
+        )
+      }
       if ($("#selectedAdminId").val()) {
         $("#selectedMasterId").prop("disabled", false);
         $.ajax({
@@ -454,16 +479,11 @@ console.log("-=-=-=-=->",checkAdmin)
     }
 
   const currentUserType = "{{request.user.user_type}}"
-  if (currentUserType !== "SuperAdmin") {
-    $("#addMasterTagId").css("display", "flex")
-  }
-
 
   $("#otherUserFlagId").click(() => {
     if ($("#otherUserFlagId").prop("checked")) {
       if (currentUserType === "SuperAdmin") {
         $("#selectedAdminId").prop("disabled", false);
-        $("#addMasterTagId").css("display", "flex");
       } else if (currentUserType === "Admin") {
         $("#selectedMasterId").prop("disabled", false);
         adminMasterList();
@@ -474,8 +494,6 @@ console.log("-=-=-=-=->",checkAdmin)
         masterDisableHandler();
         $("#selectedAdminId").prop("disabled", true);
         $("#selectedAdminId").val("");
-        $("#addMasterTagId").css("display", "none");
-        $("#addMasterCheckId").prop("checked", false);
       }else if (currentUserType === "Admin") {
         $("#selectedMasterId").prop("disabled", true);
       }
