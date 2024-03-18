@@ -235,7 +235,6 @@
               <div class="client-name">
                 <label for="">Symbol</label>
                 <select
-                  class="form-group"
                   id="symbolId"
                 >
                   <option value="">Select</option>
@@ -260,81 +259,88 @@
     </div>
 
     <script>
-      // socket with all handlers
       const watchbuyhandler = () => {
-        $("#buyWatchId").css("display", "block")
+        $("#buyWatchId").css("display", "block");
         $('.action_dropdown').toggle();
-        $("#watchPopUpId").css("display", "none")
-        socket.on("connect", () => {
-          console.log("Connected to the Socket.io server");
-        });
-      
+        $("#watchPopUpId").css("display", "none");
         socket.emit("getOneData", {"identifier": JSON.parse(sessionStorage.getItem("currentCoin"))?.InstrumentIdentifier });
         socket.on("getOneDataSend", (data) => {
-          console.log("data", data)
-          $("#symbleExchange").val(data.Exchange);
-          $("#symbolId").val(data.InstrumentIdentifier);
-          $(".QuotationLot").val(data.QuotationLot);
-          $(".QuotationLot").val(data.QuotationLot);
+          $(".QuotationLot").val(data?.QuotationLot);
           $("#sellPrice").val(data.SellPrice);
         });
-      
-        socket.on("disconnect", () => {
-            console.log("Disconnected from the Socket.io server");
-        });
-    }
-
-
+      }
+    
       $("#symbleExchange").change((event) => {
         let symbolKey = event.target.value;
-        $("#symbolId").empty();
-        $("#symbolId").html("<option>Select</option>");
-        response
-          .filter(filterItem => filterItem?.Exchange?.toLowerCase()?.includes(symbolKey?.toLowerCase()) )
-          .filter(remove => !identifier?.includes(remove?.InstrumentIdentifier))
-          .map(item => {
-            $("#symbolId").append(`<option>${item.InstrumentIdentifier}</option>`);
-        })
-      })
-
-
-      // ------------------------
-
-      $(document).ready(function() {
-        $('#orderTypeId').change(function() {
-            var selectedOption = $(this).val();
-            if (selectedOption === "Market") {
-                $('#sellPrice').prop('disabled', true);
-            } else {
-                $('#sellPrice').prop('disabled', false);
-            }
-        });
+        axios.get(`${BASE_URL}/api/tradeCoin?coinType=${symbolKey}`)
+          .then(res => {
+            $("#symbolId").empty();
+            $("#symbolId").html("<option>Select</option>");
+            res.data.response.map(item => 
+              $("#symbolId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
+          })
+          .catch(err => {
+            console.log("err", err);
+          });
       });
 
-              $("#buysellId").click(() =>
-                $("#buyWatchId").css("display", "none")
-              );
-
-            {% if request.user.user_type != "Client" %}
-              axios.get(`{% url "get-client-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
-              .then(res => {
-                  res.data.user_client.map(item => {
-
-                      $("#clientnameId").append(`<option value=${item.id}>${item.user_name}</option>`)
-                  })
-              }).catch(err=> console.log("err", err))
-          {% endif %}
-
-
-
-
-          const toggleMenuOption = (itemString) => {
-            const item = JSON.parse(unescape(itemString));
-            sessionStorage.setItem("currentCoin", JSON.stringify(item));
-            $("#watchPopUpId").css("display", "block");
-            $('.action_dropdown').toggle();
-            console.log("====", item);
+      $("#symbolId").change((event) => {
+        socket.emit("getOneDataOff");
+        socket.emit("getOneData", {"identifier": event.target.value });
+        socket.on("getOneDataSend", (data) => {
+          $(".QuotationLot").val(data?.QuotationLot);
+          $("#sellPrice").val(data.SellPrice);
+        });
+      });
+    
+      // ------------------------
+    
+      $(document).ready(function() {
+        $('#orderTypeId').change(function() {
+          var selectedOption = $(this).val();
+          if (selectedOption === "Market") {
+            $('#sellPrice').prop('disabled', true);
+          } else {
+            $('#sellPrice').prop('disabled', false);
           }
+        });
+      });
+    
+      $("#buysellId").click(() =>
+        $("#buyWatchId").css("display", "none")
+      );
+    
+      function toggleMenuOption(itemString) {
+        const item = JSON.parse(unescape(itemString));
+        sessionStorage.setItem("currentCoin", JSON.stringify(item));
+        $("#watchPopUpId").css("display", "block");
+        $("#symbleExchange").val(item.Exchange);
+        axios.get(`${BASE_URL}/api/tradeCoin?coinType=${item.Exchange}`)
+          .then(res => {
+            $("#symbolId").empty();
+            $("#symbolId").html("<option>Select</option>");
+            res.data.response.map(item => 
+              $("#symbolId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
+            if (item.InstrumentIdentifier) {
+              $("#symbolId").val(item.InstrumentIdentifier);
+            }
+          })
+          .catch(err => {
+            console.log("err", err);
+          });
+        $('.action_dropdown').toggle();
+      }
+
+
+    {% if request.user.user_type != "Client" %}
+        axios.get(`{% url "get-client-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            res.data.user_client.map(item => {
+                $("#clientnameId").append(`<option value=${item.id}>${item.user_name}</option>`)
+            })
+        }).catch(err=> console.log("err", err))
+    {% endif %}
+
     </script>
   </body>
 </html>
