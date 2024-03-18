@@ -1224,7 +1224,7 @@ class GetAllClient(APIView):
             user_client = MyUser.objects.filter(id__in=client_ids).values("user_name", "id")
         elif request.user.user_type == "Master":
             user_client = MyUser.objects.filter(id__in=set(ClientModel.objects.filter(master_user_link=user.master_user).values_list("client__id", flat=True)) | set(MastrModel.objects.filter(master_link=user.master_user).values_list("master_user__id", flat=True))).values("user_name", "id")
-        print("=-=-=-=-=",user_client)
+        # print("=-=-=-=-=",user_client)
         return Response({"status":True,"user_client":list(user_client)},status=status.HTTP_200_OK)
     
         

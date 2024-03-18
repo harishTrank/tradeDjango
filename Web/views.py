@@ -1602,7 +1602,10 @@ class WeeklyAdminView(View):
             user = request.user
             user_names = [user.user_name]
         if user_obj:
-            pass
-            
+            pass           
         return render(request, "report/weekly-admin.html",{"user":user,"user_names":user_names})
     
+    
+class OpenPositionView(View):
+    def get(self, request):
+        return render(request,"components/user/open-position-view.html")

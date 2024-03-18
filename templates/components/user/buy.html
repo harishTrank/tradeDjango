@@ -292,7 +292,7 @@
           });
       });
 
-      $("#symbolId").change((event) => {
+      $("#symbolId #buysymbolId").change((event) => {
         socket.emit("getOneDataOff");
         socket.emit("getOneData", {"identifier": event.target.value });
         socket.on("getOneDataSend", (data) => {
@@ -303,7 +303,7 @@
                 $("#lotsizesellID").val(data?.QuotationLot);
                 $("#buyPrice").val(data.BuyPrice);
             }
-            if ($("#orderTypeId").val() === "Market") { // Changed single equal sign to double equal signs for comparison
+            if ($("#orderTypeId").val() === "Market") { 
                 $("#sellPrice").val(data.SellPrice);
             }
         });
