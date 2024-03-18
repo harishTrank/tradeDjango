@@ -862,7 +862,8 @@ class SybolsView(View):
         user = request.user
         coin_type = user.user.filter(exchange=True).values_list("symbol_name", flat=True)
         return render(request, "view/market-picture.html",{"coin_type":list(coin_type)})
-    
+
+
     
 
 class TradesView(View):

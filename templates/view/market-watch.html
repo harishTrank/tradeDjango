@@ -188,21 +188,9 @@
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-<script>
+<script> 
 
-
-
-   const toggleMenuOption = (identifier) => {
-        $("#watchPopUpId").css("display", "block")
-        $('.action_dropdown').toggle();
-        console.log("=========",identifier)
-    }  
-
-    const watchbuyhandler = () => {
-        $("#buyWatchId").css("display", "block")
-        $('.action_dropdown').toggle();
-        $("#watchPopUpId").css("display", "none")
-        }
+    
 
     const marketPicture = () => {
         $("#marketpictureId").css("display", "block")
@@ -364,7 +352,7 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
     }
 
   {% comment %}  api to ftach all coin  {% endcomment %}
-  let response;
+  let responses;
   $.ajax({
     type: "POST",
     url: `${BASE_URL}/api/tradeCoin/coins`,
@@ -377,8 +365,8 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
       if (symbolKey === "Select") {
         symbolKey = "";
       }
-      response = data.response;
-      response
+      responses = data.responses;
+      responses
       .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
       .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
       .map(item => {
