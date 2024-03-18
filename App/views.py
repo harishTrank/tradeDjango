@@ -365,6 +365,7 @@ class BuySellSellApi(APIView):
     def post(self, request):
         if (request.data.get("type") == "WEB"):
             user = MyUser.objects.get(id=request.data.get("userId"))
+            print(user.balance)
         else:
             user = request.user
         action = request.data.get('action')
@@ -414,27 +415,27 @@ class BuySellSellApi(APIView):
             quantity -= total_quantity
 
         total_cost = lot_size * quantity * request.data.get('price')
-        if request.data.get('trade_type') != "MARKET" and request.data.get('high') >= request.data.get('price') and request.data.get('low') <= request.data.get('price') and not request.data.get('auto'):
-            if (user.mini and request.data.get('ex_change') == "MINI") or (user.mcx and request.data.get('ex_change') == "MCX") or (user.nse and request.data.get('ex_change') == "NSE"):
-                message = "Your should trade in between high and low."
-                buy_sell_instance = BuyAndSellModel(
-                    buy_sell_user=user,
-                    quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
-                    trade_type=request.data.get('trade_type'),
-                    action=request.data.get('action'),
-                    price=request.data.get('price'),
-                    coin_name=request.data.get('coin_name'),
-                    ex_change=request.data.get('ex_change'),
-                    is_pending=request.data.get('is_pending'),
-                    identifer=request.data.get("identifer"),
-                    ip_address=request.data.get("ip_address") if request.data.get("ip_address") else request.META.get('REMOTE_ADDR'),
-                    order_method=request.data.get("order_method"),
-                    stop_loss=request.data.get("stop_loss"),
-                    message=message,
-                    is_cancel=True
-                )
-                buy_sell_instance.save()
-                return Response({'message': message}, status=status.HTTP_400_BAD_REQUEST)
+        # if request.data.get('trade_type') != "MARKET" and request.data.get('high') >= request.data.get('price') and request.data.get('low') <= request.data.get('price') and not request.data.get('auto'):
+        #     if (user.mini and request.data.get('ex_change') == "MINI") or (user.mcx and request.data.get('ex_change') == "MCX") or (user.nse and request.data.get('ex_change') == "NSE"):
+        #         message = "Your should trade in between high and low."
+        #         buy_sell_instance = BuyAndSellModel(
+        #             buy_sell_user=user,
+        #             quantity=request.data.get('quantity') if action == 'BUY' else -request.data.get('quantity'),
+        #             trade_type=request.data.get('trade_type'),
+        #             action=request.data.get('action'),
+        #             price=request.data.get('price'),
+        #             coin_name=request.data.get('coin_name'),
+        #             ex_change=request.data.get('ex_change'),
+        #             is_pending=request.data.get('is_pending'),
+        #             identifer=request.data.get("identifer"),
+        #             ip_address=request.data.get("ip_address") if request.data.get("ip_address") else request.META.get('REMOTE_ADDR'),
+        #             order_method=request.data.get("order_method"),
+        #             stop_loss=request.data.get("stop_loss"),
+        #             message=message,
+        #             is_cancel=True
+        #         )
+        #         buy_sell_instance.save()
+        #         return Response({'message': message}, status=status.HTTP_400_BAD_REQUEST)
 
         if (totalCount.count() > 0 and (total_quantity == quantity)) and not is_cancel:
             if action == "SELL":

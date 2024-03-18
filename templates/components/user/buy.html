@@ -206,7 +206,7 @@
               </div>
               <div class="client-name">
                 <label for="">Quantity</label>
-                <input type="text" />
+                <input id="quantitybuyId" type="text" />
               </div>
               <div class="client-name">
                 <label for="sellPrice">Sell Price</label>
@@ -219,7 +219,7 @@
               </div>
               <div class="submit-btn">
                 <label for="" style="color: #0000ff">Submit</label>
-                <input type="submit" />
+                <input id="buysubBtnId" type="submit" />
               </div>
             </div>
             <div class="inner-middle-body flex space-bw">
@@ -242,7 +242,7 @@
               </div>
               <div class="client-name">
                 <label for="">LotSize</label>
-                <input type="text" class="QuotationLot" disabled />
+                <input id="lotsizebuyID" type="text" class="QuotationLot" disabled />
               </div>
               <div class="client-name">
                 <label for="">Remark</label>
@@ -331,6 +331,51 @@
         $('.action_dropdown').toggle();
       }
 
+      const handleBuySubmission = () => {
+        const data = JSON.parse(sessionStorage.getItem("currentCoin"));
+        const body = {
+            type: "WEB",
+            action: "Buy",
+            userId: $("#clientnameId").val(),
+            quantity: parseInt($("#quantitybuyId").val()),
+            lot_size: parseInt($("#lotsizebuyID").val()),
+            is_cancel: false,
+            ex_change: $("#symbleExchange").val(),
+            price: parseInt($("#sellPrice").val()),
+            coin_name: $("#symbolId").val(),
+            identifer: $("#symbolId").val(),
+            order_method: $("#orderTypeId").val(),
+            ip_address: "",
+            stop_loss: parseInt($("#sellPrice").val()),
+            high:data.High,
+            low:data.Low,
+            is_pending: false,
+            trade_type:"Market"
+        };
+
+        axios.post(`{% url "buy-sell-coin" %}`, body, { headers: { "X-CSRFToken": "{{ csrf_token }}" } })
+            .then(function (response) {
+                toastMixin.fire({
+                    animation: true,
+                    title: response.data.message,
+                    icon: "success",
+                });
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            })
+            .catch(err => {
+                console.log("err", err);
+                toastMixin.fire({
+                    animation: true,
+                    title: err.response.data.message,
+                    icon: "error",
+                });
+            });
+    };
+
+    $("#buysubBtnId").click(handleBuySubmission);
+    
 
     {% if request.user.user_type != "Client" %}
         axios.get(`{% url "get-client-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
