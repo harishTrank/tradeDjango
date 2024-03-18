@@ -189,14 +189,20 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <script> 
+    let buyPriceQty = 0;
+    let buyPriceList = [];
 
-    
-
+    let sellPriceQty = 0;
+    let sellPriceList = [];
     const marketPicture = () => {
         $("#marketpictureId").css("display", "block")
         $('.action_dropdown').toggle();
         $("#watchPopUpId").css("display", "none");
         setDefaultValueHandler();
+        buyPriceList = [];
+        buyPriceQty = 0;
+        sellPriceQty = 0;
+        sellPriceList = [];
     }
 
     const scripthandler = () => {
