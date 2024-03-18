@@ -118,7 +118,7 @@
             <div class="flex align-center space-bw exchange-symbol">
                 <div class="col-50">
                     <div><b>Exchange</b></div>
-                    <select id="cointypeId" class="symbolKey">
+                    <select id="cointypeExchangeId" class="symbolKey">
                     <option>Select</option>
                         {% for i in coin_type %}
                             <option>{{i}}</option>
@@ -127,49 +127,30 @@
                 </div>
                 <div class="col-50">
                     <div><b>Symbol</b></div>
-                    <select id="selectsymbolId"   class="symbol">
+                    <select id="selectsymbolPictureId"   class="symbol">
                         <option value="">Select</option>
                     </select>
                 </div>
             </div>
             <div class="flex align-center mcx-table-head">
                 <div class="flex col-50 align-center space-bw mcx-table-1">
-                    <ul>
-                        <li>2</li>
-                        <li>1</li>
-                        <li>1</li>
-                        <li>1</li>
-                        <li>1</li>
+                    <ul id="buyPriceQtyListID">
                     </ul>
                     
-                     <ul>
-                        <li>65985</li>
-                        <li>65985</li>
-                        <li>65985</li>
-                        <li>65985</li>
-                        <li>65985</li>
+                     <ul id="buyPriceListID">
                     </ul>
                 </div>
                 <div class="flex col-50 align-center space-bw mcx-table-2">
-                     <ul>
-                        <li>65985</li>
-                        <li>65985</li>
-                        <li>65985</li>
-                        <li>65985</li>
-                        <li>65985</li>
+                     <ul id="sellPriceQtyListID">
                     </ul>
-                    <ul>
-                        <li>2</li>
-                        <li>1</li>
-                        <li>1</li>
-                        <li>1</li>
-                        <li>1</li>
+
+                    <ul id="sellPriceListID">
                     </ul>
                 </div>
             </div>
             <div class="flex align-center space-bw mcx-total">
-                <p>283</p>
-                <p class="mcx-total-inner">315</p>
+                {% comment %} <p>283</p> {% endcomment %}
+                {% comment %} <p class="mcx-total-inner">315</p> {% endcomment %}
             </div>
             <div class="flex align-center space-bw">
                 <div class="col-50 flex align-center mcx-bottom-table">
@@ -183,13 +164,13 @@
                         <li>ATP:</li>
                     </ul>
                     <ul>
-                        <li>65985</li>
-                        <li>0.00</li>
-                        <li>-38</li>
-                        <li>-0.06</li>
-                        <li>11-03-2024</li>
-                        <li>2443</li>
-                        <li>66006.46</li>
+                        <li id="lastTradePriceId"></li>
+                        <li id="LastTradeQtyID"></li>
+                        <li id="OpenInterestChangeID"></li>
+                        <li id="PriceChangePercentageID"></li>
+                        <li id="currentDateMarket"></li>
+                        <li id="TotalQtyTraded"></li>
+                        <li id="AverageTradedPriceID"></li>
                     </ul>
                 </div>
                 <div class="col-50 flex align-center mcx-bottom-table">
@@ -200,16 +181,16 @@
                         <li>LOW:</li>
                         <li>L. CRKT:</li>
                         <li>U. CRKT:</li>
-                        <li>OD:</li>
+                        <li>OI:</li>
                     </ul>
                     <ul>
-                        <li>66023</li>
-                        <li>66023</li>
-                        <li>66023</li>
-                        <li>66023</li>
-                        <li>66023</li>
-                        <li>66023</li>
-                        <li>0.46</li>
+                        <li id="OpenID"></li>
+                        <li id="CloseID"></li>
+                        <li id="HighID"></li>
+                        <li id="LowID"></li>
+                        <li id="LowCurrentID"></li>
+                        <li id="HighCurrentID"></li>
+                        <li>0.0</li>
                     </ul>
                 </div>
             </div>
@@ -218,70 +199,108 @@
 <script>
     
     $("#marketpicId").click(() =>
-    $("#marketpictureId").css("display", "none")
-  );
+        $("#marketpictureId").css("display", "none")
+    );
 
-  let response;
-  $.ajax({
-    type: "POST",
-    url: `${BASE_URL}/api/tradeCoin/coins`,
-    data: JSON.stringify({
-        coinList: currentExchange
-    }),
-    contentType: 'application/json',
-    success: function (data) {
-      let symbolKey = $(".symbolKey").val();
-      if (symbolKey === "Select") {
-        symbolKey = "";
-      }
-      response = data.response;
-      response
-      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
-      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
-      .map(item => {
-        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
-      })
+    let buyPriceQty = 0;
+    let buyPriceList = [];
 
-    },
-    error: function (xhr, status, error) {
-      console.error('Error:', error);
-    }
-  });
+    let sellPriceQty = 0;
+    let sellPriceList = [];
+    const setDataHandler = (data) => {
+        $("#lastTradePriceId").text(data.LastTradePrice);
+        $("#LastTradeQtyID").text(data.LastTradeQty);
+        $("#PriceChangePercentageID").text(data.PriceChangePercentage);
+        $("#AverageTradedPriceID").text(data.AverageTradedPrice);
+        $("#TotalQtyTraded").text(data.TotalQtyTraded);
+        $("#OpenInterestChangeID").text(data.OpenInterestChange);
+        $("#currentDateMarket").text(dayjs().format("DD-MM-YYYY"))
 
+        $("#OpenID").text(data.Open);
+        $("#CloseID").text(data.Close);
+        $("#HighID").text(data.High);
+        $("#LowID").text(data.Low);
+        $("#LowCurrentID").text(data.SellPrice);
+        $("#HighCurrentID").text(data.BuyPrice);
 
-  $("#selectsymbolId").change(()=>{
-    let result = $(".symbol").val();
-    $.ajax({
-        type:'POST',
-        url:'{% url "add-market-coin" %}',
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
-        data: {
-            trade_coin_id: result
-        },
-        success:function(res){
-            window.location.reload();
-        },
-        error:function(res){
-          alert(res?.responseJSON.message);
+        // buy price manager....
+        if (data.BuyQty !== buyPriceQty){
+            buyPriceList = [...buyPriceList, {price: data.BuyPrice, qty: data.BuyQty}];
+            if (buyPriceList.length > 5) {
+                buyPriceList = buyPriceList.slice(-5);
+            }
+            buyPriceQty = data.BuyQty;
         }
-    })
-})
-  
+        $("#buyPriceListID").empty();
+        $("#buyPriceQtyListID").empty();
+        buyPriceList.map(item => {
+            $("#buyPriceListID").append(`<li>${item.price}</li>`);
+            $("#buyPriceQtyListID").append(`<li>${item.qty}</li>`);
+        })
+        // ------------------------
 
-  $("#cointypeId").change(()=>{
-
-    let symbolKey = $(".symbolKey").val();
-    if (symbolKey === "Select") {
-        symbolKey = "";    
+        // sell price manager .....
+        if (data.SellQty !== sellPriceQty){
+            sellPriceList = [...sellPriceList, {price: data.SellPrice, qty: data.SellQty}];
+            if (sellPriceList.length > 5) {
+                sellPriceList = sellPriceList.slice(-5);
+            }
+            sellPriceQty = data.SellQty;
+        }
+        $("#sellPriceListID").empty();
+        $("#sellPriceQtyListID").empty();
+        sellPriceList.map(item => {
+            $("#sellPriceListID").append(`<li>${item.price}</li>`);
+            $("#sellPriceQtyListID").append(`<li>${item.qty}</li>`);
+        })
+        // ----------------------------
     }
-    $(".symbol").empty();
-    $(".symbol").html("<option>Select</option>");
-    response
-      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
-      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
-      .map(item => {
-        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
+
+    const setDefaultValueHandler = () => {
+        const response = JSON.parse(sessionStorage.getItem("currentCoin"));
+        $("#cointypeExchangeId").val(response.Exchange);
+        axios.get(`${BASE_URL}/api/tradeCoin?coinType=${response.Exchange}`)
+        .then(res => {
+            $("#selectsymbolPictureId").empty();
+            $("#selectsymbolPictureId").html("<option>Select</option>");
+            res.data.response.map(item => 
+                $("#selectsymbolPictureId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
+            if (response.InstrumentIdentifier) {
+                $("#selectsymbolPictureId").val(response.InstrumentIdentifier);
+            }
+        })
+        .catch(err => {
+            console.log("err", err);
+        });
+
+        setTimeout(() => {
+            socket.emit("getOneDataOff");
+            socket.emit("getOneData", {"identifier": response.InstrumentIdentifier });
+            socket.on("getOneDataSend", (data) => {
+                setDataHandler(data);
+            });
+        }, 500)
+    }
+    setDefaultValueHandler();
+
+    $("#cointypeExchangeId").change((event) => {
+        axios.get(`${BASE_URL}/api/tradeCoin?coinType=${event.target.value}`)
+        .then(res => {
+            $("#selectsymbolPictureId").empty();
+            $("#selectsymbolPictureId").html("<option>Select</option>");
+            res.data.response.map(item => 
+                $("#selectsymbolPictureId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
+        })
+        .catch(err => {
+            console.log("err", err);
+        });
     })
 
-  })
+    $("#selectsymbolPictureId").change((event) => {
+        socket.emit("getOneDataOff");
+        socket.emit("getOneData", {"identifier": event.target.value });
+        socket.on("getOneDataSend", (data) => {
+            setDataHandler(data);
+        });
+    })
 </script>

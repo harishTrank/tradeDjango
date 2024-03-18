@@ -193,27 +193,29 @@
               <div class="inner-middle-body flex space-bw">
                <div class="client-name">
                 <label for="">Client Name</label>
-                <select  >
-                    <option value=""></option>
+                <select  id="selectusernameId">
+                    <option value="">Select</option>
                 </select>
                </div>
                <div class="client-name">
                 <label for="">Order Type</label>
-                <select  >
-                    <option value=""></option>
+                <select id="orderTypesellId" onChange="orderTypehandler()">
+                  <option value="Market">Market</option>
+                  <option value="Limit">Limit</option>
+                  <option value="StopLoss">Stop Loss</option>
                 </select>
                </div>
                <div class="client-name">
                 <label for="">Quantity</label>
-               <input type="text">
+               <input id="quantitysellId" type="text">
                </div>
                <div class="client-name">
-                <label for="">Sell Price</label>
-                <input type="number">
+                <label for="">Buy Price</label>
+                <input id="buyPrice" type="number">
                </div>
                <div class="submit-btn ">
                <label for="" style="color: #FF0000;">Submit</label>
-                <input type="submit">
+                <input id="sellsubbtnId" type="submit">
                </div>
                   
                   
@@ -221,19 +223,23 @@
                 <div class="inner-middle-body flex space-bw">
                     <div class="client-name">
                      <label for="">Exchange</label>
-                     <select  >
-                         <option value="">MCX</option>
+                     <select id="buyexchangeId">
+                         <option value="">Select</option>
+                        {% for i in coin_type %}
+                          <option value="{{i}}">{{i}}</option>
+                        {% endfor %}
                      </select>
                     </div>
                     <div class="client-name">
                      <label for="">Symbol</label>
-                     <select  >
-                         <option value="">Gold 05 Apr 2024</option>
+                     <select  id="buysymbolId">
+                         <option value="">Select</option>
                      </select>
                     </div>
                     <div class="client-name">
                      <label for="">LotSize</label>
-                    <input type="text">
+                     <input id="lotsizesellID" type="text" class="QuotationLot" disabled />
+
                     </div>
                     <div class="client-name">
                      <label for="">Remark</label>
@@ -242,11 +248,8 @@
                     <div class="cancel-finalbtn ">
                     <label for="" style="color: #FF0000">Cancel</label>
                      <input type="submit" value="Cancel">
-
                     </div>
-                       
-                       
-                     </div>
+                  </div>
               </div>
             </div>
           </div>
@@ -256,85 +259,142 @@
         
         
        <script>
-        $(".closeAccountLimit").click(() =>
-          $("#sellWatchId").css("display", "none")
-        );
-      
-        {% comment %} var checkbox = document.querySelector("#limitId");
-        var input = document.querySelector("#master_limit");
-        var input2 = document.querySelector("#client_limit");
-      
-        var toogleInput = function(e){
-          input.disabled = !e.target.checked;
-          input2.disabled = !e.target.checked;
-        };
-      
-        toogleInput({target: checkbox});
-        checkbox.addEventListener("change", toogleInput);
-        
-      
-      
-        
-        const accountLimitHandler = (event) => {
-          const selectedUserId = $("#current_selected_userId").val();
-          if (
-            $("#current_selected_userId").val() !== "" &&
-            $("#master_limit").val() !== "" &&
-            $("#client_limit").val() !== ""
-            
-          ) {
-            event.preventDefault();
-            $.ajax({
-              type: "POST",
-              url: `{% url "limit-user-creation" %}?id=${$(
-                "#current_selected_userId"
-              ).val()}`,
-              headers: { "X-CSRFToken": "{{ csrf_token }}" },
-              data: {
-                limit: $("#limitId").prop("checked"),
-                master_limit: $("#master_limit").val(),
-                client_limit: $("#client_limit").val(),
-              },
-              success: function (data) {
-                $("#accountLimitid").css("display", "none");
-                $("#limitId").prop("checked", false);
-                $("#master_limit").val();
-                $("#client_limit").val();
-                toastMixin.fire({
-                  animation: true,
-                  title: data.message,
-                  icon: "success",
-                });
-              },
-              error: function (error) {
-                toastMixin.fire({
-                  animation: true,
-                  title: error.responseJSON.message,
-                  icon: "error",
-                });
-              },
-            });
+
+      const watchsellhandler = () =>{
+        $("#sellWatchId").css("display", "none");
+        toggleOption = "sell";
+        $('.action_dropdown').toggle();
+        socket.emit("getOneData", {"identifier": JSON.parse(sessionStorage.getItem("currentCoin"))?.InstrumentIdentifier });
+        socket.on("getOneDataSend", (data) => {
+          $(".QuotationLot").val(data?.QuotationLot);
+          if ($("#orderTypesellId").val() == "Market"){
+            $("#buyPrice").val(data.BuyPrice);
           }
-        };
-      
-      
-        $("#accountLimitId").click(()=>{
-          axios.get(`{% url "account-limit" %}?user_id=${$("#current_selected_userId").val()}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        });
+      }
+
+      $("#buyexchangeId").change((event) => {
+        let symbolKey = event.target.value;
+        axios.get(`${BASE_URL}/api/tradeCoin?coinType=${symbolKey}`)
           .then(res => {
-            $("#master_limit").val(res.data.master_limit);
-            $("#client_limit").val(res.data.client_limit);
-            $("#masterOccId").val(res.data.master_occupied);
-            $("#masterRemId").val(res.data.master_remaining);
-            $("#clientOccId").val(res.data.client_occupied);
-            $("#clientRemId").val(res.data.client_remaining);
-              console.log("res ==", res);
-      
+            $("#buysymbolId").empty();
+            $("#buysymbolId").html("<option>Select</option>");
+            res.data.response.map(item => 
+              $("#buysymbolId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
           })
           .catch(err => {
-              console.log("err", err);
+            console.log("err", err);
           });
-        }) {% endcomment %}
-        {% comment %} account limit  {% endcomment %}
+      });
+
+
+      $("#buysymbolId").change((event) => {
+        socket.emit("getOneDataOff");
+        socket.emit("getOneData", {"identifier": event.target.value });
+        socket.on("getOneDataSend", (data) => {
+          $(".QuotationLot").val(data?.QuotationLot);
+          if ($("#orderTypesellId").val() == "Market"){
+            $("#buyPrice").val(data.BuyPrice);
+          }
+        });
+      });
+
+      $(document).ready(function() {
+        $('#orderTypesellId').change(function() {
+          var selectedOption = $(this).val();
+          if (selectedOption === "Market") {
+            $('#buyPrice').prop('disabled', true);
+          } else {
+            $('#buyPrice').prop('disabled', false);
+          }
+        });
+      });
+
+      $(document).ready(function() {
+        $('#orderTypesellId').change(function() {
+          var selectedOption = $(this).val();
+          if (selectedOption === "Market") {
+            $('#buyPrice').prop('disabled', true);
+          } else {
+            $('#buyPrice').prop('disabled', false);
+          }
+        });
+      });
+    
+      $("#sellcloseId").click(() =>
+        $("#sellWatchId").css("display", "none")
+      );
+
+
+      const handleSellSubmission = () => {
+        const data = JSON.parse(sessionStorage.getItem("currentCoin"));
+        const currentButton = $("#orderTypesellId").val().toUpperCase();
+        const currentPrice = Number($("#sellPrice").val());
+        const actionType = "BUY"; 
+    
+        if (currentButton === "STOPLOSS") { 
+            if (actionType === "BUY" && currentPrice > data.BuyPrice) {
+                toastMixin.fire({
+                    animation: true,
+                    title: "Price key must be lower than the buy price.",
+                    icon: "error",
+                });
+                return;
+            }
+        }
+    
+        const body = {
+            type: "WEB",
+            action: "SELL",
+            userId: $("#selectusernameId").val(),
+            quantity: parseInt($("#quantitysellId").val()),
+            lot_size: parseInt($("#lotsizesellID").val()),
+            is_cancel: false,
+            ex_change: $("#buyexchangeId").val(),
+            price: parseInt($("#buyPrice").val()),
+            coin_name: $("#buysymbolId").val(),
+            identifer: $("#buysymbolId").val(),
+            order_method: "Web", 
+            ip_address: "",
+            stop_loss: parseInt($("#sellPrice").val()),
+            high: data.High,
+            low: data.Low,
+            is_pending: currentButton === "LIMIT", 
+            trade_type: currentButton,
+        };
+    
+        axios.post(`{% url "buy-sell-coin" %}`, body, { headers: { "X-CSRFToken": "{{ csrf_token }}" } })
+            .then(function (response) {
+                toastMixin.fire({
+                    animation: true,
+                    title: response.data.message,
+                    icon: "success",
+                });
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            })
+            .catch(err => {
+                console.log("err", err);
+                toastMixin.fire({
+                    animation: true,
+                    title: err.response.data.message,
+                    icon: "error",
+                });
+            });
+    };
+    $("#sellsubbtnId").click(handleSellSubmission);
+
+
+
+      {% if request.user.user_type != "Client" %}
+        axios.get(`{% url "get-client-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+        .then(res => {
+            res.data.user_client.map(item => {
+                $("#selectusernameId").append(`<option value=${item.id}>${item.user_name}</option>`)
+            })
+        }).catch(err=> console.log("err", err))
+      {% endif %}
       
       </script> 
 </body>
