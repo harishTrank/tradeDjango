@@ -402,7 +402,7 @@ class BuySellSellApi(APIView):
         margin_used_value = 0
         if totalCount.count() > 0 and (total_quantity < quantity)  and not is_cancel:
             current_mrg = user.admin_coins.filter(ex_change=request.data.get('ex_change'), identifier__icontains=request.data.get("identifer") if request.data.get('ex_change') == "NSE" else request.data.get('identifer').split("_")[1]).first()
-            if current_mrg.ex_change == "NSE": 
+            if current_mrg and current_mrg.ex_change and current_mrg.ex_change == "NSE": 
                 if current_mrg.trademargin_percentage != 0:
                     margin_used_value += abs(request.data.get('quantity')) * ((current_mrg.trademargin_percentage/100) * request.data.get('price')) if current_mrg else 0
             else:
