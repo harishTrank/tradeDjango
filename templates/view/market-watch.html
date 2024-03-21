@@ -419,7 +419,7 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
     axios.post(`${BASE_URL}/api/tradeCoin/coins`, {
         coinList: [$("#selectedExchangeID").val()]
     }).then((res) => {
-        res.data.response.map(item => {
+        res.data.response.sort((a,b) => a.InstrumentIdentifier < b.InstrumentIdentifier ? -1 : a.InstrumentIdentifier > b.InstrumentIdentifier ? 1 : 0).map(item => {
             $(".symbol").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`)
         })
     }).catch(err => console.log("err", err))
