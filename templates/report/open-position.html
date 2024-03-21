@@ -159,7 +159,7 @@
                       const profitLossValue = profitLossHandler(current_data, item);
                       $("#openPositionLiveDataid").append(`
                         <tr>
-                          <td onClick="openpositionhandler()">
+                          <td onClick="openpositionhandler('${escape(JSON.stringify(item))}')">
                             <span style="padding: 1px;" class="material-symbols-outlined">
                                 density_small
                             </span> 

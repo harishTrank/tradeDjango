@@ -122,8 +122,8 @@
         $("#profitTotal").html(profitTotal);
         res?.data?.total_loss?.forEach(item => {
           item?.summary_flg === "Brokerage"
-          ? $("#lossKey").html((item?.total_amount || 0).toFixed(2))
-          : $("#brkLoss").html((item?.total_amount || 0).toFixed(2));
+          ? $("#brkLoss").html((item?.total_amount || 0).toFixed(2))
+          : $("#lossKey").html((item?.total_amount || 0).toFixed(2));
         })
         const totalLoss = (res?.data?.total_loss?.reduce((a, b) => a + (b?.total_amount || 0), 0) || 0).toFixed(2);
         $("#lossTotal").html(totalLoss);

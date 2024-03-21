@@ -38,67 +38,110 @@
         border-collapse: collapse;
     }
 </style>
-
-{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
 <script>
-    BASE_URL = "http://192.168.0.72:5000"
-    const baseNodeURL = BASE_URL
-    const socket = io(baseNodeURL);
-    const positionviewDataHandler = () => {
+
+        const BASE_URL = "http://192.168.0.72:5000";
+        const baseNodeURL = BASE_URL
+        const socket = io(baseNodeURL); 
+        const dateManager = (val) => {
+            return `${val?.split("_")?.[2]?.slice(0, 2)} ${val
+            ?.split("_")?.[2]
+            ?.slice(2, 5)} ${val?.split("_")?.[2]?.slice(7)}`;
+        };
+    
+        
+        const updateTotalPrice = (socketResponse, itemResult) => {
+        return itemResult
+            .map(item => {
+            const findSocketVal = socketResponse.find(findObject =>
+                findObject?.InstrumentIdentifier === item?.identifer
+            );
+            return (
+                item?.total_quantity > 0
+                ? (findSocketVal?.BuyPrice - item?.avg_buy_price) *
+                    item?.total_quantity *
+                    findSocketVal?.QuotationLot
+                : (item?.avg_sell_price - findSocketVal?.SellPrice) *
+                    Math.abs(item?.total_quantity) *
+                    findSocketVal?.QuotationLot
+            ).toFixed(2);
+            })
+            .reduce((partialSum, a) => Number(partialSum) + Number(a), 0);
+        };
+        const profitLossHandler = (item, socketResponse) => {
+            return (
+            item?.total_quantity > 0
+                ? (socketResponse?.BuyPrice - item?.avg_buy_price) *
+                item?.total_quantity *
+                socketResponse?.QuotationLot
+                : (item?.avg_sell_price - socketResponse?.SellPrice) *
+                Math.abs(item?.total_quantity) *
+                socketResponse?.QuotationLot
+                ).toFixed(2);
+        };
+
+        const openpositionview = (exchange="", script="", user_name="{{request.user.user_name}}") => {
         $.ajax({
-            type: 'GET',
-            url: `{% url "position" %}`,
+            type:'GET',
+            url:`{% url "position-view" %}?script="DIXON"`,
             headers: { "X-CSRFToken": "{{ csrf_token }}" },
-            success: function (res) {
-                console.log("res", res)
-                if (res.response.length > 0) {
-                    socket.connect();
-                    socket.on("connect", () => {
-                        console.log("Connected to the Socket.io server");
-                    });
+            success:function(res){
+            console.log("res", res)
+            if (res.response.length > 0) {
+                socket.connect();
+                socket.on("connect", () => {
+                console.log("Connected to the Socket.io server");
+                });
+    
+                socket.emit("filterDataGet", {identifier: res.response.map(item => item.identifer)});
+    
+                socket.on("filterDataSend", (data) => {
+                $("#totalddPriceId").html(`P/L: ${updateTotalPrice(data, res.response).toFixed(2)}`);
+                $("#openPoddsitionLiveDataid").empty();
+                if (data.length > 0) {
 
-                    socket.emit("filterDataGet", { identifier: res.response.map(item => item.identifer) });
+                    data?.map(item => {
+                    const current_data = res?.response?.find(findItem => findItem.identifer === item.InstrumentIdentifier)
+                    const currentAvg = current_data?.total_quantity > 0 ? current_data.avg_buy_price : current_data.avg_sell_price;
+                    const currentCmp = current_data?.total_quantity > 0 ? item.BuyPrice : item.SellPrice;
+                    const pandlPercent = current_data?.total_quantity > 0 ?  ((currentCmp - currentAvg)*100/currentAvg).toFixed(2) : ((currentAvg - currentCmp)*100/currentCmp).toFixed(2);
 
-                    socket.on("filterDataSend", (data) => {
-                        $("#totalPriceId").html(`P/L: ${updateTotalPrice(data, res.response).toFixed(2)}`);
-                        $("#quantityTableBody").empty(); // Corrected the ID here
-                        if (data.length > 0) {
-                            data?.map(item => {
-                                const current_data = res?.response?.find(findItem => findItem.identifer === item.InstrumentIdentifier)
-                                const profitLossValue = profitLossHandler(current_data, item);
-                                $("#quantityTableBody").append(`
-                                    <tr>
-                                        <td onClick="openpositionhandler()">
-                                            <span style="padding: 1px;" class="material-symbols-outlined">
-                                                density_small
-                                            </span> 
-                                        </td>
-                                        <td>${item?.Exchange}</td>
-                                        <td>${current_data?.coin_name}</td>
-                                        <td style="color: ${current_data?.total_quantity < 0 ? 'red' : 'blue'};">${current_data?.total_quantity > 0 ? "BUY" : "SELL"}</td>
-                                        <td style="color: ${current_data?.total_quantity < 0 ? 'red' : 'blue'};">${Math.abs(current_data?.total_quantity)}</td>
-                                        <td>${current_data?.total_quantity > 0 ? Math.round(current_data?.avg_buy_price * 100) / 100 : Math.round(current_data?.avg_sell_price * 100) / 100}</td>
-                                        <td>${current_data?.total_quantity > 0 ? item?.BuyPrice : item?.SellPrice}</td>
-                                        ${profitLossValue && profitLossValue > 0 ? `<td style="color: blue">${profitLossValue}</td>` : `<td style="color: red">${Math.abs(profitLossValue)}</td>`}
-                                    </tr>
-                                `)
-                            })
-                        }
-                    });
-
-                    socket.on("disconnect", () => {
-                        console.log("Disconnected from the Socket.io server");
-                    });
-                } else {
-                    $("#quantityTableBody").empty(); // Corrected the ID here
-                    socket.disconnect();
+                    const profitLossValue = profitLossHandler(current_data, item);
+                    console.log("34567890-",profitLossValue)
+                    $("#quantityTableBody").append(`
+                        <tr>
+                        <td>${item.buy_sell_user__user_name}</td>
+                        <td>${item.buy_sell_user__parent}</td>
+                        <td>${item?.Exchange}</td>
+                        <td>${current_data?.coin_name}</td>
+                        <td style="color: ${current_data?.total_quantity < 0 ? 'red' : 'blue'};">${current_data?.total_quantity > 0 ? "BUY" : "SELL"}</td>
+                        <td style="color: ${current_data?.total_quantity < 0 ? 'red' : 'blue'};">${Math.abs(current_data?.total_quantity)}</td>
+                        <td>${current_data?.total_quantity > 0 ? Math.round(current_data?.avg_buy_price * 100) / 100 : Math.round(current_data?.avg_sell_price * 100) / 100}</td>
+                        <td>${current_data?.total_quantity > 0 ? item?.BuyPrice : item?.SellPrice}</td>
+                        ${profitLossValue && profitLossValue > 0 ? `<td style="color: blue">${profitLossValue}</td>` : `<td style="color: red">${Math.abs(profitLossValue)}</td>`}
+                        <td style="color:${pandlPercent > 0 ? "blue" : "red"}">${pandlPercent}%</td>
+                        </tr>
+                    `)
+                    })
                 }
+                });
+    
+                socket.on("disconnect", () => {
+                    console.log("Disconnected from the Socket.io server");
+                });
+            } else {
+                $("#openPositionLiveDataid").empty();
+                socket.disconnect();
+            }
             },
-            error: function (err) {
-                alert(err?.responseJSON.message);
+            error:function(err){
+            alert(err?.responseJSON.message);
             }
         })
-    }
-</script> {% endcomment %}
+        }
+
+        openpositionview();
+  </script>

@@ -133,8 +133,8 @@
           <p id="currentLiveTime"></p>
           {% if request.user.user_type != "SuperAdmin" %}
             <div class="flex align-center footer-inner">
-              <p> PL : -52 812.30</p>
-              <p>BK : 1 173.57</p>
+              <p id="totalUserPl"></p>
+              <p id="totalUserBrk"></p>
               <p>BAL : {{request.user.balance}}</p>
               <p>CRE : {{request.user.credit}}</p>
             </div>
@@ -270,6 +270,21 @@
   }
 
 
+axios.get("{% url 'position-view' %}", {
+    headers: {
+        "X-CSRFToken": "{{ csrf_token }}"
+    }
+})
+.then(response => {
+    console.log("Response-=-=:", response);
+    // Handle the response as needed
+})
+.catch(error => {
+    console.error("Error:", error);
+    // Handle errors if any
+});
+
+
   const intradayHandler = (event) => {
     event.preventDefault();
   
@@ -315,5 +330,14 @@
       console.log("err", error);
   });
 
+
+  axios.get(`{% url "userbrkandprofitloss-handle" %}`, {
+    headers: {
+        "X-CSRFToken": "{{ csrf_token }}"
+    }
+  }).then((res) => {
+    $("#totalUserBrk").text(res?.data?.brk ? `BK : ${res?.data?.brk.toFixed(2)}` : `BK : 0.00`);
+    $("#totalUserPl").text(res?.data?.pandl ? `BK : ${res?.data?.pandl.toFixed(2)}` : `PL : 0.00`);
+  })
   </script>
 </html>

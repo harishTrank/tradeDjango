@@ -398,6 +398,8 @@
                   $("#selectusernameId").append(`<option value=${item.id}>${item.user_name}</option>`)
               })
           }).catch(err=> console.log("err", err))
+        {% else %}
+          $("#selectusernameId").html(`<option value="{{request.user.id}}">{{request.user.user_name}}</option>`)
         {% endif %}
     </script>
   </body>
