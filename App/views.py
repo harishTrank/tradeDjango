@@ -336,7 +336,7 @@ class MaketWatchScreenApi(APIView):
                 'responsemessage': 'No trade coin ID provided to delete'
             })
 
-def accountSummaryService(data, user, pandL, summary_flag, admin=""):
+def accountSummaryService(data, user, pandL, summary_flag, admin="", parentuser=""):
     if (pandL != 0):
         result = (
             user.buy_sell_user.filter(trade_status=True, is_pending=False, is_cancel=False, identifer=data["identifer"])
@@ -353,11 +353,15 @@ def accountSummaryService(data, user, pandL, summary_flag, admin=""):
                 )
             ).exclude(total_quantity=0)
         )
-        if (result and len(list(result)) > 0):
+
+        if ((result and len(list(result)) > 0) or parentuser != ""):
             if summary_flag == "Profit/Loss":
                 AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_sell_price'] if data["action"] == 'BUY' else list(result)[0]['avg_buy_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
             else:
-                AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
+                if (parentuser != ""):
+                    AccountSummaryModal.objects.create(user_summary=parentuser if pandL < 0 else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
+                else:
+                    AccountSummaryModal.objects.create(user_summary=user if admin == "" else admin, particular=data["coin_name"], quantity=abs(data["quantity"]), buy_sell_type=data["action"], price=data['price'], average= list(result)[0]['avg_buy_price'] if data["action"] == 'BUY' else list(result)[0]['avg_sell_price'], summary_flg=summary_flag, amount=pandL, closing=user.balance)
           
 
 class BuySellSellApi(APIView):
@@ -489,28 +493,54 @@ class BuySellSellApi(APIView):
         if total_cost > 100000:
             brk_obj = AdminCoinWithCaseModal.objects.filter(master_coins=user)
             symbols = request.data.get('identifer').split("_")
+            result = symbols[1] if len(symbols) >= 2 else symbols[0]
+            
             turnover_brk_value = 0
-            if len(symbols) >= 2:
-                result = symbols[1]
-                matching_objects = brk_obj.filter(identifier=result)
-                if matching_objects.exists():
-                    selected_object = matching_objects.first()
-                    turnover_brk_value = selected_object.turnover_brk
-                else:
-                    print(f"No object found for identifier: {result}")
+            matching_objects = brk_obj.filter(identifier=result)
+            if matching_objects.exists():
+                selected_object = matching_objects.first()
+                turnover_brk_value = selected_object.turnover_brk
+            else:
+                print(f"No object found for identifier: {result}")
 
             admin_brk = total_cost/100000 * turnover_brk_value
+            parent_user = MyUser.objects.get(user_name=user.parent)
             if (admin_brk != 0):
                 accountSummaryService(request.data, user, -(abs(admin_brk)), "Brokerage")
                 user.balance -= admin_brk
                 user.save()
-                if (user.user_type == "Master"):
-                    current_admin = user.master_user.admin_user.user
-                elif (user.user_type == "Client"):
-                    current_admin = user.client.admin_create_client.user
-                current_admin.balance += admin_brk
-                current_admin.save()
-                accountSummaryService(request.data, user, abs(admin_brk), "Brokerage", current_admin)
+                parent_user.balance += admin_brk
+                parent_user.save()
+                accountSummaryService(request.data, user, abs(admin_brk), "Brokerage", parent_user)
+
+
+
+
+            turnover_brk_value = 0
+            brk_obj = AdminCoinWithCaseModal.objects.filter(master_coins=parent_user)
+            parent_user_brk = brk_obj.filter(identifier=result)
+            if parent_user_brk.exists():
+                selected_object = parent_user_brk.first()
+                turnover_brk_value = selected_object.turnover_brk
+            else:
+                print(f"No object found for identifier: {result}")
+            admin_brk = total_cost/100000 * turnover_brk_value
+            if (admin_brk != 0):
+                accountSummaryService(request.data, user, -(abs(admin_brk)), "Brokerage", parentuser=parent_user)
+                parent_user.balance -= admin_brk
+                parent_user.save()
+                parent_user_super = MyUser.objects.get(user_name=parent_user.parent)
+                parent_user_super.balance += admin_brk
+                parent_user_super.save()
+                accountSummaryService(request.data, user, abs(admin_brk), "Brokerage", parent_user_super, parentuser=parent_user)
+
+
+                # if (user.user_type == "Master"):
+                #     current_admin = user.master_user.admin_user.user
+                # elif (user.user_type == "Client"):
+                #     current_admin = user.client.admin_create_client.user
+                # current_admin.balance += admin_brk
+                # current_admin.save()
         if  (totalCount.count() > 0 and totalCount[0]["total_quantity"]== 0):
             BuyAndSellModel.objects.filter(identifer=request.data.get("identifer")).update(trade_status=False)
         return Response({'user_balance':user.balance,'message': 'Buy order successfully' if action =="BUY" else 'Sell order successfully'}, status=status.HTTP_200_OK)    
