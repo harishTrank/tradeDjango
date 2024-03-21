@@ -192,7 +192,7 @@
             <div class="inner-middle-body flex space-bw">
               <div class="client-name">
                 <label for="">Client Name</label>
-                <select id="clientnameId">
+                <select id="clientnameId" required>
                   <option value="">Select</option>
                 </select>
               </div>
@@ -206,7 +206,7 @@
               </div>
               <div class="client-name">
                 <label for="">Quantity</label>
-                <input id="quantitybuyId" type="text" />
+                <input value="1" id="quantitybuyId" type="number" required/>
               </div>
               <div class="client-name">
                 <label for="sellPrice">Sell Price</label>
@@ -292,7 +292,7 @@
           });
       });
 
-      $("#symbolId #buysymbolId").change((event) => {
+      $("#symbolId").change((event) => {
         socket.emit("getOneDataOff");
         socket.emit("getOneData", {"identifier": event.target.value });
         socket.on("getOneDataSend", (data) => {
@@ -330,7 +330,6 @@
         const item = JSON.parse(unescape(itemString));
         sessionStorage.setItem("currentCoin", JSON.stringify(item));
         $("#watchPopUpId").css("display", "block");
-
         if (toggleOption === 'buy') {
           $("#symbleExchange").val(item.Exchange);
         }else{

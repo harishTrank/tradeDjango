@@ -112,7 +112,7 @@
     <div class="pop-up-top" id="marketpictureId">
         <div class="pop-up-top-inside">
             <div class="flex align-center space-bw market-pic">
-                <p><i class="fa-brands fa-opera"></i>Market Picture For (MCX - Gold 05 Apr 2024)</p>
+                <p id="marketPictureHeading"></p>
                 <div id="marketpicId"><i class="fa-solid fa-x"></i></div>
             </div>
             <div class="flex align-center space-bw exchange-symbol">
@@ -141,11 +141,11 @@
                     </ul>
                 </div>
                 <div class="flex col-50 align-center space-bw mcx-table-2">
+                    <ul id="sellPriceListID">
+                    </ul>
                      <ul id="sellPriceQtyListID">
                     </ul>
 
-                    <ul id="sellPriceListID">
-                    </ul>
                 </div>
             </div>
             <div class="flex align-center space-bw mcx-total">
@@ -202,12 +202,9 @@
         $("#marketpictureId").css("display", "none")
     );
 
-    let buyPriceQty = 0;
-    let buyPriceList = [];
 
-    let sellPriceQty = 0;
-    let sellPriceList = [];
     const setDataHandler = (data) => {
+        $("#marketPictureHeading").html(`<i class="fa-brands fa-opera"></i>Market Picture For (${data.Exchange} - ${data.Exchange === "NSE" ? data.InstrumentIdentifier : `${data.InstrumentIdentifier?.split("_")[1]} ${data.InstrumentIdentifier?.split("_")[2]}`})`)
         $("#lastTradePriceId").text(data.LastTradePrice);
         $("#LastTradeQtyID").text(data.LastTradeQty);
         $("#PriceChangePercentageID").text(data.PriceChangePercentage);
@@ -256,7 +253,7 @@
         // ----------------------------
     }
 
-    const setDefaultValueHandler = () => {
+    function setDefaultValueHandler () {
         const response = JSON.parse(sessionStorage.getItem("currentCoin"));
         $("#cointypeExchangeId").val(response.Exchange);
         axios.get(`${BASE_URL}/api/tradeCoin?coinType=${response.Exchange}`)
@@ -281,7 +278,6 @@
             });
         }, 500)
     }
-    setDefaultValueHandler();
 
     $("#cointypeExchangeId").change((event) => {
         axios.get(`${BASE_URL}/api/tradeCoin?coinType=${event.target.value}`)

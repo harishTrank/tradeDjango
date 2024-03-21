@@ -159,13 +159,13 @@
                                     </div>
                                 </a>
                             </li>
-                            <li>
+                            <li onClick="deletehandler()">
                                 <a>
                                     <div>
-                                        <i class="fa-solid fa-table-columns"></i>
+                                        <i class="fa-solid fa-xmark"></i>
                                     </div>
                                     <div>
-                                        <p>Manage Columns</p>
+                                        <p>Delete</p>
                                     </div>
                                 </a>
                             </li>
@@ -190,10 +190,20 @@
 
 <script> 
     let toggleOption = "";
+    let buyPriceQty = 0;
+    let buyPriceList = [];
+
+    let sellPriceQty = 0;
+    let sellPriceList = [];
     const marketPicture = () => {
         $("#marketpictureId").css("display", "block")
         $('.action_dropdown').toggle();
-        $("#watchPopUpId").css("display", "none")
+        $("#watchPopUpId").css("display", "none");
+        setDefaultValueHandler();
+        buyPriceList = [];
+        buyPriceQty = 0;
+        sellPriceQty = 0;
+        sellPriceList = [];
     }
 
     const scripthandler = () => {
@@ -412,6 +422,31 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
         $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
     })
   }
+
+  const deletehandler = (event) => {
+    const currentCoin = JSON.parse(sessionStorage.getItem("currentCoin"));
+    const body = {
+      trade_coin_id: currentCoin.InstrumentIdentifier
+    };
+    axios
+      .delete(
+        "{% url 'add-market-coin' %}?trade_coin_id=" + currentCoin.InstrumentIdentifier,
+        { data: body, headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+      )
+      .then((response) => {
+        console.log("res", response);
+        $("#watchPopUpId").css("display", "none");
+        toastMixin.fire({
+          animation: true,
+          title: response.data.responsemessage,
+          icon: "success",
+        });
+        setTimeout(() => window.location.reload(), 2800);
+      })
+      .catch((error) => {
+        console.error("Error deleting coin", error);
+      });
+};
 
 </script>
 
