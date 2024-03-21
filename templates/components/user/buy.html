@@ -248,7 +248,7 @@
                 <label for="">Remark</label>
                 <input type="text" />
               </div>
-              <div class="cancel-finalbtn">
+              <div id="cancelbtnId" class="cancel-finalbtn">
                 <label for="" style="color: #0000ff">Cancel</label>
                 <input type="submit" value="Cancel" />
               </div>
@@ -323,6 +323,10 @@
       });
     
       $("#buysellId").click(() =>
+        $("#buyWatchId").css("display", "none")
+      );
+
+      $("#cancelbtnId").click(() =>
         $("#buyWatchId").css("display", "none")
       );
     

@@ -247,21 +247,20 @@ class AddUserView(View):
             request.user.balance -= credit_amount
             request.user.save() 
             
-            if limit == False:
-                messages.error(request, f"Cannot create more users.")
-                return redirect("Admin:add-user") 
-            if limit:
-                master_users_count = MastrModel.objects.filter(master_link=request.user.master_user).count()
-                if master_users_count >= master_limit:
-                    messages.error(request, f"Cannot create more Master users. Limit reached ({master_limit}).")
-                    return redirect("Admin:add-user")
-                client_users_count = ClientModel.objects.filter(master_user_link=request.user.master_user).count()
-                if client_users_count >= client_limit:
-                    messages.error(request, f"Cannot create more Client users. Limit reached ({client_limit}).")
-                    return redirect("Admin:add-user")
-            current_master = ""
+            # if limit == False:
+            #     messages.error(request, f"Cannot create more users.")
+            #     return redirect("Admin:add-user") 
+            # if limit:
+            master_users_count = MastrModel.objects.filter(master_link=request.user.master_user).count()
+            if master_users_count >= master_limit and request.POST.get("currentUserType") == 'Master':
+                messages.error(request, f"Cannot create more Master users. Limit reached ({master_limit}).")
+                return redirect("Admin:add-user")
+            client_users_count = ClientModel.objects.filter(master_user_link=request.user.master_user).count()
+            if client_users_count >= client_limit and request.POST.get("currentUserType") == 'Client':
+                messages.error(request, f"Cannot create more Client users. Limit reached ({client_limit}).")
+                return redirect("Admin:add-user")
+            current_master = MyUser.objects.get(id=request.user.id).master_user
             if (request.POST.get("currentUserType") == 'Master'):
-                current_master = MyUser.objects.get(id=request.user.id).master_user
                 create_user = MyUser.objects.create(user_type="Master", **user_data, parent=current_master)
                 MastrModel.objects.create(master_user=create_user, admin_user=request.user.master_user.admin_user,master_link=current_master)
                 messages.success(request, f"Master added successfully.")
@@ -439,6 +438,8 @@ class ListUserView(View):
             response_user = response_user.filter(status=False)
         elif user_status == "Active":
             response_user = response_user.filter(status=True)
+
+        response_user = response_user.exclude(id=request.user.id)
 
         return render(request, "User/list-user.html", {"client": response_user})
     
@@ -1301,6 +1302,7 @@ class OpenPosition(View):
             user_names.append(request.user.user_name)
         elif request.user.user_type == "SuperAdmin":
             user_names = MyUser.objects.filter(role=request.user.role).exclude(id=request.user.id).values_list("user_name", flat=True)
+            print("user_names==",user_names)
         elif request.user.user_type == "Admin":
             masters = request.user.admin_user.admin_user.all().values_list('master_user__user_name', flat=True)
             clients = request.user.admin_user.admin_create_client.all().values_list('client__user_name', flat=True)

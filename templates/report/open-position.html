@@ -64,6 +64,7 @@
                     <th>Average Rate</th>
                     <th>CMP</th>
                     <th>Profit / Loss</th>
+                    <th>% P&L</th>
                 </tr>
                 <tbody id="openPositionLiveDataid">
            
@@ -148,8 +149,13 @@
                   $("#totalPriceId").html(`P/L: ${updateTotalPrice(data, res.response).toFixed(2)}`);
                   $("#openPositionLiveDataid").empty();
                   if (data.length > 0) {
+
                     data?.map(item => {
                       const current_data = res?.response?.find(findItem => findItem.identifer === item.InstrumentIdentifier)
+                      const currentAvg = current_data?.total_quantity > 0 ? current_data.avg_buy_price : current_data.avg_sell_price;
+                      const currentCmp = current_data?.total_quantity > 0 ? item.BuyPrice : item.SellPrice;
+                      const pandlPercent = current_data?.total_quantity > 0 ?  ((currentCmp - currentAvg)*100/currentAvg).toFixed(2) : ((currentAvg - currentCmp)*100/currentCmp).toFixed(2);
+
                       const profitLossValue = profitLossHandler(current_data, item);
                       $("#openPositionLiveDataid").append(`
                         <tr>
@@ -165,6 +171,7 @@
                           <td>${current_data?.total_quantity > 0 ? Math.round(current_data?.avg_buy_price * 100) / 100 : Math.round(current_data?.avg_sell_price * 100) / 100}</td>
                           <td>${current_data?.total_quantity > 0 ? item?.BuyPrice : item?.SellPrice}</td>
                           ${profitLossValue && profitLossValue > 0 ? `<td style="color: blue">${profitLossValue}</td>` : `<td style="color: red">${Math.abs(profitLossValue)}</td>`}
+                          <td style="color:${pandlPercent > 0 ? "blue" : "red"}">${pandlPercent}%</td>
                         </tr>
                       `)
                     })
