@@ -86,5 +86,6 @@ urlpatterns = [
     path('manage-trades-csv/', TradesDownloadCSVView.as_view(), name='manage-trades-csv'),
     path('view-trades-csv/', ViewTradesDownloadCSV.as_view(), name='view-trades-csv'),
     path('order-csv-download/', OrderDownloadCSVView.as_view(), name='order-csv-download'),
+    path('open-position-view/', OpenPositionView.as_view(), name='open-position-view'),
 
 ]

@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css"
     />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
@@ -131,12 +131,14 @@
     <div class="footer-top">
       <div class="flex align-center space-bw footer-head">
           <p id="currentLiveTime"></p>
-          <div class="flex align-center footer-inner">
-             <p> PL : -52 812.30</p>
-             <p>BK : 1 173.57</p>
-             <p>BAL : -51 638.73</p>
-             <p>CRE : 2 99 70 000.00</p>
-          </div>
+          {% if request.user.user_type != "SuperAdmin" %}
+            <div class="flex align-center footer-inner">
+              <p> PL : -52 812.30</p>
+              <p>BK : 1 173.57</p>
+              <p>BAL : {{request.user.balance}}</p>
+              <p>CRE : {{request.user.credit}}</p>
+            </div>
+          {% endif %}
       </div>
       <div class="footer-marquee">
           <marquee><p></p></marquee>

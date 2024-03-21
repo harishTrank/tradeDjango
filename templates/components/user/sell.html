@@ -1,341 +1,399 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
-        a:active {
-          color: blue;
-        }
-        
-        #sellWatchId {
-          display: none;
-        }
-      
-        .change-pass {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.5);
-        }
-      
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        .spaceclass {
-          justify-content: space-evenly;
-        }
-        .flex {
-          display: flex;
-          flex-wrap: wrap;
-        }
-        .space-bw {
-          justify-content: space-between;
-        }
-        .align-center {
-          align-items: center;
-        }
-        .text-center {
-          text-align: center;
-        }
-        .white-back {
-          background: #fff;
-          box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
-        }
-      
-        .create-profile {
-          position: fixed;
-          top: 0;
-          left: 0;
-          background: rgba(0, 0, 0, 0.5);
-          width: 100%;
-          height: 100%;
-          z-index: 99;
-        }
-        .create-profile-inside {
-          width: 80%;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 999;
-          background: #e7e7e7;
-          border-radius: 10px;
-        }
-        .admin-right i {
-          margin-right: 8px;
-          color: #ff0000;
-          font-size: 10px;
-          margin-top: 2px;
-        }
-        .top-body {
-          background-color: #fff;
-          padding: 8px;
-          border-top-left-radius: 10px;
-          border-top-right-radius: 10px;
-        }
-        .middle-body {
-          background-color: #FF0000;
-          padding: 15px;
-        }
-        .inner-middle-body {
-          padding: 6px;
-          border:none;
-      
-          
-        }
-      
-        .save-cancel-btn {
-          padding: 0px 75px;
-        }
-        .save-cancel-btn button:first-child {
-          background-color: #008000;
-          padding: 2px 10px;
-          color: #fff;
-          border: none;
-        }
-        .save-cancel-btn button:last-child {
-          background-color: #221b1b;
-          padding: 10px 20px;
-          color: #fff;
-          border: none;
-        }
-        .input-tags input {
-          padding: 3px 6px;
-          margin: 0px 6px;
-          border: 1px solid black;
-          background-color: #e7e7e7;
-          border-radius: 4px;
-        }
-        .mrg-tb {
-          margin: 8px 0px;
-        }
-        .pop-up-text p {
-          font-size: 16px;
-          font-weight: 600;
-        }
-        .limit p {
-          margin-right: 25px;
-        }
-        .limit div:first-child {
-          margin-right: 20px;
-        }
-        .clients p {
-          margin-right: 8px;
-        }
-        .btns button:first-child {
-          margin-right: 10px;
-          padding: 10px 20px;
-        }
-        .client-name{
-            display: flex;
-            flex-direction: column;
-            width: 19%;
-       
-           
-        }
-        .client-name select,input{
-            {% comment %} margin-top: 5px; {% endcomment %}
-            padding:2px;
-            border: 1px solid #000;
-        }
-        .submit-btn{
-           
-            display: flex;
-            flex-direction: column;
-            width: 19%;
-           
-        }
-       .submit-btn input{
-        {% comment %} margin-top: 5px; {% endcomment %}
-        padding: 4px;
-        background: #008000;
-            color: #fff;
-            border: 1px solid #fff;
-            font-weight: bold;
+       a:active {
+         color: blue;
        }
-       .cancel-finalbtn input{
-        margin-top: 5px;
-        padding: 4px;
-        background: #000;
-            color: #fff;
-            border: 1px solid #fff;
-            font-weight: bold;
+
+       #sellWatchId {
+         display: none;
        }
-       .cancel-finalbtn{
-        display: flex;
-            flex-direction: column;
-            width: 19%;
+
+       .change-pass {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background: rgba(0, 0, 0, 0.5);
        }
-       .client-name label{
-        color: #fff;
+
+       * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
        }
-      </style>
-</head>
-<body>
+       .spaceclass {
+         justify-content: space-evenly;
+       }
+       .flex {
+         display: flex;
+         flex-wrap: wrap;
+       }
+       .space-bw {
+         justify-content: space-between;
+       }
+       .align-center {
+         align-items: center;
+       }
+       .text-center {
+         text-align: center;
+       }
+       .white-back {
+         background: #fff;
+         box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
+       }
+
+       .create-profile {
+         position: fixed;
+         top: 0;
+         left: 0;
+         background: rgba(0, 0, 0, 0.5);
+         width: 100%;
+         height: 100%;
+         z-index: 99;
+       }
+       .create-profile-inside {
+         width: 80%;
+         position: absolute;
+         top: 50%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         z-index: 999;
+         background: #e7e7e7;
+         border-radius: 10px;
+       }
+       .admin-right i {
+         margin-right: 8px;
+         color: #ff0000;
+         font-size: 10px;
+         margin-top: 2px;
+       }
+       .top-body {
+         background-color: #fff;
+         padding: 8px;
+         border-top-left-radius: 10px;
+         border-top-right-radius: 10px;
+       }
+       .middle-body {
+         background-color: #FF0000;
+         padding: 15px;
+       }
+       .inner-middle-body {
+         padding: 6px;
+         border:none;
+
+
+       }
+
+       .save-cancel-btn {
+         padding: 0px 75px;
+       }
+       .save-cancel-btn button:first-child {
+         background-color: #008000;
+         padding: 2px 10px;
+         color: #fff;
+         border: none;
+       }
+       .save-cancel-btn button:last-child {
+         background-color: #221b1b;
+         padding: 10px 20px;
+         color: #fff;
+         border: none;
+       }
+       .input-tags input {
+         padding: 3px 6px;
+         margin: 0px 6px;
+         border: 1px solid black;
+         background-color: #e7e7e7;
+         border-radius: 4px;
+       }
+       .mrg-tb {
+         margin: 8px 0px;
+       }
+       .pop-up-text p {
+         font-size: 16px;
+         font-weight: 600;
+       }
+       .limit p {
+         margin-right: 25px;
+       }
+       .limit div:first-child {
+         margin-right: 20px;
+       }
+       .clients p {
+         margin-right: 8px;
+       }
+       .btns button:first-child {
+         margin-right: 10px;
+         padding: 10px 20px;
+       }
+       .client-name{
+           display: flex;
+           flex-direction: column;
+           width: 19%;
+
+
+       }
+       .client-name select,input{
+           {% comment %} margin-top: 5px; {% endcomment %}
+           padding:2px;
+           border: 1px solid #000;
+       }
+       .submit-btn{
+
+           display: flex;
+           flex-direction: column;
+           width: 19%;
+
+       }
+      .submit-btn input{
+       {% comment %} margin-top: 5px; {% endcomment %}
+       padding: 4px;
+       background: #008000;
+           color: #fff;
+           border: 1px solid #fff;
+           font-weight: bold;
+      }
+      .cancel-finalbtn input{
+       margin-top: 5px;
+       padding: 4px;
+       background: #000;
+           color: #fff;
+           border: 1px solid #fff;
+           font-weight: bold;
+      }
+      .cancel-finalbtn{
+       display: flex;
+           flex-direction: column;
+           width: 19%;
+      }
+      .client-name label{
+       color: #fff;
+      }
+    </style>
+  </head>
+  <body>
     <div class="create-profile" id="sellWatchId">
-        <div class="change-pass">
-          <div class="create-profile-inside">
-            <div class="top-body flex align-center space-bw align-center">
-              <div class="flex admin-right">
-                <p>Sell Orders</p>
+      <div class="change-pass">
+        <div class="create-profile-inside">
+          <div class="top-body flex align-center space-bw align-center">
+            <div class="flex admin-right">
+              <p>Sell Orders</p>
+            </div>
+            <div id="sellcloseId">
+              <i class="fa-solid fa-x closeAccountLimit"></i>
+            </div>
+          </div>
+          <div class="middle-body">
+            <div class="inner-middle-body flex space-bw">
+              <div class="client-name">
+                <label for="">Client Name</label>
+                <select id="selectusernameId">
+                  <option value="">Select</option>
+                </select>
               </div>
-              <div id="sellcloseId">
-                <i class="fa-solid fa-x closeAccountLimit"></i>
+              <div class="client-name">
+                <label for="">Order Type</label>
+                <select id="orderTypesellId">
+                  <option value="Market">Market</option>
+                  <option value="Limit">Limit</option>
+                  <option value="StopLoss">Stop Loss</option>
+                </select>
+              </div>
+              <div class="client-name">
+                <label for="">Quantity</label>
+                <input id="quantitysellId" type="text" />
+              </div>
+              <div class="client-name">
+                <label for="">Buy Price</label>
+                <input id="buyPrice" type="number" disabled />
+              </div>
+              <div class="submit-btn">
+                <label for="" style="color: #ff0000">Submit</label>
+                <input id="sellsubbtnId" type="submit" />
               </div>
             </div>
-            <div class="middle-body">
-              <div class="inner-middle-body flex space-bw">
-               <div class="client-name">
-                <label for="">Client Name</label>
-                <select  >
-                    <option value=""></option>
+            <div class="inner-middle-body flex space-bw">
+              <div class="client-name">
+                <label for="">Exchange</label>
+                <select id="buyexchangeId">
+                  <option value="">Select</option>
+                  {% for i in coin_type %}
+                  <option value="{{i}}">{{i}}</option>
+                  {% endfor %}
                 </select>
-               </div>
-               <div class="client-name">
-                <label for="">Order Type</label>
-                <select  >
-                    <option value=""></option>
+              </div>
+              <div class="client-name">
+                <label for="">Symbol</label>
+                <select id="buysymbolId">
+                  <option value="">Select</option>
                 </select>
-               </div>
-               <div class="client-name">
-                <label for="">Quantity</label>
-               <input type="text">
-               </div>
-               <div class="client-name">
-                <label for="">Sell Price</label>
-                <input type="number">
-               </div>
-               <div class="submit-btn ">
-               <label for="" style="color: #FF0000;">Submit</label>
-                <input type="submit">
-               </div>
-                  
-                  
-                </div>
-                <div class="inner-middle-body flex space-bw">
-                    <div class="client-name">
-                     <label for="">Exchange</label>
-                     <select  >
-                         <option value="">MCX</option>
-                     </select>
-                    </div>
-                    <div class="client-name">
-                     <label for="">Symbol</label>
-                     <select  >
-                         <option value="">Gold 05 Apr 2024</option>
-                     </select>
-                    </div>
-                    <div class="client-name">
-                     <label for="">LotSize</label>
-                    <input type="text">
-                    </div>
-                    <div class="client-name">
-                     <label for="">Remark</label>
-                     <input type="text">
-                    </div>
-                    <div class="cancel-finalbtn ">
-                    <label for="" style="color: #FF0000">Cancel</label>
-                     <input type="submit" value="Cancel">
-
-                    </div>
-                       
-                       
-                     </div>
+              </div>
+              <div class="client-name">
+                <label for="">LotSize</label>
+                <input
+                  id="lotsizesellID"
+                  type="text"
+                  class="QuotationLot"
+                  disabled
+                />
+              </div>
+              <div class="client-name">
+                <label for="">Remark</label>
+                <input type="text" />
+              </div>
+              <div class="cancel-finalbtn">
+                <label for="" style="color: #ff0000">Cancel</label>
+                <input type="submit" value="Cancel" />
               </div>
             </div>
           </div>
         </div>
-        
-        
-        
-        
-       <script>
-        $(".closeAccountLimit").click(() =>
+      </div>
+    </div>
+
+    <script>
+
+        const watchsellhandler = () =>{
+          $("#sellWatchId").css("display", "none");
+          toggleOption = "sell";
+          $('.action_dropdown').toggle();
+          socket.emit("getOneData", {"identifier": JSON.parse(sessionStorage.getItem("currentCoin"))?.InstrumentIdentifier });
+          socket.on("getOneDataSend", (data) => {
+            $(".QuotationLot").val(data?.QuotationLot);
+            if ($("#orderTypesellId").val() == "Market"){
+              $("#buyPrice").val(data.BuyPrice);
+            }
+          });
+        }
+
+        $("#buyexchangeId").change((event) => {
+          let symbolKey = event.target.value;
+          axios.get(`${BASE_URL}/api/tradeCoin?coinType=${symbolKey}`)
+            .then(res => {
+              $("#buysymbolId").empty();
+              $("#buysymbolId").html("<option>Select</option>");
+              res.data.response.map(item =>
+                $("#buysymbolId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
+            })
+            .catch(err => {
+              console.log("err", err);
+            });
+        });
+
+
+        $("#buysymbolId").change((event) => {
+          socket.emit("getOneDataOff");
+          socket.emit("getOneData", {"identifier": event.target.value });
+          socket.on("getOneDataSend", (data) => {
+            $(".QuotationLot").val(data?.QuotationLot);
+            if ($("#orderTypesellId").val() == "Market"){
+              $("#buyPrice").val(data.BuyPrice);
+            }
+          });
+        });
+
+        $(document).ready(function() {
+          $('#orderTypesellId').change(function() {
+            var selectedOption = $(this).val();
+            if (selectedOption === "Market") {
+              $('#buyPrice').prop('disabled', true);
+            } else {
+              $('#buyPrice').prop('disabled', false);
+            }
+          });
+        });
+
+        $(document).ready(function() {
+          $('#orderTypesellId').change(function() {
+            var selectedOption = $(this).val();
+            if (selectedOption === "Market") {
+              $('#buyPrice').prop('disabled', true);
+            } else {
+              $('#buyPrice').prop('disabled', false);
+            }
+          });
+        });
+
+        $("#sellcloseId").click(() =>
           $("#sellWatchId").css("display", "none")
         );
-      
-        {% comment %} var checkbox = document.querySelector("#limitId");
-        var input = document.querySelector("#master_limit");
-        var input2 = document.querySelector("#client_limit");
-      
-        var toogleInput = function(e){
-          input.disabled = !e.target.checked;
-          input2.disabled = !e.target.checked;
-        };
-      
-        toogleInput({target: checkbox});
-        checkbox.addEventListener("change", toogleInput);
-        
-      
-      
-        
-        const accountLimitHandler = (event) => {
-          const selectedUserId = $("#current_selected_userId").val();
-          if (
-            $("#current_selected_userId").val() !== "" &&
-            $("#master_limit").val() !== "" &&
-            $("#client_limit").val() !== ""
-            
-          ) {
-            event.preventDefault();
-            $.ajax({
-              type: "POST",
-              url: `{% url "limit-user-creation" %}?id=${$(
-                "#current_selected_userId"
-              ).val()}`,
-              headers: { "X-CSRFToken": "{{ csrf_token }}" },
-              data: {
-                limit: $("#limitId").prop("checked"),
-                master_limit: $("#master_limit").val(),
-                client_limit: $("#client_limit").val(),
-              },
-              success: function (data) {
-                $("#accountLimitid").css("display", "none");
-                $("#limitId").prop("checked", false);
-                $("#master_limit").val();
-                $("#client_limit").val();
-                toastMixin.fire({
-                  animation: true,
-                  title: data.message,
-                  icon: "success",
-                });
-              },
-              error: function (error) {
-                toastMixin.fire({
-                  animation: true,
-                  title: error.responseJSON.message,
-                  icon: "error",
-                });
-              },
-            });
+
+
+        const handleSellSubmission = () => {
+          const data = JSON.parse(sessionStorage.getItem("currentCoin"));
+          const currentButton = $("#orderTypesellId").val().toUpperCase();
+          const currentPrice = Number($("#buyPrice").val());
+          const actionType = "BUY";
+
+          if (currentButton === "STOPLOSS") {
+              if (actionType === "BUY" && currentPrice > data.BuyPrice) {
+                  toastMixin.fire({
+                      animation: true,
+                      title: "Price key must be lower than the buy price.",
+                      icon: "error",
+                  });
+                  return;
+              }
           }
-        };
-      
-      
-        $("#accountLimitId").click(()=>{
-          axios.get(`{% url "account-limit" %}?user_id=${$("#current_selected_userId").val()}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
+
+          const body = {
+              type: "WEB",
+              action: "SELL",
+              userId: $("#selectusernameId").val(),
+              quantity: parseInt($("#quantitysellId").val()),
+              lot_size: parseInt($("#lotsizesellID").val()),
+              is_cancel: false,
+              ex_change: $("#buyexchangeId").val(),
+              price: parseInt($("#buyPrice").val()),
+              coin_name: $("#buysymbolId").val(),
+              identifer: $("#buysymbolId").val(),
+              order_method: "Web",
+              ip_address: "",
+              stop_loss: parseInt($("#sellPrice").val()),
+              high: data.High,
+              low: data.Low,
+              is_pending: currentButton === "LIMIT",
+              trade_type: currentButton,
+          };
+
+          axios.post(`{% url "buy-sell-coin" %}`, body, { headers: { "X-CSRFToken": "{{ csrf_token }}" } })
+              .then(function (response) {
+                  toastMixin.fire({
+                      animation: true,
+                      title: response.data.message,
+                      icon: "success",
+                  });
+                  setTimeout(() => {
+                      window.location.reload();
+                  }, 1000);
+              })
+              .catch(err => {
+                  console.log("err", err);
+                  toastMixin.fire({
+                      animation: true,
+                      title: err.response.data.message,
+                      icon: "error",
+                  });
+              });
+      };
+      $("#sellsubbtnId").click(handleSellSubmission);
+
+
+
+        {% if request.user.user_type != "Client" %}
+          axios.get(`{% url "get-client-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
           .then(res => {
-            $("#master_limit").val(res.data.master_limit);
-            $("#client_limit").val(res.data.client_limit);
-            $("#masterOccId").val(res.data.master_occupied);
-            $("#masterRemId").val(res.data.master_remaining);
-            $("#clientOccId").val(res.data.client_occupied);
-            $("#clientRemId").val(res.data.client_remaining);
-              console.log("res ==", res);
-      
-          })
-          .catch(err => {
-              console.log("err", err);
-          });
-        }) {% endcomment %}
-        {% comment %} account limit  {% endcomment %}
-      
-      </script> 
-</body>
+              res.data.user_client.map(item => {
+                  $("#selectusernameId").append(`<option value=${item.id}>${item.user_name}</option>`)
+              })
+          }).catch(err=> console.log("err", err))
+        {% endif %}
+    </script>
+  </body>
 </html>

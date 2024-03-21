@@ -206,7 +206,7 @@
               </div>
               <div class="client-name">
                 <label for="">Quantity</label>
-                <input type="text" />
+                <input id="quantitybuyId" type="text" />
               </div>
               <div class="client-name">
                 <label for="sellPrice">Sell Price</label>
@@ -219,7 +219,7 @@
               </div>
               <div class="submit-btn">
                 <label for="" style="color: #0000ff">Submit</label>
-                <input type="submit" />
+                <input id="buysubBtnId" type="submit" />
               </div>
             </div>
             <div class="inner-middle-body flex space-bw">
@@ -242,7 +242,7 @@
               </div>
               <div class="client-name">
                 <label for="">LotSize</label>
-                <input type="text" class="QuotationLot" disabled />
+                <input id="lotsizebuyID" type="text" class="QuotationLot" disabled />
               </div>
               <div class="client-name">
                 <label for="">Remark</label>
@@ -261,14 +261,22 @@
     <script>
       const watchbuyhandler = () => {
         $("#buyWatchId").css("display", "block");
+        toggleOption = "buy";
         $('.action_dropdown').toggle();
         $("#watchPopUpId").css("display", "none");
         socket.emit("getOneData", {"identifier": JSON.parse(sessionStorage.getItem("currentCoin"))?.InstrumentIdentifier });
         socket.on("getOneDataSend", (data) => {
-          $(".QuotationLot").val(data?.QuotationLot);
-          $("#sellPrice").val(data.SellPrice);
+            if (toggleOption === 'buy') { // Added parentheses around the condition
+                $(".QuotationLot").val(data?.QuotationLot);
+            } else {
+                $("#lotsizesellID").val(data?.QuotationLot);
+            }
+            if ($("#orderTypeId").val() == "Market") { // Changed single equal sign to double equal signs for comparison
+                $("#sellPrice").val(data.SellPrice);
+            }
         });
-      }
+    }
+    
     
       $("#symbleExchange").change((event) => {
         let symbolKey = event.target.value;
@@ -284,14 +292,22 @@
           });
       });
 
-      $("#symbolId").change((event) => {
+      $("#symbolId #buysymbolId").change((event) => {
         socket.emit("getOneDataOff");
         socket.emit("getOneData", {"identifier": event.target.value });
         socket.on("getOneDataSend", (data) => {
-          $(".QuotationLot").val(data?.QuotationLot);
-          $("#sellPrice").val(data.SellPrice);
+            if (toggleOption === 'buy') {
+                $(".QuotationLot").val(data?.QuotationLot);
+                $("#sellPrice").val(data.SellPrice);
+            } else {
+                $("#lotsizesellID").val(data?.QuotationLot);
+                $("#buyPrice").val(data.BuyPrice);
+            }
+            if ($("#orderTypeId").val() === "Market") { 
+                $("#sellPrice").val(data.SellPrice);
+            }
         });
-      });
+    });
     
       // ------------------------
     
@@ -314,15 +330,30 @@
         const item = JSON.parse(unescape(itemString));
         sessionStorage.setItem("currentCoin", JSON.stringify(item));
         $("#watchPopUpId").css("display", "block");
-        $("#symbleExchange").val(item.Exchange);
+
+        if (toggleOption === 'buy') {
+          $("#symbleExchange").val(item.Exchange);
+        }else{
+          $("#buyexchangeId").val(item.Exchange);
+        }
         axios.get(`${BASE_URL}/api/tradeCoin?coinType=${item.Exchange}`)
           .then(res => {
-            $("#symbolId").empty();
-            $("#symbolId").html("<option>Select</option>");
-            res.data.response.map(item => 
-              $("#symbolId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
-            if (item.InstrumentIdentifier) {
-              $("#symbolId").val(item.InstrumentIdentifier);
+            if (toggleOption === 'buy') {
+              $("#symbolId").empty();
+              $("#symbolId").html("<option>Select</option>");
+              res.data.response.map(item => 
+                $("#symbolId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
+              if (item.InstrumentIdentifier) {
+                $("#symbolId").val(item.InstrumentIdentifier);
+              }
+            }else{
+              $("#buysymbolId").empty();
+              $("#buysymbolId").html("<option>Select</option>");
+              res.data.response.map(item => 
+                $("#buysymbolId").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`));
+              if (item.InstrumentIdentifier) {
+                $("#buysymbolId").val(item.InstrumentIdentifier);
+              }
             }
           })
           .catch(err => {
@@ -331,6 +362,65 @@
         $('.action_dropdown').toggle();
       }
 
+      const handleBuySubmission = () => {
+        const data = JSON.parse(sessionStorage.getItem("currentCoin"));
+        const currentButton = $("#orderTypeId").val().toUpperCase();
+        const currentPrice = Number($("#sellPrice").val());
+        const actionType = "BUY"; 
+    
+        if (currentButton === "STOPLOSS") { 
+            if (actionType === "BUY" && currentPrice > data.BuyPrice) {
+                toastMixin.fire({
+                    animation: true,
+                    title: "Price key must be lower than the buy price.",
+                    icon: "error",
+                });
+                return;
+            }
+        }
+    
+        const body = {
+            type: "WEB",
+            action: "BUY",
+            userId: $("#clientnameId").val(),
+            quantity: parseInt($("#quantitybuyId").val()),
+            lot_size: parseInt($("#lotsizebuyID").val()),
+            is_cancel: false,
+            ex_change: $("#symbleExchange").val(),
+            price: parseInt($("#sellPrice").val()),
+            coin_name: $("#symbolId").val(),
+            identifer: $("#symbolId").val(),
+            order_method: "Web " + $("#orderTypeId").val(), 
+            ip_address: "",
+            stop_loss: parseInt($("#sellPrice").val()),
+            high: data.High,
+            low: data.Low,
+            is_pending: currentButton === "LIMIT", 
+            trade_type: currentButton,
+        };
+    
+        axios.post(`{% url "buy-sell-coin" %}`, body, { headers: { "X-CSRFToken": "{{ csrf_token }}" } })
+            .then(function (response) {
+                toastMixin.fire({
+                    animation: true,
+                    title: response.data.message,
+                    icon: "success",
+                });
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            })
+            .catch(err => {
+                console.log("err", err);
+                toastMixin.fire({
+                    animation: true,
+                    title: err.response.data.message,
+                    icon: "error",
+                });
+            });
+    };
+    $("#buysubBtnId").click(handleBuySubmission);
+    
 
     {% if request.user.user_type != "Client" %}
         axios.get(`{% url "get-client-api" %}`, {headers: { "X-CSRFToken": "{{ csrf_token }}" }})
