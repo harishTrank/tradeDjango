@@ -391,7 +391,11 @@
             is_cancel: false,
             ex_change: $("#symbleExchange").val(),
             price: parseInt($("#sellPrice").val()),
-            coin_name: $("#symbolId").val(),
+            coin_name: data?.Exchange === "NSE"
+            ? `NSE ${data?.InstrumentIdentifier}`
+            : `${$("#exchangeSelectId").val()} ${
+                data?.InstrumentIdentifier?.split("_")?.[1]
+              }, ${dateManager(data?.InstrumentIdentifier) || ""}`,
             identifer: $("#symbolId").val(),
             order_method: "Web " + $("#orderTypeId").val(), 
             ip_address: "",

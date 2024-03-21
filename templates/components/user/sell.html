@@ -346,6 +346,11 @@
                   return;
               }
           }
+          const dateManager = (val) => {
+            return `${val?.split("_")?.[2]?.slice(0, 2)} ${val
+              ?.split("_")?.[2]
+              ?.slice(2, 5)} ${val?.split("_")?.[2]?.slice(7)}`;
+          };
 
           const body = {
               type: "WEB",
@@ -356,7 +361,11 @@
               is_cancel: false,
               ex_change: $("#buyexchangeId").val(),
               price: parseInt($("#buyPrice").val()),
-              coin_name: $("#buysymbolId").val(),
+              coin_name: data?.Exchange === "NSE"
+              ? `NSE ${data?.InstrumentIdentifier}`
+              : `${$("#exchangeSelectId").val()} ${
+                  data?.InstrumentIdentifier?.split("_")?.[1]
+                }, ${dateManager(data?.InstrumentIdentifier) || ""}`,
               identifer: $("#buysymbolId").val(),
               order_method: "Web",
               ip_address: "",

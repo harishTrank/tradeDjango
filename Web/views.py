@@ -1569,7 +1569,7 @@ class ExchangeTimeSchedule(View):
 
 class MassageView(View):
     def get(self, request):
-        message = MessageModel.objects.all()
+        message = MessageModel.objects.all().order_by("-id")
         return render(request, "tools/message.html",{"message":message})
     def post(self, request):
         message  = MessageModel.objects.create(message=request.POST.get("message"))

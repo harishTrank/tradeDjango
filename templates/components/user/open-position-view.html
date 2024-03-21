@@ -13,6 +13,7 @@
                         <th>Average Rate</th>
                         <th>CMP</th>
                         <th>Profit / Loss</th>
+                        <th>%P&L</th>
                     </tr>
                 </thead>
                 <tbody id="quantityTableBody">
@@ -86,7 +87,7 @@
         const openpositionview = (exchange="", script="", user_name="{{request.user.user_name}}") => {
         $.ajax({
             type:'GET',
-            url:`{% url "position-view" %}?script="DIXON"`,
+            url:`{% url "position-view" %}?script=${localStorage.getItem("getcoinName")}`,
             headers: { "X-CSRFToken": "{{ csrf_token }}" },
             success:function(res){
             console.log("res", res)
@@ -102,7 +103,7 @@
                 $("#totalddPriceId").html(`P/L: ${updateTotalPrice(data, res.response).toFixed(2)}`);
                 $("#openPoddsitionLiveDataid").empty();
                 if (data.length > 0) {
-
+                    $("#quantityTableBody").empty();
                     data?.map(item => {
                     const current_data = res?.response?.find(findItem => findItem.identifer === item.InstrumentIdentifier)
                     const currentAvg = current_data?.total_quantity > 0 ? current_data.avg_buy_price : current_data.avg_sell_price;
@@ -113,8 +114,8 @@
                     console.log("34567890-",profitLossValue)
                     $("#quantityTableBody").append(`
                         <tr>
-                        <td>${item.buy_sell_user__user_name}</td>
-                        <td>${item.buy_sell_user__parent}</td>
+                        <td>${current_data?.buy_sell_user__user_name}</td>
+                        <td>${current_data?.buy_sell_user__parent}</td>
                         <td>${item?.Exchange}</td>
                         <td>${current_data?.coin_name}</td>
                         <td style="color: ${current_data?.total_quantity < 0 ? 'red' : 'blue'};">${current_data?.total_quantity > 0 ? "BUY" : "SELL"}</td>
