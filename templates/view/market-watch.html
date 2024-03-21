@@ -67,10 +67,10 @@
     <div class="user-table col-100">
         <div class="market-top flex" style="margin:15px 0;">
             <div class="mr">
-                <select onChange={selectCoinType()} class="form-group symbolKey">
+                <select id="selectedExchangeID" onChange={selectCoinType()} class="form-group symbolKey">
                     <option>Select</option>
                     {% for i in coin_type %}
-                    <option>{{i}}</option>
+                    <option value="{{i}}">{{i}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -271,16 +271,16 @@ const watchSearchHandler = () => {
             axios.post(`${BASE_URL}/api/tradeCoin/coins?search=${$("#inputWatchId").val()}`, {
                 coinList: currentExchange
             })
-                .then(res => {
-                    const symbolList = $("#symbolList");
-                    symbolList.empty(); // Clear existing list items
-                    res.data.response.forEach(item => {
-                        symbolList.append($(`<li onClick="selectCoinHandler('${item.InstrumentIdentifier}')" style="cursor: pointer;">${item.InstrumentIdentifier}</li>`));
-                    });
-                    showDropDown(); 
-                })
-                .catch(err => {
+            .then(res => {
+                const symbolList = $("#symbolList");
+                symbolList.empty(); // Clear existing list items
+                res.data.response.forEach(item => {
+                    symbolList.append($(`<li onClick="selectCoinHandler('${item.InstrumentIdentifier}')" style="cursor: pointer;">${item.InstrumentIdentifier}</li>`));
                 });
+                showDropDown(); 
+            })
+            .catch(err => {
+            });
         } else {
             hideDropDown();
         }
@@ -409,18 +409,20 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
   }
 
   const selectCoinType = () => {
+    console.log("1234")
     let symbolKey = $(".symbolKey").val();
     if (symbolKey === "Select") {
         symbolKey = "";    
     }
     $(".symbol").empty();
     $(".symbol").html("<option>Select</option>");
-    response
-      .filter(filterItem => filterItem.Exchange.toLowerCase().includes(symbolKey.toLowerCase()) )
-      .filter(remove => !identifier.includes(remove.InstrumentIdentifier))
-      .map(item => {
-        $(".symbol").append(`<option>${item.InstrumentIdentifier}</option>`);
-    })
+    axios.post(`${BASE_URL}/api/tradeCoin/coins`, {
+        coinList: [$("#selectedExchangeID").val()]
+    }).then((res) => {
+        res.data.response.map(item => {
+            $(".symbol").append(`<option value=${item.InstrumentIdentifier}>${item.InstrumentIdentifier}</option>`)
+        })
+    }).catch(err => console.log("err", err))
   }
 
 </script>

@@ -52,4 +52,5 @@ urlpatterns = [
     path("delete-indentifer/", DeleteIndentifer.as_view(), name="delete-indentifer"),
     path("credit-submit/", CreditSubmitHandler.as_view(), name="credit-submit"),
     path("message-latest/", MessageGetLatest.as_view(), name="message-latest"),
+    path("userbrkandprofitloss-handle/", UserBrkAndProfitLossAPI.as_view(), name="userbrkandprofitloss-handle"),
 ]

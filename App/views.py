@@ -1688,4 +1688,15 @@ class CreditSubmitHandler(APIView):
 
         except Exception as e:
             return Response({"status": False, "message": "Something went wrong."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UserBrkAndProfitLossAPI(APIView):
+    def get(self, request):
+        try:
+            current_user_obj = AccountSummaryModal.objects.filter(user_summary=request.user)
+            brk = current_user_obj.filter(summary_flg="Brokerage").aggregate(total_amount=Sum('amount'))['total_amount']
+            pandl = current_user_obj.filter(summary_flg="Profit/Loss").aggregate(total_amount=Sum('amount'))['total_amount']
+            return Response({"status": True, "brk": brk, "pandl": pandl}, status=status.HTTP_200_OK)
+        except:
+            return Response({"status":False}, status=status.HTTP_404_NOT_FOUND)
 # ------------------------------------------------
