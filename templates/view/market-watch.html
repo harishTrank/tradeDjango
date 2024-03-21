@@ -409,7 +409,6 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
   }
 
   const selectCoinType = () => {
-    console.log("1234")
     let symbolKey = $(".symbolKey").val();
     if (symbolKey === "Select") {
         symbolKey = "";    
@@ -424,6 +423,13 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
         })
     }).catch(err => console.log("err", err))
   }
+
+  document.addEventListener('click', (event) => {
+    $(".fit-to-size").css({
+        top: `${event.clientY+15}px`,
+        left: `${event.clientX}px`,
+      });
+  });
 
 </script>
 
