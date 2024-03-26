@@ -566,6 +566,7 @@ class TabTrades(View):
         to_date = request.GET.get('to_date')
         status = request.GET.get('status')
         exchange = request.GET.get('exchange')
+        user_filter = request.GET.get("user")
         user = MyUser.objects.get(id=id)
         user_keys = []
         symbol_name = user.user.all().values("symbol_name")
@@ -583,7 +584,7 @@ class TabTrades(View):
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys, is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
 
         elif user.user_type == "Client":
-            user_list = []
+            user_list = [user]
             response = user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
             
         else:

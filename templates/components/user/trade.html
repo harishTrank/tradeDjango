@@ -39,7 +39,9 @@
         <div class="flex space-bw">
             <label for="">User:</label>
             <select name="user"  class="form_control">
-                  <option value="{{user}}">{{user}}</option>
+                {% for obj in user_list %}
+                  <option value="{{obj.id}}">{{obj}}</option>
+                {% endfor %}
             </select>
         </div>
         
@@ -48,7 +50,7 @@
         <label for="">Status:</label>
         <select name="status"  class="form_control">
             <option value="">All</option>
-                <option value="Successful">Successful</option>
+                <option value="Successful">Completed</option>
                 <option value="Pending">Pending</option>
                 <option value="Cancelled">Cancelled</option>
         </select>
