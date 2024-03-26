@@ -610,6 +610,7 @@ class TabTrades(View):
             response = response.filter(is_pending=True)
         if status == "Cancelled":
             response = response.filter(is_cancel=True)
+        print("123413", symbol_name)
         return render(request, "components/user/trade.html",{"response":response,"symbol_name":symbol_name,"user":user.user_name,"id":id, "user_list": user_list})
     
 
