@@ -260,7 +260,9 @@
     <script>
 
         const watchsellhandler = () =>{
-          $("#sellWatchId").css("display", "none");
+          $("#sellWatchId").css("display", "block")
+          $('.action_dropdown').toggle();
+          $("#watchPopUpId").css("display", "none")
           toggleOption = "sell";
           $('.action_dropdown').toggle();
           socket.emit("getOneData", {"identifier": JSON.parse(sessionStorage.getItem("currentCoin"))?.InstrumentIdentifier });

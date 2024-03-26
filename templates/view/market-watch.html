@@ -129,7 +129,7 @@
                                     </div>
                                 </a>
                             </li>
-                            <li onClick="sellhandler()">
+                            <li onClick="watchsellhandler()">
                                 <a>
                                     <div>
                                         <i class="fa-solid fa-money-bill"></i>
@@ -210,11 +210,7 @@
         $('.action_dropdown').toggle();
         $("#watchPopUpId").css("display", "none")
     }
-    const sellhandler = () => {
-        $("#sellWatchId").css("display", "block")
-        $('.action_dropdown').toggle();
-        $("#watchPopUpId").css("display", "none")
-    }
+
     const chartview = () => {
         var left = (screen.width/2)-(1200/2);
         var top = (screen.height/2)-(600/2);
