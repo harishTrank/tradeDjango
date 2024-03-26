@@ -46,9 +46,9 @@
                             $("#searchUserUlId").append(`
                                 <ul>
                                     <li style="list-style-type: none;">
-                                        <a href="#" class="plus-sign">+</a> <a href="#" onclick="particularUserView('${master.master_user}')">${mapItem.master_user_details.user_name} (${mapItem.master_user_details.user_type})</a>
+                                        <a href="#" class="plus-sign">+</a> <a href="#" onclick="particularUserView('${mapItem?.master_user}')">${mapItem?.master_user_details?.user_name} (${mapItem?.master_user_details?.user_type})</a>
                                         <ul>
-                                            ${mapItem.clients.map(child => `<li style="list-style-type: none;"><a href="#" onclick="particularUserView('${child.client}')">${child.client_user_details.user_name} (${child.master_user_details.user_type})</a></li>`).join('')}
+                                            ${mapItem?.clients?.map(child => `<li style="list-style-type: none;"><a href="#" onclick="particularUserView('${child?.client}')">${child?.client_user_details.user_name} (${child?.client_user_details?.user_type})</a></li>`).join('')}
                                         </ul>
                                     </li>
                                 </ul>`)
