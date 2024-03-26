@@ -568,6 +568,7 @@ class TabTrades(View):
         exchange = request.GET.get('exchange')
         user = MyUser.objects.get(id=id)
         user_keys = []
+        symbol_name = user.user.all().values("symbol_name")
 
         if user.user_type == "SuperAdmin":
             response = BuyAndSellModel.objects.exclude(buy_sell_user__id=user.id).filter(is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
@@ -592,12 +593,6 @@ class TabTrades(View):
             user_list = MyUser.objects.filter(id__in=user_keys)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys, is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
 
-        if user.user_type == "SuperAdmin":
-            symbol_name = BuyAndSellModel.objects.filter(is_cancel=False).order_by('coin_name').values('coin_name').distinct()
-        else:
-            symbol_name = BuyAndSellModel.objects.filter(
-                buy_sell_user__id__in=user_keys, is_cancel=False
-            ).order_by('coin_name').values('coin_name').distinct()
         if from_date:
             if to_date:
                 to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
@@ -610,7 +605,6 @@ class TabTrades(View):
             response = response.filter(is_pending=True)
         if status == "Cancelled":
             response = response.filter(is_cancel=True)
-        print("123413", symbol_name)
         return render(request, "components/user/trade.html",{"response":response,"symbol_name":symbol_name,"user":user.user_name,"id":id, "user_list": user_list})
     
 
