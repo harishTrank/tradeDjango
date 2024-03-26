@@ -566,7 +566,7 @@ class TabTrades(View):
         to_date = request.GET.get('to_date')
         status = request.GET.get('status')
         exchange = request.GET.get('exchange')
-        user_filter = request.GET.get("user")
+        # user_filter = request.GET.get("user")
         user = MyUser.objects.get(id=id)
         user_keys = []
         symbol_name = user.user.all().values("symbol_name")
