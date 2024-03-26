@@ -566,30 +566,38 @@ class TabTrades(View):
         to_date = request.GET.get('to_date')
         status = request.GET.get('status')
         exchange = request.GET.get('exchange')
-        symbol = request.GET.get('symbol')
         user = MyUser.objects.get(id=id)
-        symbol_name = user.user.values("symbol_name")
-        if request.user.user_type == "SuperAdmin":
-            response = BuyAndSellModel.objects.exclude(buy_sell_user__id=request.user.id).filter(is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
+        user_keys = []
 
-        elif request.user.user_type == "Admin":
-            user_keys = [request.user.id]
-            child_clients = request.user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
-            relative_master = MastrModel.objects.filter(admin_user__user__id=request.user.id).values_list("master_user__id", flat=True)
+        if user.user_type == "SuperAdmin":
+            response = BuyAndSellModel.objects.exclude(buy_sell_user__id=user.id).filter(is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
+            user_list = MyUser.objects.exclude(id=user.id).filter(role=user.role)
+
+        elif user.user_type == "Admin":
+            user_keys = [user.id]
+            child_clients = user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            relative_master = MastrModel.objects.filter(admin_user__user__id=user.id).values_list("master_user__id", flat=True)
             user_keys += list(child_clients) + list(relative_master)
+            user_list = MyUser.objects.filter(id__in=user_keys)
             response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys, is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
-        elif request.user.user_type == "Client":
-            response = request.user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
-        else:
-            child_clients = request.user.master_user.master_user_link.all().values_list("client__id", flat=True)
-            user_keys += list(child_clients)
-            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys, is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
-        
-        if from_date and to_date:
-            from_date_obj = timezone.datetime.strptime(from_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
-            to_date_obj = timezone.datetime.strptime(to_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
-            response = response.filter(created_at__gte=from_date_obj, created_at__lte=to_date_obj)
 
+        elif user.user_type == "Client":
+            user_list = []
+            response = user.buy_sell_user.all().values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address") 
+            
+        else:
+            user_keys = [user.id]
+            child_clients = user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            user_keys += list(child_clients)
+            user_list = MyUser.objects.filter(id__in=user_keys)
+            response = BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_keys, is_cancel=False).values("id","buy_sell_user__user_name", "quantity", "trade_type", "action", "price", "coin_name", "ex_change", "created_at","updated_at","is_pending","identifer","order_method","ip_address")
+
+        if user.user_type == "SuperAdmin":
+            symbol_name = BuyAndSellModel.objects.filter(is_cancel=False).order_by('coin_name').values('coin_name').distinct()
+        else:
+            symbol_name = BuyAndSellModel.objects.filter(
+                buy_sell_user__id__in=user_keys, is_cancel=False
+            ).order_by('coin_name').values('coin_name').distinct()
         if from_date:
             if to_date:
                 to_date = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
@@ -602,7 +610,7 @@ class TabTrades(View):
             response = response.filter(is_pending=True)
         if status == "Cancelled":
             response = response.filter(is_cancel=True)
-        return render(request, "components/user/trade.html",{"response":response,"symbol_name":symbol_name,"user":user.user_name,"id":id})
+        return render(request, "components/user/trade.html",{"response":response,"symbol_name":symbol_name,"user":user.user_name,"id":id, "user_list": user_list})
     
 
 class TradeDownloadCsv(View):
