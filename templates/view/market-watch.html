@@ -159,13 +159,13 @@
                                     </div>
                                 </a>
                             </li>
-                            <li>
+                            <li onClick="deletehandler()">
                                 <a>
                                     <div>
-                                        <i class="fa-solid fa-table-columns"></i>
+                                        <i class="fa-solid fa-xmark"></i>
                                     </div>
                                     <div>
-                                        <p>Manage Columns</p>
+                                        <p>Delete</p>
                                     </div>
                                 </a>
                             </li>
@@ -189,8 +189,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <script> 
-    let buyPriceQty = 0;
-    let buyPriceList = [];
+
 
     let sellPriceQty = 0;
     let sellPriceList = [];
@@ -244,6 +243,7 @@ const hideDropDown = () => {
 };
 
 // Function to handle input and show dropdown
+response = ""
 const selectCoinHandler = (val) => {
     $("#inputWatchId").val(val);
     hideDropDown();
@@ -359,7 +359,6 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
         document.getElementById('loader').style.display = 'none';
     }
 
-  {% comment %}  api to ftach all coin  {% endcomment %}
   let responses;
   $.ajax({
     type: "POST",
@@ -424,12 +423,46 @@ $("#inputWatchId").on("input", watchSearchHandler); // Handle input changes
     }).catch(err => console.log("err", err))
   }
 
+  const deletehandler = (event) => {
+    const currentCoin = JSON.parse(sessionStorage.getItem("currentCoin"));
+    const body = {
+      trade_coin_id: currentCoin.InstrumentIdentifier
+    };
+    axios
+      .delete(
+        "{% url 'add-market-coin' %}?trade_coin_id=" + currentCoin.InstrumentIdentifier,
+        { data: body, headers: { "X-CSRFToken": "{{ csrf_token }}" } }
+      )
+      .then((response) => {
+        console.log("res", response);
+        $("#watchPopUpId").css("display", "none");
+        toastMixin.fire({
+          animation: true,
+          title: response.data.responsemessage,
+          icon: "success",
+        });
+        setTimeout(() => window.location.reload(), 2800);
+      })
+      .catch((error) => {
+        console.error("Error deleting coin", error);
+      });
+};
   document.addEventListener('click', (event) => {
     $(".fit-to-size").css({
         top: `${event.clientY+15}px`,
         left: `${event.clientX}px`,
       });
   });
+
+
+  document.addEventListener('click', (event) => {
+    const watchPopUp = document.getElementById('watchPopUpId');
+    const table = document.getElementById('marketwatch');
+    if (!table.contains(event.target) && !watchPopUp.contains(event.target)) {
+        watchPopUp.style.display = 'none';
+    }
+});
+
 
 </script>
 

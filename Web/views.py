@@ -1302,6 +1302,7 @@ class OpenPosition(View):
             user_names.append(request.user.user_name)
         elif request.user.user_type == "SuperAdmin":
             user_names = MyUser.objects.filter(role=request.user.role).exclude(id=request.user.id).values_list("user_name", flat=True)
+            print("user_names==",user_names)
         elif request.user.user_type == "Admin":
             masters = request.user.admin_user.admin_user.all().values_list('master_user__user_name', flat=True)
             clients = request.user.admin_user.admin_create_client.all().values_list('client__user_name', flat=True)
@@ -1568,7 +1569,7 @@ class ExchangeTimeSchedule(View):
 
 class MassageView(View):
     def get(self, request):
-        message = MessageModel.objects.all()
+        message = MessageModel.objects.all().order_by("-id")
         return render(request, "tools/message.html",{"message":message})
     def post(self, request):
         message  = MessageModel.objects.create(message=request.POST.get("message"))

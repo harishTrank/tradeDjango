@@ -193,7 +193,7 @@
             <div class="inner-middle-body flex space-bw">
               <div class="client-name">
                 <label for="">Client Name</label>
-                <select id="selectusernameId">
+                <select id="selectusernameId" required>
                   <option value="">Select</option>
                 </select>
               </div>
@@ -207,7 +207,7 @@
               </div>
               <div class="client-name">
                 <label for="">Quantity</label>
-                <input id="quantitysellId" type="text" />
+                <input id="quantitysellId" value="1" type="number" required/>
               </div>
               <div class="client-name">
                 <label for="">Buy Price</label>
@@ -247,7 +247,7 @@
                 <label for="">Remark</label>
                 <input type="text" />
               </div>
-              <div class="cancel-finalbtn">
+              <div id="cancelsellbtnId" class="cancel-finalbtn">
                 <label for="" style="color: #ff0000">Cancel</label>
                 <input type="submit" value="Cancel" />
               </div>
@@ -324,6 +324,11 @@
           $("#sellWatchId").css("display", "none")
         );
 
+        $("#cancelsellbtnId").click(() =>
+        $("#sellWatchId").css("display", "none")
+        );
+
+
 
         const handleSellSubmission = () => {
           const data = JSON.parse(sessionStorage.getItem("currentCoin"));
@@ -341,6 +346,11 @@
                   return;
               }
           }
+          const dateManager = (val) => {
+            return `${val?.split("_")?.[2]?.slice(0, 2)} ${val
+              ?.split("_")?.[2]
+              ?.slice(2, 5)} ${val?.split("_")?.[2]?.slice(7)}`;
+          };
 
           const body = {
               type: "WEB",
@@ -397,6 +407,8 @@
                   $("#selectusernameId").append(`<option value=${item.id}>${item.user_name}</option>`)
               })
           }).catch(err=> console.log("err", err))
+        {% else %}
+          $("#selectusernameId").html(`<option value="{{request.user.id}}">{{request.user.user_name}}</option>`)
         {% endif %}
     </script>
   </body>

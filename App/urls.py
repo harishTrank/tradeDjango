@@ -13,6 +13,7 @@ urlpatterns = [
     path('user-coin-list/', CoinNameApi.as_view(), name='user-coin-list'),
     path('user-list/', UserListApiView.as_view(), name='user-list'),
     path("position/", PositionManager.as_view(), name="position"),
+    path("position-view/", OpenPositionView.as_view(), name="position-view"),
     path("account-summary/", AccountSummaryApi.as_view(), name="account-summary"),
     path("position-coins/", PositionCoinsManager.as_view(), name="position-coins"),
     path("trade-particular-view/<str:id>", TradeParticularViewApi.as_view(), name="trade-particular-view/"),

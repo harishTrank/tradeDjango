@@ -687,7 +687,53 @@ class PositionManager(APIView):
             print(e)
             return Response({"status": False}, status=status.HTTP_404_NOT_FOUND)
         
-        
+class OpenPositionView(APIView):
+    def get(self, request):
+        try:
+            if (request.GET.get("type") == "WEB"):
+                user = MyUser.objects.get(id = request.GET.get("id"))
+            elif (request.query_params.get("user_id") and request.query_params.get("user_id") != ""):
+                user = MyUser.objects.filter(id=request.query_params.get("user_id")).first()
+            elif(request.GET.get("user_name") and request.GET.get("user_name") != ""):
+                user = MyUser.objects.get(user_name=request.GET.get("user_name"))
+            else:
+                user = request.user
+                
+            if user.user_type == "SuperAdmin":
+                user_ids = ClientModel.objects.filter(client__role=request.user.role).values_list("client__id", flat=True)
+            elif user.user_type == "Admin":
+                user_ids = user.admin_user.admin_create_client.all().values_list("client__id", flat=True)
+            elif user.user_type == "Master":
+                user_ids = user.master_user.master_user_link.all().values_list("client__id", flat=True)
+            else:
+                user_ids = [user.id]
+            
+            result = (
+                BuyAndSellModel.objects.filter(buy_sell_user__id__in=user_ids, trade_status=True, is_pending=False, is_cancel=False)
+                .values('identifer','coin_name', 'ex_change','buy_sell_user__parent','buy_sell_user__user_name')
+                .annotate(
+                    total_quantity=Sum('quantity'),
+                    avg_buy_price=Coalesce(
+                        Avg(Case(When(quantity__gt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    ),
+                    avg_sell_price=Coalesce(
+                        Avg(Case(When(quantity__lt=0, then='price'), output_field=FloatField())),
+                        Value(0.0)
+                    )
+                ).exclude(total_quantity=0)
+            )
+                
+            if (request.GET.get("exchange") and request.GET.get("exchange") != ""):
+                result = result.filter(ex_change=request.GET.get("exchange"))
+
+            if (request.GET.get("script") and request.GET.get("script") != ""):
+                result = result.filter(coin_name=request.GET.get("script"))
+
+            return Response({"status": True, "response": result}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"status": False}, status=status.HTTP_404_NOT_FOUND)
 
 class PositionCoinsManager(APIView):
     permission_classes = [IsAuthenticated]

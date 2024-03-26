@@ -270,6 +270,21 @@
   }
 
 
+axios.get("{% url 'position-view' %}", {
+    headers: {
+        "X-CSRFToken": "{{ csrf_token }}"
+    }
+})
+.then(response => {
+    console.log("Response-=-=:", response);
+    // Handle the response as needed
+})
+.catch(error => {
+    console.error("Error:", error);
+    // Handle errors if any
+});
+
+
   const intradayHandler = (event) => {
     event.preventDefault();
   
